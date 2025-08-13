@@ -1,5 +1,5 @@
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { firestore } from "../firebase";
+import { firestore } from "./firebase";
 
 export const getUserByUID = async (uid) => {
   try {

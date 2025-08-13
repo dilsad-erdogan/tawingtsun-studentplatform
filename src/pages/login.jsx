@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Toaster } from 'react-hot-toast';
-import { login } from "../firebase/auth/login";
+import { login } from "../firebase/login";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserByUID } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";

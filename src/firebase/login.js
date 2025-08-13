@@ -1,5 +1,5 @@
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { auth } from "../firebase.js";
+import { auth } from "./firebase.js";
 import toast from 'react-hot-toast';
 
 export const login = async (email, password) => {

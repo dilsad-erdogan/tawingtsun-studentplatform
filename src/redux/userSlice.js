@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getUserByUID } from "../firebase/auth/users";
+import { getUserByUID } from "../firebase/users";
 
 export const fetchUserByUID = createAsyncThunk(
   "user/fetchUserByUID",
