@@ -5,12 +5,12 @@ import { fetchAllGyms } from "../redux/gymSlice";
 import Navbar from "../components/Navbar";
 import UsersTable from "../components/UsersTable";
 import TrainerTable from "../components/TrainerTable";
+import GymsTable from "../components/GymsTable";
 
 const Admin = () => {
   const dispatch = useDispatch();
   const { users, loadingUser, errorUser } = useSelector((state) => state.user);
   const { gyms, loading, error } = useSelector((state) => state.gym);
-  console.log(gyms)
 
   useEffect(() => {
     dispatch(fetchAllUsers());
@@ -30,6 +30,7 @@ const Admin = () => {
       {/* Contents */}
       <UsersTable users={users} />
       <TrainerTable trainers={trainers} />
+      <GymsTable gyms={gyms} />
     </div>
   );
 };
