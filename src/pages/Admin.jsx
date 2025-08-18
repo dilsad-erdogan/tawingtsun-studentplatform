@@ -1,20 +1,24 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllUsers } from "../redux/userSlice";
+import { fetchAllGyms } from "../redux/gymSlice";
 import Navbar from "../components/Navbar";
 import UsersTable from "../components/UsersTable";
 import TrainerTable from "../components/TrainerTable";
 
 const Admin = () => {
   const dispatch = useDispatch();
-  const { users, loading, error } = useSelector((state) => state.user);
+  const { users, loadingUser, errorUser } = useSelector((state) => state.user);
+  const { gyms, loading, error } = useSelector((state) => state.gym);
+  console.log(gyms)
 
   useEffect(() => {
     dispatch(fetchAllUsers());
+    dispatch(fetchAllGyms());
   }, [dispatch]);
 
-  if (loading) return <div className="p-4">Loading...</div>;
-  if (error) return <div className="p-4 text-red-500">{error}</div>;
+  if (loadingUser || loading) return <div className="p-4">Loading...</div>;
+  if (errorUser || error) return <div className="p-4 text-red-500">{errorUser || error}</div>;
 
   const trainers = users.filter((u) => u.role === "trainer");
 
