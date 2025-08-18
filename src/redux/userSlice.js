@@ -6,6 +6,11 @@ export const fetchUserByUID = createAsyncThunk(
   "user/fetchUserByUID",
   async (uid) => {
     const userData = await getUserByUID(uid);
+
+    if (userData) {
+      localStorage.setItem("user", JSON.stringify(userData.name));
+    }
+
     return userData;
   }
 );
@@ -22,8 +27,8 @@ export const fetchAllUsers = createAsyncThunk(
 const userSlice = createSlice({
   name: "user",
   initialState: {
-    data: null,     // Single user
-    users: [],      // All users
+    data: JSON.parse(localStorage.getItem("user")) || null, // Single user
+    users: [], // All users
     loading: false,
     error: null,
   },
