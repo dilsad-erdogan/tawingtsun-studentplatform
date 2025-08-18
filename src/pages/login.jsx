@@ -24,7 +24,6 @@ const Login = () => {
 
     useEffect(() => {
         if (data) {
-            console.log("Redux User Data:", data);
             navigate(`/${data.role}/${data.uid}`);
         }
     }, [data]);
