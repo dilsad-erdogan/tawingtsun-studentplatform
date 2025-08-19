@@ -12,6 +12,9 @@ function App() {
     <div className="h-screen text-black">
       <Router>
         <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<Login />} />
+
           <Route path="/" element={
               user ? (
                 user.role === 'trainer' ? (
@@ -28,7 +31,7 @@ function App() {
               )
             }
           />
-          <Route path="/login" element={<Login />} />
+          
           <Route path="/trainer/:uid" element={<Trainer />} />
           <Route path="/student/:uid" element={<Student />} />
           <Route path="/admin/:uid" element={<Admin />} />
