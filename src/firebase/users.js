@@ -1,4 +1,4 @@
-import { collection, query, where, getDocs, updateDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, updateDoc, doc, arrayUnion } from "firebase/firestore";
 import { firestore } from "./firebase";
 
 export const getUserByUID = async (uid) => {
@@ -53,6 +53,28 @@ export const updateUserByUID = async (uid, updatedData) => {
     }
   } catch (error) {
     console.error("Error updating user:", error);
+    return false;
+  }
+};
+
+export const addPaymentToUser = async (userId, salary) => {
+  try {
+    const userRef = doc(firestore, "users", userId);
+
+    const newPayment = {
+      entryDate: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+      salary: Number(salary),
+      paymentStatus: false, // default
+    };
+
+    await updateDoc(userRef, {
+      payments: arrayUnion(newPayment),
+    });
+
+    console.log("Payment başarıyla eklendi:", newPayment);
+    return true;
+  } catch (error) {
+    console.error("Payment eklenirken hata:", error);
     return false;
   }
 };

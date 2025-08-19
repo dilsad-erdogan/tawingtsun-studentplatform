@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { updateUserByUID } from "../firebase/users";
+import { addPaymentToUser, updateUserByUID } from "../firebase/users";
 import { useDispatch } from "react-redux";
 import { fetchAllUsers } from "../redux/userSlice";
 
@@ -9,7 +9,7 @@ const UsersTable = ({ users }) => {
     const [openUserId, setOpenUserId] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
+    const [formData, setFormData] = useState({ name: "", email: "", phone: "", salary: 0 });
 
     const toggleUser = (uid) => {
         setOpenUserId(openUserId === uid ? null : uid);
@@ -50,6 +50,17 @@ const UsersTable = ({ users }) => {
         }
     };
 
+    const handleAddPayment = async (userId) => {
+        if (!formData.salary) {
+            alert("Lütfen bir ücret girin!");
+            return;
+        }
+
+        await addPaymentToUser(userId, formData.salary);
+        dispatch(fetchAllUsers());
+        closeModal();
+    };
+
     return (
         <div className="p-6 max-w-2xl mx-auto">
             <h1 className="text-2xl font-bold mb-4">Users</h1>
@@ -69,7 +80,19 @@ const UsersTable = ({ users }) => {
                                 <p><strong>Email:</strong> {user.email}</p>
                                 <p><strong>Telefon:</strong> {user.phone}</p>
                                 <p><strong>Role:</strong> {user.role}</p>
-                                <p><strong>Payments:</strong> {user.payments}</p>
+                                <p><strong>Payments:</strong></p>
+                                <ul className="list-disc pl-6">
+                                {user.payments && user.payments.length > 0 ? (
+                                    user.payments.map((payment, idx) => (
+                                    <li key={idx}>
+                                        {payment.entryDate} - {payment.salary}₺ -{" "}
+                                        {payment.paymentStatus ? "Ödendi ✅" : "Beklemede ⏳"}
+                                    </li>
+                                    ))
+                                ) : (
+                                    <li>Ödeme yok</li>
+                                )}
+                                </ul>
                                 <button onClick={() => openModal(user)} className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Güncelle</button>
                             </div>
                         )}
@@ -81,7 +104,12 @@ const UsersTable = ({ users }) => {
             {modalOpen && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                        <h2 className="text-xl font-semibold mb-4">Kullanıcıyı Güncelle</h2>
+                        
+
+                        <div className="flex justify-between mb-3">
+                            <h2 className="text-xl font-semibold mb-4">Kullanıcıyı Güncelle</h2>
+                            <button onClick={closeModal} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">X</button>
+                        </div>
 
                         <div className="space-y-3">
                             <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Ad Soyad" className="w-full border p-2 rounded" />
@@ -89,19 +117,16 @@ const UsersTable = ({ users }) => {
                             <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="Telefon" className="w-full border p-2 rounded" />
                         </div>
 
-                        <div className="flex justify-end mt-4 gap-2">
-                        <button
-                            onClick={closeModal}
-                            className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                        >
-                            İptal
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                        >
-                            Kaydet
-                        </button>
+                        <div className="flex justify-end mt-3">
+                            <button onClick={handleSave} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Kaydet</button>
+                        </div>
+
+                        <div className="mt-6 border-t pt-4">
+                            <h3 className="text-lg font-semibold mb-2">Ödeme Ekle</h3>
+                            <input type="number" name="salary" value={formData.salary || ""} onChange={handleChange} placeholder="Ücret" className="w-full border p-2 rounded" />
+                            <div className="flex justify-end mt-3">
+                                <button onClick={() => handleAddPayment(selectedUser.id)} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Ekle</button>
+                            </div>
                         </div>
                     </div>
                 </div>
