@@ -23,14 +23,16 @@ const Admin = () => {
   const trainers = users.filter((u) => u.role === "trainer");
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 gap-5 pt-5">
       {/* Navbar */}
       <Navbar />
 
       {/* Contents */}
-      <UsersTable users={users} />
-      <TrainerTable trainers={trainers} />
-      <GymsTable gyms={gyms} />
+      <div className="mt-10 gap-10">
+        <UsersTable users={users} />
+        <TrainerTable trainers={trainers} />
+        <GymsTable gyms={gyms} />
+      </div>
     </div>
   );
 };
