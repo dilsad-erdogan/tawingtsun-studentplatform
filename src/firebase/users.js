@@ -1,4 +1,4 @@
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, updateDoc } from "firebase/firestore";
 import { firestore } from "./firebase";
 
 export const getUserByUID = async (uid) => {
@@ -33,5 +33,26 @@ export const getAllUsers = async () => {
   } catch (error) {
     console.error("Error while withdrawing users:", error);
     return [];
+  }
+};
+
+export const updateUserByUID = async (uid, updatedData) => {
+  try {
+    const usersRef = collection(firestore, "users");
+    const q = query(usersRef, where("uid", "==", uid));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const userDoc = querySnapshot.docs[0].ref;
+      await updateDoc(userDoc, updatedData);
+      console.log("User updated successfully!");
+      return true;
+    } else {
+      console.log("User not found");
+      return false;
+    }
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return false;
   }
 };
