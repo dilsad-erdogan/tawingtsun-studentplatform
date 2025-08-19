@@ -25,7 +25,6 @@ const TrainerTable = ({ trainers }) => {
                             <div className="px-4 py-3 bg-gray-50 text-sm">
                                 <p><strong>Email:</strong> {trainer.email}</p>
                                 <p><strong>Phone:</strong> {trainer.phone}</p>
-                                <p><strong>Payments:</strong> {trainer.payments}</p>
                             </div>
                         )}
                     </div>
