@@ -113,7 +113,10 @@ const GymsTable = ({ gyms, users }) => {
                                     <strong>Trainers:</strong>{" "}
                                     {Array.isArray(gym.trainers) ? gym.trainers.map(id => getUserName(id)).join(", ") : getUserName(gym.trainers)}
                                 </p>
-                                <p><strong>Students:</strong> {gym.students}</p>
+                                <p>
+                                    <strong>Students:</strong>{" "}
+                                    {Array.isArray(gym.students) ? gym.students.map(id => getUserName(id)).join(", ") : getUserName(gym.students)}
+                                </p>
                                 <button onClick={() => openModal(gym)} className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Güncelle</button>
                             </div>
                         )}
