@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { addOwnsToGym, updateGymByID, handleRemoveOwn as removeOwnFromGym } from "../firebase/gyms";
+import { updateGymByID, addOwnsToGym, removeOwn, addTrainersToGym, removeTrainer } from "../firebase/gyms";
 import { fetchAllGyms } from "../redux/gymSlice";
 
 const GymsTable = ({ gyms, users }) => {
@@ -12,7 +12,7 @@ const GymsTable = ({ gyms, users }) => {
     const [formData, setFormData] = useState({ name: "", address: "" });
 
     const [selectedUserId, setSelectedUserId] = useState("");
-    const [selectedOwnerToRemove, setSelectedOwnerToRemove] = useState("");
+    const [selectedToRemove, setSelectedToRemove] = useState("");
 
     const toggleGym = (uid) => {
         setOpenGymId(openGymId === uid ? null : uid);
@@ -63,12 +63,29 @@ const GymsTable = ({ gyms, users }) => {
     };
 
     const handleRemoveOwn = async () => {
-        if (!selectedOwnerToRemove) return alert("Lütfen bir sahip seçin!");
+        if (!selectedToRemove) return alert("Lütfen bir sahip seçin!");
 
-        await removeOwnFromGym(selectedGym.id, selectedOwnerToRemove);
+        await removeOwn(selectedGym.id, selectedToRemove);
 
         dispatch(fetchAllGyms());
-        setSelectedOwnerToRemove("");
+        setSelectedToRemove("");
+        closeModal();
+    };
+
+    const handleAddTrainer = async () => {    
+        if (!selectedUserId) return alert("Lütfen bir kullanıcı seçin!");
+        await addTrainersToGym(selectedGym.id, selectedUserId);
+        dispatch(fetchAllGyms());
+        closeModal();
+    };
+
+    const handleRemoveTrainer = async () => {
+        if (!selectedToRemove) return alert("Lütfen bir sahip seçin!");
+
+        await removeTrainer(selectedGym.id, selectedToRemove);
+
+        dispatch(fetchAllGyms());
+        setSelectedToRemove("");
         closeModal();
     };
 
@@ -92,7 +109,10 @@ const GymsTable = ({ gyms, users }) => {
                                     <strong>Own User:</strong>{" "}
                                     {Array.isArray(gym.ownUser) ? gym.ownUser.map(id => getUserName(id)).join(", ") : getUserName(gym.ownUser)}
                                 </p>
-                                <p><strong>Trainers:</strong> {gym.trainers}</p>
+                                <p>
+                                    <strong>Trainers:</strong>{" "}
+                                    {Array.isArray(gym.trainers) ? gym.trainers.map(id => getUserName(id)).join(", ") : getUserName(gym.trainers)}
+                                </p>
                                 <p><strong>Students:</strong> {gym.students}</p>
                                 <button onClick={() => openModal(gym)} className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Güncelle</button>
                             </div>
@@ -119,8 +139,8 @@ const GymsTable = ({ gyms, users }) => {
                             <button onClick={handleSave} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Kaydet</button>
                         </div>
 
+                        {/* Owns add and remove */}
                         <div className="mt-6 border-t pt-4 flex gap-6">
-                            {/* Kullanıcı ekleme */}
                             <div className="w-1/2">
                                 <h3 className="text-lg font-semibold mb-2">Salona sahip ekle</h3>
                                 <select value={selectedUserId} onChange={(e) => setSelectedUserId(e.target.value)} className="w-full border p-2 rounded">
@@ -136,11 +156,10 @@ const GymsTable = ({ gyms, users }) => {
                                 </div>
                             </div>
 
-                            {/* Kullanıcı kaldırma */}
                             <div className="w-1/2">
-                                <h3 className="text-lg font-semibold mb-2">Salondan sahip kaldır</h3>
-                                <select value={selectedOwnerToRemove} onChange={(e) => setSelectedOwnerToRemove(e.target.value)} className="w-full border p-2 rounded">
-                                    <option value="">Sahip seç</option>
+                                <h3 className="text-lg font-semibold mb-2">Salon sahibini kaldır</h3>
+                                <select value={selectedToRemove} onChange={(e) => setSelectedToRemove(e.target.value)} className="w-full border p-2 rounded">
+                                    <option value="">Kullanıcı seç</option>
                                     {Array.isArray(selectedGym.ownUser) &&
                                         selectedGym.ownUser.map((ownerId) => {
                                         const user = users.find((u) => u.id === ownerId);
@@ -153,6 +172,43 @@ const GymsTable = ({ gyms, users }) => {
                                 </select>
                                 <div className="flex justify-end mt-3">
                                     <button onClick={handleRemoveOwn} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Kaldır</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Trainers add and remove */}
+                        <div className="mt-6 border-t pt-4 flex gap-6">
+                            <div className="w-1/2">
+                                <h3 className="text-lg font-semibold mb-2">Salona eğitmen ekle</h3>
+                                <select value={selectedUserId} onChange={(e) => setSelectedUserId(e.target.value)} className="w-full border p-2 rounded">
+                                    <option value="">Kullanıcı seç</option>
+                                    {users.map((user) => (
+                                        <option key={user.id} value={user.id}>
+                                            {user.name} ({user.email})
+                                        </option>
+                                    ))}
+                                </select>
+                                <div className="flex justify-end mt-3">
+                                    <button onClick={handleAddTrainer} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Ekle</button>
+                                </div>
+                            </div>
+
+                            <div className="w-1/2">
+                                <h3 className="text-lg font-semibold mb-2">Salondan eğitmen sil</h3>
+                                <select value={selectedToRemove} onChange={(e) => setSelectedToRemove(e.target.value)} className="w-full border p-2 rounded">
+                                    <option value="">Kullanıcı seç</option>
+                                    {Array.isArray(selectedGym.trainers) &&
+                                        selectedGym.trainers.map((trainerId) => {
+                                        const user = users.find((u) => u.id === trainerId);
+                                        return (
+                                            <option key={trainerId} value={trainerId}>
+                                                {user ? `${user.name} (${user.email})` : trainerId}
+                                            </option>
+                                        );
+                                    })}
+                                </select>
+                                <div className="flex justify-end mt-3">
+                                    <button onClick={handleRemoveTrainer} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Kaldır</button>
                                 </div>
                             </div>
                         </div>

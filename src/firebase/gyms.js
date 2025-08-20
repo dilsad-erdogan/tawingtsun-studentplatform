@@ -46,12 +46,44 @@ export const addOwnsToGym = async (gymId, userId) => {
   }
 };
 
-export const handleRemoveOwn = async (gymId, selectedOwnerToRemove) => {
+export const removeOwn = async (gymId, userId) => {
   try{
     const gymRef = doc(firestore, "gyms", gymId);
 
     await updateDoc(gymRef, {
-      ownUser: arrayRemove(selectedOwnerToRemove),
+      ownUser: arrayRemove(userId),
+    });
+
+    console.log("Kullanıcı başarıyla silindi");
+    return true;
+  } catch (error){
+    console.error("Kullanıcı silinirken hata:", error);
+    return false;
+  }
+};
+
+export const addTrainersToGym = async (gymId, userId) => {
+  try {
+    const gymRef = doc(firestore, "gyms", gymId);
+
+    await updateDoc(gymRef, {
+      trainers: arrayUnion(userId),
+    });
+
+    console.log("Kullanıcı başarıyla eklendi:", userId);
+    return true;
+  } catch (error) {
+    console.error("Kullanıcı eklenirken hata:", error);
+    return false;
+  }
+};
+
+export const removeTrainer = async (gymId, userId) => {
+  try{
+    const gymRef = doc(firestore, "gyms", gymId);
+
+    await updateDoc(gymRef, {
+      trainers: arrayRemove(userId),
     });
 
     console.log("Kullanıcı başarıyla silindi");
