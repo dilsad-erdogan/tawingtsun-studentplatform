@@ -15,7 +15,7 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
 
-          <Route path="/" element={
+          <Route path="/login" element={
               user ? (
                 user.role === 'trainer' ? (
                   <Navigate to={`/trainer/${user.uid}`} replace />
