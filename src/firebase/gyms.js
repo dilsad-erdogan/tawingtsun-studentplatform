@@ -1,4 +1,4 @@
-import { collection, getDocs } from "firebase/firestore";
+import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { firestore } from "./firebase";
 
 export const getAllGyms = async () => {
@@ -15,5 +15,17 @@ export const getAllGyms = async () => {
   } catch (error) {
     console.error("Error while withdrawing gyms:", error);
     return [];
+  }
+};
+
+export const updateGymByID = async (id, updatedData) => {
+  try {
+    const gymRef = doc(firestore, "gyms", id);
+    await updateDoc(gymRef, updatedData);
+    console.log("Gym updated successfully!");
+    return true;
+  } catch (error) {
+    console.error("Error updating gym:", error);
+    return false;
   }
 };

@@ -103,9 +103,7 @@ const UsersTable = ({ users }) => {
             {/* Modal */}
             {modalOpen && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                        
-
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">                    
                         <div className="flex justify-between mb-3">
                             <h2 className="text-xl font-semibold mb-4">Kullanıcıyı Güncelle</h2>
                             <button onClick={closeModal} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">X</button>
