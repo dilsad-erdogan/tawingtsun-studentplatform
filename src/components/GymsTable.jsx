@@ -14,6 +14,8 @@ const GymsTable = ({ gyms, users }) => {
     const [selectedUserId, setSelectedUserId] = useState("");
     const [selectedToRemove, setSelectedToRemove] = useState("");
 
+    const [searchTerm, setSearchTerm] = useState("");
+
     const toggleGym = (uid) => {
         setOpenGymId(openGymId === uid ? null : uid);
     };
@@ -89,11 +91,19 @@ const GymsTable = ({ gyms, users }) => {
         closeModal();
     };
 
+    const filteredGyms = gyms.filter((gym) =>
+        gym.name.toLocaleLowerCase("tr").includes(searchTerm.trim().toLocaleLowerCase("tr"))
+    );
+
     return (
         <div className="p-6 max-w-2xl mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Gyms</h1>
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold mb-4">Gyms</h1>
+                <input type="text" placeholder="İsme göre ara..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="border px-3 py-1 rounded w-48" />
+            </div>
+            
             <div className="space-y-2">
-                {gyms.map((gym) => (
+                {filteredGyms.map((gym) => (
                     <div key={gym.id} className="border rounded-lg shadow-sm bg-white overflow-hidden">
                         <button onClick={() => toggleGym(gym.id)} className="w-full text-left px-4 py-2 font-semibold hover:bg-gray-100 flex justify-between items-center">
                             <span>{gym.name}</span>

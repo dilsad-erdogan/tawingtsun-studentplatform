@@ -9,7 +9,7 @@ const TrainerTable = ({ trainers }) => {
     };
 
     const filteredTrainers = trainers.filter((trainer) =>
-        trainer.name.toLowerCase().includes(searchTerm.toLowerCase())
+        trainer.name.toLocaleLowerCase("tr").includes(searchTerm.trim().toLocaleLowerCase("tr"))
     );
     
     return (

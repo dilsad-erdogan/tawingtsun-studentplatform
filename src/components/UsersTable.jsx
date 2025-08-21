@@ -63,7 +63,7 @@ const UsersTable = ({ users }) => {
     };
 
     const filteredUsers = users.filter((user) =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase())
+        user.name.toLocaleLowerCase("tr").includes(searchTerm.trim().toLocaleLowerCase("tr"))
     );
 
     return (
