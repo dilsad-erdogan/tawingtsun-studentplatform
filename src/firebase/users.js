@@ -1,5 +1,6 @@
-import { collection, query, where, getDocs, updateDoc, doc, arrayUnion } from "firebase/firestore";
-import { firestore } from "./firebase";
+import { collection, query, where, getDocs, updateDoc, doc, arrayUnion, addDoc } from "firebase/firestore";
+import { auth, firestore } from "./firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 export const getUserByUID = async (uid) => {
   try {
@@ -76,5 +77,47 @@ export const addPaymentToUser = async (userId, salary) => {
   } catch (error) {
     console.error("Payment eklenirken hata:", error);
     return false;
+  }
+};
+
+const generatePassword = (fullName, phone) => {
+  const nameParts = fullName.trim().split(" ");
+
+  let nameCode = "";
+  nameParts.forEach(part => {
+    nameCode += part.slice(0, 2).toLowerCase();
+  });
+  const phoneCode = phone.slice(-4);
+
+  return `${nameCode}${phoneCode}`;
+};
+
+export const addUser = async (userData) => {
+  try {
+    const usersRef = collection(firestore, "users");
+
+    const password = generatePassword(userData.name, userData.phone);
+
+    const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password);
+    const uid = userCredential.user.uid;
+
+    const newUser = {
+      uid,
+      name: userData.name || "",
+      email: userData.email || "",
+      phone: userData.phone || "",
+      password: userData.password || "",
+      role: "student",
+      payments: [],
+      isActive: true
+    };
+
+    const docRef = await addDoc(usersRef, newUser);
+    console.log("Yeni kullanıcı eklendi:", docRef.id);
+
+    return { id: docRef.id, ...newUser };
+  } catch (error) {
+    console.error("Kullanıcı eklenirken hata:", error);
+    return null;
   }
 };
