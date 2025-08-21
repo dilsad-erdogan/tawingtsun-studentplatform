@@ -29,14 +29,19 @@ const TrainerTable = ({ trainers, users }) => {
     };
 
     const handleSave = async () => {
-        try {
-            await updateUserRole(selectedUserId.uid);
-            dispatch(fetchAllUsers());
-            closeModal();
-        } catch (error) {
-            console.error("Update failed:", error);
+    try {
+        if (!selectedUserId) {
+            alert("Lütfen bir kullanıcı seçin");
+            return;
         }
-    };
+
+        await updateUserRole(selectedUserId); 
+        dispatch(fetchAllUsers());
+        closeModal();
+    } catch (error) {
+        console.error("Update failed:", error);
+    }
+};
     
     return (
         <div className="p-6 max-w-2xl mx-auto">
@@ -78,11 +83,13 @@ const TrainerTable = ({ trainers, users }) => {
                         <div className="space-y-3">
                             <select value={selectedUserId} onChange={(e) => setSelectedUserId(e.target.value)} className="w-full border p-2 rounded">
                                 <option value="">Kullanıcı seç</option>
-                                {users.filter((user) => user.role !== "trainer").map((user) => (
-                                    <option key={user.id} value={user.id}>
-                                        {user.name} ({user.email})
-                                    </option>
-                                ))}
+                                {users
+                                    .filter((user) => user.role !== "trainer")
+                                    .map((user) => (
+                                        <option key={user.uid} value={user.uid}>
+                                            {user.name} ({user.email})
+                                        </option>
+                                    ))}
                             </select>
                         </div>
 
