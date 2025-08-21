@@ -121,3 +121,24 @@ export const addUser = async (userData) => {
     return null;
   }
 };
+
+export const updateUserRole = async (uid, newRole = "trainer") => {
+  try {
+    const usersRef = collection(firestore, "users");
+    const q = query(usersRef, where("uid", "==", uid));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const userDoc = querySnapshot.docs[0].ref;
+      await updateDoc(userDoc, { role: newRole });
+      console.log(`User role updated to ${newRole}`);
+      return true;
+    } else {
+      console.log("User not found");
+      return false;
+    }
+  } catch (error) {
+    console.error("Error updating user role:", error);
+    return false;
+  }
+};

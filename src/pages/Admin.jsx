@@ -30,7 +30,7 @@ const Admin = () => {
       {/* Contents */}
       <div className="mt-10 gap-10">
         <UsersTable users={users} />
-        <TrainerTable trainers={trainers} />
+        <TrainerTable trainers={trainers} users={users} />
         <GymsTable gyms={gyms} users={users} />
       </div>
     </div>
