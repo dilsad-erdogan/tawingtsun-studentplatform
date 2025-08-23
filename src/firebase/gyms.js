@@ -1,4 +1,4 @@
-import { arrayRemove, arrayUnion, collection, doc, getDocs, updateDoc } from "firebase/firestore";
+import { addDoc, arrayRemove, arrayUnion, collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { firestore } from "./firebase";
 
 export const getAllGyms = async () => {
@@ -91,5 +91,29 @@ export const removeTrainer = async (gymId, userId) => {
   } catch (error){
     console.error("Kullanıcı silinirken hata:", error);
     return false;
+  }
+};
+
+export const addGyms = async (gymData) => {
+  try {
+    const gymsRef = collection(firestore, "gyms");
+
+    const newGym = {
+      name: gymData.name || "",
+      address: gymData.address || "",
+      ownUser: [],
+      students: [],
+      trainers: [],
+      totalSalaryMonth: 0,
+      isActive: true
+    };
+
+    const docRef = await addDoc(gymsRef, newGym);
+    console.log("Yeni salon eklendi:", docRef.id);
+
+    return { id: docRef.id, ...newGym };
+  } catch (error) {
+    console.error("Salon eklenirken hata:", error);
+    return null;
   }
 };
