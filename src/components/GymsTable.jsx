@@ -221,8 +221,8 @@ const GymsTable = ({ gyms, users }) => {
                                 <h3 className="text-lg font-semibold mb-2">Salona eğitmen ekle</h3>
                                 <select value={selectedUserId} onChange={(e) => setSelectedUserId(e.target.value)} className="w-full border p-2 rounded">
                                     <option value="">Kullanıcı seç</option>
-                                    {users.map((user) => (
-                                        <option key={user.id} value={user.id}>
+                                    {users.filter((user) => user.role == "trainer").map((user) => (
+                                        <option key={user.uid} value={user.uid}>
                                             {user.name} ({user.email})
                                         </option>
                                     ))}
