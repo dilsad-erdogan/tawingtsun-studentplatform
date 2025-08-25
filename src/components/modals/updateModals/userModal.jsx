@@ -31,19 +31,19 @@ const UserModal = ({ isOpen, onClose, selectedUser }) => {
     }
   };
 
-  const handleAddPayment = async () => {
-    if (!formData.salary) {
-      alert("Lütfen bir ücret girin!");
-      return;
-    }
-    try {
-      await addPaymentToUser(selectedUser.uid, formData.salary);
-      dispatch(fetchAllUsers());
-      onClose();
-    } catch (error) {
-      console.error("Add payment failed:", error);
-    }
-  };
+//   const handleAddPayment = async () => {
+//     if (!formData.salary) {
+//       alert("Lütfen bir ücret girin!");
+//       return;
+//     }
+//     try {
+//       await addPaymentToUser(selectedUser.uid, formData.salary);
+//       dispatch(fetchAllUsers());
+//       onClose();
+//     } catch (error) {
+//       console.error("Add payment failed:", error);
+//     }
+//   };
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center">
@@ -105,7 +105,7 @@ const UserModal = ({ isOpen, onClose, selectedUser }) => {
           </button>
         </div>
 
-        <div className="mt-6 border-t pt-4">
+        {/* <div className="mt-6 border-t pt-4">
           <h3 className="text-lg font-semibold mb-2">Ödeme Ekle</h3>
           <label className="block">
             Ücret
@@ -116,7 +116,7 @@ const UserModal = ({ isOpen, onClose, selectedUser }) => {
               Ekle
             </button>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
