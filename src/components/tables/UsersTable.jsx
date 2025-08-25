@@ -1,17 +1,12 @@
 import { useState } from "react";
-import { addUser } from "../../firebase/users";
-import { useDispatch } from "react-redux";
-import { fetchAllUsers } from "../../redux/userSlice";
 import UserModal from "../modals/updateModals/userModal";
+import AddUserModal from "../modals/addModals/userModal";
 
 const UsersTable = ({ users }) => {
-    const dispatch = useDispatch();
-
     const [openUserId, setOpenUserId] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [addModalOpen, setAddModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [formData, setFormData] = useState({ name: "", email: "", phone: "", gender: "", weight: 0, height: 0, age: 0, salary: 0 });
     const [searchTerm, setSearchTerm] = useState("");
 
     const toggleUser = (uid) => {
@@ -20,15 +15,6 @@ const UsersTable = ({ users }) => {
 
     const openModal = (user) => {
         setSelectedUser(user);
-        setFormData({
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            gender: user.gender,
-            weight: user.weight,
-            height: user.height,
-            age: user.age
-        });
         setModalOpen(true);
     };
 
@@ -37,44 +23,12 @@ const UsersTable = ({ users }) => {
         setAddModalOpen(false);
         setSelectedUser(null);
     };
-
-    const handleChange = (e) => {
-        setFormData((prev) => ({
-            ...prev,
-            [e.target.name]: e.target.value,
-        }));
-    };
-
     const filteredUsers = users.filter((user) =>
         user.name.toLocaleLowerCase("tr").includes(searchTerm.trim().toLocaleLowerCase("tr"))
     );
 
     const openAddModal = () => {
         setAddModalOpen(true);
-    };
-
-    const handleAddSave = async () => {
-        try {
-            const newUser = {
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                gender: formData.gender,
-                weight: formData.weight,
-                height: formData.height,
-                age: formData.age
-            };
-
-            const result = await addUser(newUser);
-            if (result) {
-                console.log("Kullanıcı başarıyla eklendi:", result);
-            }
-
-            dispatch(fetchAllUsers());
-            closeModal();
-        } catch (error) {
-            console.error("Add failed:", error);
-        }
     };
 
     return (
@@ -125,27 +79,7 @@ const UsersTable = ({ users }) => {
                 ))}
             </div>
 
-            {addModalOpen && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">                    
-                        <div className="flex justify-between mb-3">
-                            <h2 className="text-xl font-semibold mb-4">Kullanıcı Ekle</h2>
-                            <button onClick={closeModal} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">X</button>
-                        </div>
-
-                        <div className="space-y-3">
-                            <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Ad Soyad" className="w-full border p-2 rounded" />
-                            <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" className="w-full border p-2 rounded" />
-                            <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="Telefon" className="w-full border p-2 rounded" />
-                        </div>
-
-                        <div className="flex justify-end mt-3">
-                            <button onClick={handleAddSave} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Kaydet</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
+            <AddUserModal isOpen={addModalOpen} onClose={closeModal} />
             <UserModal isOpen={modalOpen} onClose={closeModal} selectedUser={selectedUser} />
         </div>
     )
