@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { addPaymentToUser, addUser, updateUserByUID } from "../firebase/users";
+import { addPaymentToUser, addUser, updateUserByUID } from "../../firebase/users";
 import { useDispatch } from "react-redux";
-import { fetchAllUsers } from "../redux/userSlice";
+import { fetchAllUsers } from "../../redux/userSlice";
 
 const UsersTable = ({ users }) => {
     const dispatch = useDispatch();

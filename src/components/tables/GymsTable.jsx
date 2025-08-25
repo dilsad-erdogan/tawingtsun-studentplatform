@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { updateGymByID, addOwnsToGym, removeOwn, addTrainersToGym, removeTrainer, addGyms } from "../firebase/gyms";
-import { fetchAllGyms } from "../redux/gymSlice";
+import { updateGymByID, addOwnsToGym, removeOwn, addTrainersToGym, removeTrainer, addGyms } from "../../firebase/gyms";
+import { fetchAllGyms } from "../../redux/gymSlice";
 
 const GymsTable = ({ gyms, users }) => {
     const dispatch = useDispatch();

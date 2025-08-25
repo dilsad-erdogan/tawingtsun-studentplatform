@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { updateUserRole } from "../firebase/users";
+import { updateUserRole } from "../../firebase/users";
 import { useDispatch } from "react-redux";
-import { fetchAllUsers } from "../redux/userSlice";
+import { fetchAllUsers } from "../../redux/userSlice";
 
 const TrainerTable = ({ trainers, users }) => {
     const dispatch = useDispatch();
@@ -29,19 +29,19 @@ const TrainerTable = ({ trainers, users }) => {
     };
 
     const handleSave = async () => {
-    try {
-        if (!selectedUserId) {
-            alert("Lütfen bir kullanıcı seçin");
-            return;
-        }
+        try {
+            if (!selectedUserId) {
+                alert("Lütfen bir kullanıcı seçin");
+                return;
+            }
 
-        await updateUserRole(selectedUserId); 
-        dispatch(fetchAllUsers());
-        closeModal();
-    } catch (error) {
-        console.error("Update failed:", error);
-    }
-};
+            await updateUserRole(selectedUserId); 
+            dispatch(fetchAllUsers());
+            closeModal();
+        } catch (error) {
+            console.error("Update failed:", error);
+        }
+    };
     
     return (
         <div className="p-6 max-w-2xl mx-auto">

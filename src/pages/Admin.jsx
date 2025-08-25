@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAllUsers } from "../redux/userSlice";
 import { fetchAllGyms } from "../redux/gymSlice";
 import Navbar from "../components/Navbar";
-import UsersTable from "../components/UsersTable";
-import TrainerTable from "../components/TrainerTable";
-import GymsTable from "../components/GymsTable";
+import UsersTable from "../components/tables/UsersTable";
+import TrainerTable from "../components/tables/TrainerTable";
+import GymsTable from "../components/tables/GymsTable";
 
 const Admin = () => {
   const dispatch = useDispatch();
