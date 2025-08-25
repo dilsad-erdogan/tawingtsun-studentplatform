@@ -106,8 +106,11 @@ export const addUser = async (userData) => {
       name: userData.name || "",
       email: userData.email || "",
       phone: userData.phone || "",
-      password: userData.password || "",
       role: "student",
+      gender: userData.gender || "",
+      weight: userData.weight || 0,
+      height: userData.height || 0,
+      age: userData.age || 0,
       payments: [],
       isActive: true
     };
