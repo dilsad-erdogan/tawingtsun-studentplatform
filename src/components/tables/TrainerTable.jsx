@@ -6,6 +6,8 @@ import { fetchAllUsers } from "../../redux/userSlice";
 const TrainerTable = ({ trainers, users }) => {
     const dispatch = useDispatch();
 
+    console.log(trainers)
+
     const [selectedUserId, setSelectedUserId] = useState("");
     const [openTrainerId, setOpenTrainerId] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
@@ -15,9 +17,9 @@ const TrainerTable = ({ trainers, users }) => {
         setOpenTrainerId(openTrainerId === uid ? null : uid);
     };
 
-    const filteredTrainers = trainers.filter((trainer) =>
-        trainer.name.toLocaleLowerCase("tr").includes(searchTerm.trim().toLocaleLowerCase("tr"))
-    );
+    // const filteredTrainers = trainers.filter((trainer) =>
+    //     trainer.name.toLocaleLowerCase("tr").includes(searchTerm.trim().toLocaleLowerCase("tr"))
+    // );
 
     const openAddModal = () => {
         setSelectedUserId("");
@@ -52,7 +54,7 @@ const TrainerTable = ({ trainers, users }) => {
             </div>
             
             <div className="space-y-2">
-                {filteredTrainers.map((trainer) => (
+                {trainers.map((trainer) => (
                     <div key={trainer.uid} className="border rounded-lg shadow-sm bg-white overflow-hidden">
                         <button onClick={() => toggleUser(trainer.uid)} className="w-full text-left px-4 py-2 font-semibold hover:bg-gray-100 flex justify-between items-center">
                             <span>
