@@ -3,10 +3,8 @@ import { updateUserRole } from "../../firebase/users";
 import { useDispatch } from "react-redux";
 import { fetchAllUsers } from "../../redux/userSlice";
 
-const TrainerTable = ({ trainers, users }) => {
+const TrainerTable = ({ trainers, users, gyms }) => {
     const dispatch = useDispatch();
-
-    console.log(trainers)
 
     const [selectedUserId, setSelectedUserId] = useState("");
     const [openTrainerId, setOpenTrainerId] = useState(null);
@@ -17,9 +15,15 @@ const TrainerTable = ({ trainers, users }) => {
         setOpenTrainerId(openTrainerId === uid ? null : uid);
     };
 
-    // const filteredTrainers = trainers.filter((trainer) =>
-    //     trainer.name.toLocaleLowerCase("tr").includes(searchTerm.trim().toLocaleLowerCase("tr"))
-    // );
+    const filteredTrainers = trainers.filter((trainer) => {
+        const user = users.find((u) => u.id === trainer.userId);
+        return (
+            user &&
+            user.name.toLocaleLowerCase("tr").includes(
+                searchTerm.trim().toLocaleLowerCase("tr")
+            )
+        );
+    });
 
     const openAddModal = () => {
         setSelectedUserId("");
@@ -44,6 +48,14 @@ const TrainerTable = ({ trainers, users }) => {
             console.error("Update failed:", error);
         }
     };
+
+    const groupedTrainers = filteredTrainers.reduce((acc, trainer) => {
+        if (!acc[trainer.userId]) {
+            acc[trainer.userId] = [];
+        }
+        acc[trainer.userId].push(trainer);
+        return acc;
+    }, {});
     
     return (
         <div className="p-6 max-w-2xl mx-auto">
@@ -54,24 +66,41 @@ const TrainerTable = ({ trainers, users }) => {
             </div>
             
             <div className="space-y-2">
-                {trainers.map((trainer) => (
-                    <div key={trainer.uid} className="border rounded-lg shadow-sm bg-white overflow-hidden">
-                        <button onClick={() => toggleUser(trainer.uid)} className="w-full text-left px-4 py-2 font-semibold hover:bg-gray-100 flex justify-between items-center">
-                            <span>
-                                {trainer.name} {trainer.surname}
-                            </span>
-                            <span>{openTrainerId === trainer.uid ? "▲" : "▼"}</span>
-                        </button>
+                {Object.entries(groupedTrainers).map(([userId, trainerList]) => {
+                    const user = users.find((u) => u.id === userId);
 
-                        {/* Details */}
-                        {openTrainerId === trainer.uid && (
-                            <div className="px-4 py-3 bg-gray-50 text-sm">
-                                <p><strong>Email:</strong> {trainer.email}</p>
-                                <p><strong>Phone:</strong> {trainer.phone}</p>
-                            </div>
-                        )}
-                    </div>
-                ))}
+                    return (
+                        <div key={userId} className="border rounded-lg shadow-sm bg-white overflow-hidden">
+                            <button onClick={() => toggleUser(userId)} className="w-full text-left px-4 py-2 font-semibold hover:bg-gray-100 flex justify-between items-center">
+                                <span>
+                                    {user ? `${user.name} (${user.email})` : userId}
+                                </span>
+                                <span>{openTrainerId === userId ? "▲" : "▼"}</span>
+                            </button>
+
+                            {openTrainerId === userId && (
+                                <div className="px-4 py-3 bg-gray-50 text-sm">
+                                    <p>
+                                        <strong>Eğitim verdiği salonlar:</strong>{" "}
+                                        {trainerList.map((trainer, index) => {
+                                            const gym = gyms.find((g) => g.id === trainer.gymId);
+                                            return (
+                                                <span key={trainer.gymId}>
+                                                    {gym ? gym.name : trainer.gymId}
+                                                    {index < trainerList.length - 1 ? ", " : ""}
+                                                </span>
+                                            );
+                                        })}
+                                    </p>
+                                    <p>
+                                        <strong>Aylık toplam kazanç:</strong>{" "}
+                                        {trainerList.reduce((sum, t) => sum + t.totalSalaryMonth, 0)}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
 
             {addModalOpen && (
