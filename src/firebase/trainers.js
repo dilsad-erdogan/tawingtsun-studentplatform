@@ -7,7 +7,7 @@ export const addTrainers = async (data) => {
     const newTrainer = {
       userId: data.userId || "",
       gymId: data.gymId || "",
-      totalSalaryMonth: data.totalSalaryMonth || 0,
+      totalSalaryMonth: 0,
       isActive: true
     };
 

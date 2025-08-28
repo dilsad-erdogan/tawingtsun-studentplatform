@@ -2,11 +2,14 @@ import { useState } from "react";
 import { updateUserRole } from "../../firebase/users";
 import { useDispatch } from "react-redux";
 import { fetchAllUsers } from "../../redux/userSlice";
+import { fetchAllTrainers } from "../../redux/trainerSlice";
+import { addTrainers } from "../../firebase/trainers";
 
 const TrainerTable = ({ trainers, users, gyms }) => {
     const dispatch = useDispatch();
 
     const [selectedUserId, setSelectedUserId] = useState("");
+    const [selectedGymId, setSelectedGymId] = useState("");
     const [openTrainerId, setOpenTrainerId] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [addModalOpen, setAddModalOpen] = useState(false);
@@ -37,12 +40,19 @@ const TrainerTable = ({ trainers, users, gyms }) => {
     const handleSave = async () => {
         try {
             if (!selectedUserId) {
-                alert("Lütfen bir kullanıcı seçin");
+                alert("Lütfen bir kullanıcı ve salon seçin");
                 return;
             }
 
-            await updateUserRole(selectedUserId); 
+            const newGym = {
+                userId: selectedUserId,
+                gymId: selectedGymId
+            };
+
+            await updateUserRole(selectedUserId);
+            await addTrainers(newGym);
             dispatch(fetchAllUsers());
+            dispatch(fetchAllTrainers());
             closeModal();
         } catch (error) {
             console.error("Update failed:", error);
@@ -115,11 +125,20 @@ const TrainerTable = ({ trainers, users, gyms }) => {
                             <select value={selectedUserId} onChange={(e) => setSelectedUserId(e.target.value)} className="w-full border p-2 rounded">
                                 <option value="">Kullanıcı seç</option>
                                 {users
-                                    .filter((user) => user.role !== "trainer")
+                                    .filter((user) => user.role == "student")
                                     .map((user) => (
-                                        <option key={user.uid} value={user.uid}>
+                                        <option key={user.id} value={user.id}>
                                             {user.name} ({user.email})
                                         </option>
+                                    ))}
+                            </select>
+                        </div>
+
+                        <div className="space-y-3 mt-5">
+                            <select value={selectedGymId} onChange={(e) => setSelectedGymId(e.target.value)} className="w-full border p-2 rounded">
+                                <option value="">Salon seç</option>
+                                {gyms.map((gym) => (
+                                        <option key={gym.id} value={gym.id}>{gym.name}</option>
                                     ))}
                             </select>
                         </div>
