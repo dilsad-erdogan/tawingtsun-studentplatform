@@ -1,10 +1,13 @@
 import { useState } from "react";
 import AddTrainerModal from "../modals/addModals/trainerModal";
+import TrainerModal from "../modals/updateModals/trainerModal";
 
 const TrainerTable = ({ trainers, users, gyms }) => {
     const [openTrainerId, setOpenTrainerId] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [addModalOpen, setAddModalOpen] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedTrainer, setSelectedTrainer] = useState(null);
 
     const toggleUser = (uid) => {
         setOpenTrainerId(openTrainerId === uid ? null : uid);
@@ -24,8 +27,14 @@ const TrainerTable = ({ trainers, users, gyms }) => {
         setAddModalOpen(true);
     };
 
+    const openModal = (user) => {
+        setSelectedTrainer(user);
+        setModalOpen(true);
+    };
+
     const closeModal = () => {
         setAddModalOpen(false);
+        setModalOpen(false);
     };
 
     const groupedTrainers = filteredTrainers.reduce((acc, trainer) => {
@@ -75,6 +84,10 @@ const TrainerTable = ({ trainers, users, gyms }) => {
                                         <strong>Aylık toplam kazanç:</strong>{" "}
                                         {trainerList.reduce((sum, t) => sum + t.totalSalaryMonth, 0)}
                                     </p>
+
+                                    <button onClick={() => openModal(trainerList )} className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                        Güncelle
+                                    </button>
                                 </div>
                             )}
                         </div>
@@ -83,6 +96,7 @@ const TrainerTable = ({ trainers, users, gyms }) => {
             </div>
 
             <AddTrainerModal isOpen={addModalOpen} onClose={closeModal} />
+            <TrainerModal isOpen={modalOpen} onClose={closeModal} selectedTrainer={selectedTrainer} allGyms={gyms} />
         </div>
     )
 }
