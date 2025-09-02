@@ -1,32 +1,61 @@
 import React, { useState } from "react";
 import { Trash2 } from "lucide-react";
+import { addTrainers, deleteAllTrainersByUser, deleteTrainerByUserAndGym } from "../../../firebase/trainers";
+import { updateUserRole } from "../../../firebase/users";
+import { useDispatch } from "react-redux";
+import { fetchAllTrainers } from "../../../redux/trainerSlice";
+import { fetchAllUsers } from "../../../redux/userSlice";
 
-const TrainerModal = ({ isOpen, onClose, selectedTrainer, allGyms }) => {
+const TrainerModal = ({ isOpen, onClose, selectedTrainer, allGyms, users }) => {
     const [newGymId, setNewGymId] = useState("");
+    const dispatch = useDispatch();
+
+    if (!isOpen || !selectedTrainer || selectedTrainer.length === 0) return null;
 
     const userId = selectedTrainer[0]?.userId;
-
     const currentGyms = selectedTrainer.map((t) => t.gymId);
     const availableGyms = allGyms.filter((gym) => !currentGyms.includes(gym.id));
 
-    const handleDeleteGym = (gymId) => {
-        console.log("Silinecek gym:", gymId);
-        // burada backend çağrısı yapacaksın
+    const handleDeleteGym = async (gymId) => {
+        const success = await deleteTrainerByUserAndGym(userId, gymId);
+        if (success) {
+            console.log("Trainer kaydı silindi:", gymId);
+            dispatch(fetchAllTrainers());
+            onClose();
+        }
     };
 
-    const handleAddGym = () => {
-        if (!newGymId) return;
-        console.log("Eklenecek gym:", newGymId);
-        // burada backend çağrısı yapacaksın
-        setNewGymId("");
+    const handleAddGym = async () => {
+        if (!newGymId || !userId) {
+            alert("Lütfen bir kullanıcı ve salon seçin!");
+            return;
+        }
+
+        const newGym = {
+            userId: userId,
+            gymId: newGymId
+        };
+
+        const result = await addTrainers(newGym);
+
+        if (result) {
+            dispatch(fetchAllTrainers());
+            setNewGymId("");
+            onClose();
+        }
     };
 
-    const handleRemoveTrainer = () => {
-        console.log("Tüm trainer kayıtları silinecek, userId:", userId);
-        // burada backend çağrısı yapacaksın
+    const handleRemoveTrainer = async () => {
+        const success = await deleteAllTrainersByUser(userId);
+        await updateUserRole(userId, "student");
+        if (success) {
+            dispatch(fetchAllTrainers());
+            dispatch(fetchAllUsers());
+            onClose();
+        }
     };
 
-    if (!isOpen || !selectedTrainer) return null;
+    const userName = users.find((u) => u.id === userId)?.name || "Bilinmiyor";
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center">
@@ -36,19 +65,22 @@ const TrainerModal = ({ isOpen, onClose, selectedTrainer, allGyms }) => {
                     <button onClick={onClose} className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">X</button>
                 </div>
 
-                <p className="font-mono text-sm mb-2">User ID: {userId}</p>
+                <p className="font-mono text-sm mb-2">Kullanıcı: {userName}</p>
                 <hr className="my-3" />
 
                 <div className="space-y-2 mb-3">
                     <p className="font-medium">Eğitim Verdiği Salonlar:</p>
-                    {currentGyms.map((gymId) => (
-                        <div key={gymId} className="flex justify-between items-center bg-gray-100 p-2 rounded">
-                            <span>{gymId}</span>
-                            <button onClick={() => handleDeleteGym(gymId)} className="text-red-600 hover:text-red-800">
-                                <Trash2 size={18} />
-                            </button>
-                        </div>
-                    ))}
+                    {currentGyms.map((gymId) => {
+                        const gymName = allGyms.find((g) => g.id === gymId)?.name || "Bilinmiyor";
+                        return (
+                            <div key={gymId} className="flex justify-between items-center bg-gray-100 p-2 rounded">
+                                <span>{gymName}</span>
+                                <button onClick={() => handleDeleteGym(gymId)} className="text-red-600 hover:text-red-800">
+                                    <Trash2 size={18} />
+                                </button>
+                            </div>
+                        );
+                    })}
 
                     {currentGyms.length === 0 && (
                         <p className="text-gray-500 text-sm">Henüz salon eklenmemiş.</p>
@@ -61,7 +93,7 @@ const TrainerModal = ({ isOpen, onClose, selectedTrainer, allGyms }) => {
                         <option value="">Salon seç...</option>
                         {availableGyms.map((gym) => (
                             <option key={gym.id} value={gym.id}>
-                                {gym.name} ({gym.id})
+                                {gym.name}
                             </option>
                         ))}
                     </select>

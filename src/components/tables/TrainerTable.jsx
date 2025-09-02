@@ -96,7 +96,7 @@ const TrainerTable = ({ trainers, users, gyms }) => {
             </div>
 
             <AddTrainerModal isOpen={addModalOpen} onClose={closeModal} />
-            <TrainerModal isOpen={modalOpen} onClose={closeModal} selectedTrainer={selectedTrainer} allGyms={gyms} />
+            <TrainerModal isOpen={modalOpen} onClose={closeModal} selectedTrainer={selectedTrainer} allGyms={gyms} users={users} />
         </div>
     )
 }
