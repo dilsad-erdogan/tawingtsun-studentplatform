@@ -3,7 +3,7 @@ import AddTrainerModal from "../modals/addModals/trainerModal";
 import TrainerModal from "../modals/updateModals/trainerModal";
 import { Filter } from "lucide-react";
 
-const TrainerTable = ({ trainers, users, gyms }) => {
+const TrainerTable = ({ trainers, users, gyms, students }) => {
     const [openTrainerId, setOpenTrainerId] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [addModalOpen, setAddModalOpen] = useState(false);
@@ -93,6 +93,14 @@ const TrainerTable = ({ trainers, users, gyms }) => {
                                         <p>
                                             <strong>Aylık toplam kazanç:</strong>{" "}
                                             {trainerList.reduce((sum, t) => sum + t.totalSalaryMonth, 0)}
+                                        </p>
+                                        <p>
+                                            <strong>Öğrenci Sayısı:</strong>{" "}
+                                            {
+                                                students.filter((student) =>
+                                                    trainerList.some((trainer) => trainer.id === student.trainerId)
+                                                ).length
+                                            }
                                         </p>
 
                                         <button onClick={() => openModal(trainerList )} className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
