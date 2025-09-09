@@ -3,18 +3,29 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../firebase/login";
 import { clearUser } from "../redux/userSlice";
-import { LogOut } from "lucide-react";
+import { LogOut, CircleUser } from "lucide-react";
+import UserModal from "./modals/userModal";
+import { useState } from "react";
 
 const Navbar = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const user = useSelector((state) => state.user.data);
+    const [modalOpen, setModalOpen] = useState(false);
 
     const handleLogout =  async() => {
         dispatch(clearUser());
         await logout();
         localStorage.clear();
         navigate('/login');
+    };
+
+    const openModal = () => {
+        setModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setModalOpen(false);
     };
 
     return (
@@ -32,10 +43,16 @@ const Navbar = () => {
             </div>
 
             {/* Right side */}
-            <button onClick={handleLogout} className="flex items-center gap-2 hover:opacity-80 transition text-sm sm:text-base">
-                <LogOut size={20} />
-                <span>Logout</span>
-            </button>
+            <div className="flex items-center gap-4 text-sm sm:text-base">
+                <CircleUser onClick={() => openModal()} size={20} />
+
+                <button onClick={handleLogout} className="flex items-center gap-2 hover:opacity-80 transition text-sm sm:text-base">
+                    <LogOut size={20} />
+                    <span>Logout</span>
+                </button>
+            </div>
+
+            <UserModal isOpen={modalOpen} onClose={closeModal} user={user} />
         </div>
     )
 }
