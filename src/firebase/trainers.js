@@ -84,3 +84,14 @@ export const deleteAllTrainersByUser = async (userId) => {
     return false;
   }
 };
+
+export const deleteTrainerById = async (trainerDocId) => {
+  try {
+    await deleteDoc(doc(firestore, "trainers", trainerDocId));
+    console.log("Trainer silindi:", trainerDocId);
+    return true;
+  } catch (error) {
+    console.error("Trainer silinirken hata:", error);
+    return false;
+  }
+};

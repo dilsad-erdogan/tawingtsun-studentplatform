@@ -1,19 +1,17 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { updateGymByID, addOwnsToGym, removeOwn, addTrainersToGym, removeTrainer, addGyms } from "../../firebase/gyms";
+import { addGyms } from "../../firebase/gyms";
 import { fetchAllGyms } from "../../redux/gymSlice";
+import GymModal from "../modals/updateModals/gymModal";
 
 const GymsTable = ({ gyms, users }) => {
     const dispatch = useDispatch();
 
     const [openGymId, setOpenGymId] = useState(null);
-    const [modalOpen, setModalOpen] = useState(false);
+    const [updateModalOpen, setUpdateModalOpen] = useState(false);
     const [addModalOpen, setAddModalOpen] = useState(false);
     const [selectedGym, setSelectedGym] = useState(null);
     const [formData, setFormData] = useState({ name: "", address: "" });
-
-    const [selectedUserId, setSelectedUserId] = useState("");
-    const [selectedToRemove, setSelectedToRemove] = useState("");
 
     const [searchTerm, setSearchTerm] = useState("");
 
@@ -21,18 +19,13 @@ const GymsTable = ({ gyms, users }) => {
         setOpenGymId(openGymId === uid ? null : uid);
     };
 
-    const openModal = (gym) => {
+    const openUpdateModal = (gym) => {
         setSelectedGym(gym);
-        setFormData({
-            name: gym.name,
-            address: gym.address
-        });
-        setSelectedUserId("");
-        setModalOpen(true);
+        setUpdateModalOpen(true);
     };
 
     const closeModal = () => {
-        setModalOpen(false);
+        setUpdateModalOpen(false);
         setAddModalOpen(false);
         setSelectedGym(null);
     };
@@ -47,50 +40,6 @@ const GymsTable = ({ gyms, users }) => {
     const getUserName = (userId) => {
         const user = users.find(u => u.id === userId);
         return user ? user.name : "Bilinmiyor";
-    };
-
-    const handleSave = async () => {
-        try {
-            await updateGymByID(selectedGym.id, formData);
-            dispatch(fetchAllGyms());
-            closeModal();
-        } catch (error) {
-            console.error("Update failed:", error);
-        }
-    };
-
-    const handleAddOwn = async () => {    
-        if (!selectedUserId) return alert("Lütfen bir kullanıcı seçin!");
-        await addOwnsToGym(selectedGym.id, selectedUserId);
-        dispatch(fetchAllGyms());
-        closeModal();
-    };
-
-    const handleRemoveOwn = async () => {
-        if (!selectedToRemove) return alert("Lütfen bir sahip seçin!");
-
-        await removeOwn(selectedGym.id, selectedToRemove);
-
-        dispatch(fetchAllGyms());
-        setSelectedToRemove("");
-        closeModal();
-    };
-
-    const handleAddTrainer = async () => {    
-        if (!selectedUserId) return alert("Lütfen bir kullanıcı seçin!");
-        await addTrainersToGym(selectedGym.id, selectedUserId);
-        dispatch(fetchAllGyms());
-        closeModal();
-    };
-
-    const handleRemoveTrainer = async () => {
-        if (!selectedToRemove) return alert("Lütfen bir sahip seçin!");
-
-        await removeTrainer(selectedGym.id, selectedToRemove);
-
-        dispatch(fetchAllGyms());
-        setSelectedToRemove("");
-        closeModal();
     };
 
     const filteredGyms = gyms.filter((gym) =>
@@ -153,107 +102,12 @@ const GymsTable = ({ gyms, users }) => {
                                     <strong>Students:</strong>{" "}
                                     {Array.isArray(gym.students) ? gym.students.map(id => getUserName(id)).join(", ") : getUserName(gym.students)}
                                 </p>
-                                <button onClick={() => openModal(gym)} className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Güncelle</button>
+                                <button onClick={() => openUpdateModal(gym)} className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Güncelle</button>
                             </div>
                         )}
                     </div>
                 ))}
             </div>
-
-            {/* Modal */}
-            {modalOpen && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center">
-                    <div className="bg-white rounded-lg p-6 w-[600px] max-h-[80vh] overflow-y-auto">
-                        <div className="flex justify-between mb-3">
-                            <h2 className="text-xl font-semibold mb-4">Spor salonunu Güncelle</h2>
-                            <button onClick={closeModal} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">X</button>
-                        </div>
-
-                        <div className="space-y-3">
-                            <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Salon ismi" className="w-full border p-2 rounded" />
-                            <input type="text" name="address" value={formData.address} onChange={handleChange} placeholder="Adres" className="w-full border p-2 rounded" />
-                        </div>
-
-                        <div className="flex justify-end mt-3">
-                            <button onClick={handleSave} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Kaydet</button>
-                        </div>
-
-                        {/* Owns add and remove */}
-                        <div className="mt-6 border-t pt-4 flex gap-6">
-                            <div className="w-1/2">
-                                <h3 className="text-lg font-semibold mb-2">Salona sahip ekle</h3>
-                                <select value={selectedUserId} onChange={(e) => setSelectedUserId(e.target.value)} className="w-full border p-2 rounded">
-                                    <option value="">Kullanıcı seç</option>
-                                    {users.map((user) => (
-                                        <option key={user.id} value={user.id}>
-                                            {user.name} ({user.email})
-                                        </option>
-                                    ))}
-                                </select>
-                                <div className="flex justify-end mt-3">
-                                    <button onClick={handleAddOwn} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Ekle</button>
-                                </div>
-                            </div>
-
-                            <div className="w-1/2">
-                                <h3 className="text-lg font-semibold mb-2">Salon sahibini kaldır</h3>
-                                <select value={selectedToRemove} onChange={(e) => setSelectedToRemove(e.target.value)} className="w-full border p-2 rounded">
-                                    <option value="">Kullanıcı seç</option>
-                                    {Array.isArray(selectedGym.ownUser) &&
-                                        selectedGym.ownUser.map((ownerId) => {
-                                        const user = users.find((u) => u.id === ownerId);
-                                        return (
-                                            <option key={ownerId} value={ownerId}>
-                                                {user ? `${user.name} (${user.email})` : ownerId}
-                                            </option>
-                                        );
-                                    })}
-                                </select>
-                                <div className="flex justify-end mt-3">
-                                    <button onClick={handleRemoveOwn} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Kaldır</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Trainers add and remove */}
-                        <div className="mt-6 border-t pt-4 flex gap-6">
-                            <div className="w-1/2">
-                                <h3 className="text-lg font-semibold mb-2">Salona eğitmen ekle</h3>
-                                <select value={selectedUserId} onChange={(e) => setSelectedUserId(e.target.value)} className="w-full border p-2 rounded">
-                                    <option value="">Kullanıcı seç</option>
-                                    {users.filter((user) => user.role == "trainer").map((user) => (
-                                        <option key={user.uid} value={user.uid}>
-                                            {user.name} ({user.email})
-                                        </option>
-                                    ))}
-                                </select>
-                                <div className="flex justify-end mt-3">
-                                    <button onClick={handleAddTrainer} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Ekle</button>
-                                </div>
-                            </div>
-
-                            <div className="w-1/2">
-                                <h3 className="text-lg font-semibold mb-2">Salondan eğitmen sil</h3>
-                                <select value={selectedToRemove} onChange={(e) => setSelectedToRemove(e.target.value)} className="w-full border p-2 rounded">
-                                    <option value="">Kullanıcı seç</option>
-                                    {Array.isArray(selectedGym.trainers) &&
-                                        selectedGym.trainers.map((trainerId) => {
-                                        const user = users.find((u) => u.id === trainerId);
-                                        return (
-                                            <option key={trainerId} value={trainerId}>
-                                                {user ? `${user.name} (${user.email})` : trainerId}
-                                            </option>
-                                        );
-                                    })}
-                                </select>
-                                <div className="flex justify-end mt-3">
-                                    <button onClick={handleRemoveTrainer} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Kaldır</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Add Modal */}
             {addModalOpen && (
@@ -275,6 +129,8 @@ const GymsTable = ({ gyms, users }) => {
                     </div>
                 </div>
             )}
+
+            <GymModal isOpen={updateModalOpen} onClose={closeModal} selectedGym={selectedGym} />
         </div>
     )
 }
