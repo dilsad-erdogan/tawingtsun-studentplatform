@@ -2,6 +2,8 @@ import { collection, query, where, getDocs, updateDoc, doc, arrayUnion, addDoc }
 import { auth, firestore } from "./firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
+import toast from "react-hot-toast";
+
 export const getUserByUID = async (uid) => {
   try {
     const usersRef = collection(firestore, "users");
@@ -11,11 +13,11 @@ export const getUserByUID = async (uid) => {
     if (!querySnapshot.empty) {
       return querySnapshot.docs[0].data();
     } else {
-      console.log("User not found");
+      toast.error("User not found");
       return null;
     }
   } catch (error) {
-    console.error("Error while withdrawing user:", error);
+    toast.error("Error while withdrawing user:", error);
     return null;
   }
 };
@@ -32,7 +34,7 @@ export const getAllUsers = async () => {
 
     return users;
   } catch (error) {
-    console.error("Error while withdrawing users:", error);
+    toast.error("Error while withdrawing users:", error);
     return [];
   }
 };
@@ -46,14 +48,14 @@ export const updateUserByUID = async (uid, updatedData) => {
     if (!querySnapshot.empty) {
       const userDoc = querySnapshot.docs[0].ref;
       await updateDoc(userDoc, updatedData);
-      console.log("User updated successfully!");
+      toast.success("User updated successfully!");
       return true;
     } else {
-      console.log("User not found");
+      toast.error("User not found");
       return false;
     }
   } catch (error) {
-    console.error("Error updating user:", error);
+    toast.error("Error updating user:", error);
     return false;
   }
 };
@@ -72,10 +74,10 @@ export const addPaymentToUser = async (userId, salary) => {
       payments: arrayUnion(newPayment),
     });
 
-    console.log("Payment başarıyla eklendi:", newPayment);
+    toast.success("Payment başarıyla eklendi:", newPayment);
     return true;
   } catch (error) {
-    console.error("Payment eklenirken hata:", error);
+    toast.error("Payment eklenirken hata:", error);
     return false;
   }
 };
@@ -116,11 +118,11 @@ export const addUser = async (userData) => {
     };
 
     const docRef = await addDoc(usersRef, newUser);
-    console.log("Yeni kullanıcı eklendi:", docRef.id);
+    toast.success("Yeni kullanıcı eklendi:", docRef.id);
 
     return { id: docRef.id, ...newUser };
   } catch (error) {
-    console.error("Kullanıcı eklenirken hata:", error);
+    toast.error("Kullanıcı eklenirken hata:", error);
     return null;
   }
 };
@@ -129,10 +131,10 @@ export const updateUserRole = async (id, newRole = "trainer") => {
   try {
     const userRef = doc(firestore, "users", id);
     await updateDoc(userRef, { role: newRole });
-    console.log(`User role updated to ${newRole}`);
+    toast.success(`User role updated to ${newRole}`);
     return true;
   } catch (error) {
-    console.error("Error updating user role:", error);
+    toast.error("Error updating user role:", error);
     return false;
   }
 };

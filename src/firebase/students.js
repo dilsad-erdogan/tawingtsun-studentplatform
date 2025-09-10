@@ -1,5 +1,6 @@
 import { collection, getDocs } from "firebase/firestore";
 import { firestore } from "./firebase";
+import toast from "react-hot-toast";
 
 export const getAllStudent = async () => {
   try {
@@ -13,7 +14,7 @@ export const getAllStudent = async () => {
 
     return students;
   } catch (error) {
-    console.error("Error while withdrawing students:", error);
+    toast.error("Error while withdrawing students:", error);
     return [];
   }
 };

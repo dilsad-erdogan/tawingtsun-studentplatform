@@ -1,6 +1,8 @@
 import { addDoc, collection, deleteDoc, doc, getDocs, query, where } from "firebase/firestore";
 import { firestore } from "./firebase";
 
+import toast from "react-hot-toast";
+
 export const addTrainers = async (data) => {
   try {
     const trainersRef = collection(firestore, "trainers");
@@ -11,11 +13,11 @@ export const addTrainers = async (data) => {
     };
 
     const docRef = await addDoc(trainersRef, newTrainer);
-    console.log("Yeni kullanıcı eklendi:", docRef.id);
+    toast.success("Yeni kullanıcı eklendi:", docRef.id);
 
     return { id: docRef.id, ...newTrainer };
   } catch (error) {
-    console.error("Trainer eklenirken hata:", error);
+    toast.error("Trainer eklenirken hata:", error);
     return null;
   }
 };
@@ -32,7 +34,7 @@ export const getAllTrainer = async () => {
 
     return trainers;
   } catch (error) {
-    console.error("Error while withdrawing trainers:", error);
+    toast.error("Error while withdrawing trainers:", error);
     return [];
   }
 };
@@ -44,19 +46,19 @@ export const deleteTrainerByUserAndGym = async (userId, gymId) => {
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
-      console.log("Silinecek trainer bulunamadı");
+      toast.error("Silinecek trainer bulunamadı");
       return false;
     }
 
     // eşleşen tüm kayıtları sil
     for (const document of querySnapshot.docs) {
       await deleteDoc(doc(firestore, "trainers", document.id));
-      console.log("Trainer silindi:", document.id);
+      toast.success("Trainer silindi:", document.id);
     }
 
     return true;
   } catch (error) {
-    console.error("Trainer silinirken hata:", error);
+    toast.error("Trainer silinirken hata:", error);
     return false;
   }
 };
@@ -68,19 +70,19 @@ export const deleteAllTrainersByUser = async (userId) => {
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
-      console.log("Silinecek trainer bulunamadı.");
+      toast.error("Silinecek trainer bulunamadı.");
       return false;
     }
 
     // eşleşen tüm kayıtları sil
     for (const document of querySnapshot.docs) {
       await deleteDoc(doc(firestore, "trainers", document.id));
-      console.log("Trainer silindi:", document.id);
+      toast.success("Trainer silindi:", document.id);
     }
 
     return true;
   } catch (error) {
-    console.error("Trainer silinirken hata:", error);
+    toast.error("Trainer silinirken hata:", error);
     return false;
   }
 };
@@ -88,10 +90,10 @@ export const deleteAllTrainersByUser = async (userId) => {
 export const deleteTrainerById = async (trainerDocId) => {
   try {
     await deleteDoc(doc(firestore, "trainers", trainerDocId));
-    console.log("Trainer silindi:", trainerDocId);
+    toast.success("Trainer silindi:", trainerDocId);
     return true;
   } catch (error) {
-    console.error("Trainer silinirken hata:", error);
+    toast.error("Trainer silinirken hata:", error);
     return false;
   }
 };
