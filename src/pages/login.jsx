@@ -1,5 +1,5 @@
+import { Toaster } from "react-hot-toast";
 import { useEffect, useState } from "react";
-import { Toaster } from 'react-hot-toast';
 import { login } from "../firebase/login";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserByUID } from "../redux/userSlice";

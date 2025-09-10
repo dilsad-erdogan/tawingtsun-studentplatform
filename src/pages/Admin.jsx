@@ -1,3 +1,4 @@
+import { Toaster } from "react-hot-toast";
 import Navbar from "../components/Navbar";
 import UsersTable from "../components/tables/UsersTable";
 import TrainerTable from "../components/tables/TrainerTable";
