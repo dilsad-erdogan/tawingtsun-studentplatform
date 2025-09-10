@@ -33,7 +33,7 @@ const Admin = () => {
 
       {/* Contents */}
       <div className="mt-10 gap-10">
-        <UsersTable users={users} />
+        <UsersTable />
         <TrainerTable trainers={trainers} users={users} gyms={gyms} students={students} />
         <GymsTable gyms={gyms} users={users} trainers={trainers} students={students} />
       </div>

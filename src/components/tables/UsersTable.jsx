@@ -1,9 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Filter } from "lucide-react";
 import UserModal from "../modals/updateModals/userModal";
 import AddUserModal from "../modals/addModals/userModal";
-import { Filter } from "lucide-react";
+import { fetchAllUsers } from "../../redux/userSlice";
 
-const UsersTable = ({ users }) => {
+const UsersTable = () => {
+    const dispatch = useDispatch();
+    const { users, loading, error } = useSelector((state) => state.user);
+
     const [openUserId, setOpenUserId] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [addModalOpen, setAddModalOpen] = useState(false);
@@ -59,6 +64,13 @@ const UsersTable = ({ users }) => {
         return matchesName && matchesRole && matchesGender && matchesWeight && matchesHeight && matchesAge;
     });
 
+    useEffect(() => {
+        dispatch(fetchAllUsers());
+      }, [dispatch]);
+
+    if (loading) return <div className="p-4">Loading...</div>;
+    if (error) return <div className="p-4 text-red-500">{error}</div>;
+
     return (
         <div className={`grid gap-4 transition-all duration-300 ${filterOpen ? "lg:grid-cols-[1fr_300px]" : "lg:grid-cols-1"} grid-cols-1`}>
             {/* Main table */}
@@ -88,12 +100,12 @@ const UsersTable = ({ users }) => {
                                 <div className="px-4 py-3 bg-gray-50 text-sm">
                                     <p><strong>Email:</strong> {user.email}</p>
                                     <p><strong>Telefon:</strong> {user.phone}</p>
-                                    <p><strong>Role:</strong> {user.role}</p>
-                                    <p><strong>Gender:</strong> {user.gender}</p>
-                                    <p><strong>Weight:</strong> {user.weight}</p>
-                                    <p><strong>Height:</strong> {user.height}</p>
-                                    <p><strong>Age:</strong> {user.age}</p>
-                                    <p><strong>Payments:</strong></p>
+                                    <p><strong>Rol:</strong> {user.role}</p>
+                                    <p><strong>Cinsiyet:</strong> {user.gender === "male" ? "erkek" : "kadın"}</p>
+                                    <p><strong>Kilo:</strong> {user.weight} kg</p>
+                                    <p><strong>Boy:</strong> {user.height} cm</p>
+                                    <p><strong>Yaş:</strong> {user.age}</p>
+                                    <p><strong>Ödeme:</strong></p>
                                     <ul className="list-disc pl-6">
                                         {user.payments && user.payments.length > 0 ? (
                                             user.payments.map((payment, idx) => (
