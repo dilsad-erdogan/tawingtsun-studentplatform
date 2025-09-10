@@ -15,22 +15,14 @@ const AddGymModal = ({ isOpen, onClose }) => {
     };
 
     const handleAddSave = async () => {
-        try {
-            const newGym = {
-                name: formData.name,
-                address: formData.address
-            };
+        const newGym = {
+            name: formData.name,
+            address: formData.address
+        };
+        await addGyms(newGym);
         
-            const result = await addGyms(newGym);
-            if (result) {
-                console.log("Salon başarıyla eklendi:", result);
-            }
-        
-            dispatch(fetchAllGyms());
-            onClose();
-        } catch (error) {
-            console.error("Add failed:", error);
-        }
+        dispatch(fetchAllGyms());
+        onClose();
     };
 
     if (!isOpen) return null;

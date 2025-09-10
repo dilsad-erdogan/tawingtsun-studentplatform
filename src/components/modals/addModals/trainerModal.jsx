@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUserRole } from "../../../firebase/users";
 import { fetchAllUsers } from "../../../redux/userSlice";
 import { addTrainers } from "../../../firebase/trainers";
 import { fetchAllTrainers } from "../../../redux/trainerSlice";
+
+import toast from "react-hot-toast";
 
 const AddTrainerModal = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
@@ -16,25 +18,21 @@ const AddTrainerModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
     const handleSave = async () => {
-        try {
-            if (!selectedUserId) {
-                alert("Lütfen bir kullanıcı ve salon seçin");
-                return;
-            }
-
-            const newGym = {
-                userId: selectedUserId,
-                gymId: selectedGymId
-            };
-
-            await updateUserRole(selectedUserId);
-            await addTrainers(newGym);
-            dispatch(fetchAllUsers());
-            dispatch(fetchAllTrainers());
-            onClose();
-        } catch (error) {
-            console.error("Update failed:", error);
+        if (!selectedUserId) {
+            toast.error("Lütfen bir kullanıcı ve salon seçin");
+            return;
         }
+
+        const newGym = {
+            userId: selectedUserId,
+            gymId: selectedGymId
+        };
+
+        await updateUserRole(selectedUserId);
+        await addTrainers(newGym);
+        dispatch(fetchAllUsers());
+        dispatch(fetchAllTrainers());
+        onClose();
     };
 
   return (

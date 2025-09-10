@@ -17,19 +17,10 @@ const AddUserModal = ({ isOpen, onClose }) => {
   };
 
   const handleSave = async () => {
-    try {
-      const newUser = { name: formData.name, email: formData.email, phone: formData.phone, gender: formData.gender, weight: formData.weight, height: formData.height, age: formData.age };
-
-      const result = await addUser(newUser);
-      if (result) {
-        console.log("Kullanıcı başarıyla eklendi:", result);
-      }
-
-      dispatch(fetchAllUsers());
-      onClose();
-    } catch (error) {
-      console.error("Add failed:", error);
-    }
+    const newUser = { name: formData.name, email: formData.email, phone: formData.phone, gender: formData.gender, weight: formData.weight, height: formData.height, age: formData.age };
+    await addUser(newUser);
+    dispatch(fetchAllUsers());
+    onClose();
   };
 
   return (
