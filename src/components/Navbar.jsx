@@ -38,7 +38,7 @@ const Navbar = () => {
                 </div>
                 {/* Navbar text */}
                 <span className="ml-24 sm:ml-28 md:ml-36 text-base sm:text-lg font-semibold">
-                    {user?.name || (localStorage.getItem('user') ? localStorage.getItem('user').replace(/"/g, "") : "Admin")}
+                    {user?.name || (localStorage.getItem('user') ? localStorage.getItem('user').replace(/"/g, "") : "User")}
                 </span>
             </div>
 

@@ -7,6 +7,8 @@ import GymsTable from "../components/tables/GymsTable";
 const Admin = () => {
   return (
     <div className="min-h-screen bg-gray-100 gap-5 pt-5">
+      <Toaster position='top-right' />
+      
       {/* Navbar */}
       <Navbar />
 

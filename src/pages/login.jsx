@@ -31,6 +31,7 @@ const Login = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <Toaster position="top-right" />
+            
             <div className="bg-white shadow-md rounded-lg p-8 w-full max-w-md">
                 <h1 className="font-bold text-3xl text-red-600 text-center mb-6" style={{ fontFamily: "'Lucida Handwriting', cursive" }}>
                     Login

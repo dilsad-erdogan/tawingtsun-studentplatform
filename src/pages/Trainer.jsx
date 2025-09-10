@@ -3,7 +3,10 @@ import { Toaster } from "react-hot-toast";
 
 const Trainer = () => {
   return (
-    <div>Trainer</div>
+    <div>
+      <Toaster position='top-right' />
+      Trainer
+    </div>
   )
 }
 
