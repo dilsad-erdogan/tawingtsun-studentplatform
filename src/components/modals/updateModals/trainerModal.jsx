@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAllTrainers } from "../../../redux/trainerSlice";
 import { fetchAllUsers } from "../../../redux/userSlice";
 
+import toast from "react-hot-toast";
+
 const TrainerModal = ({ isOpen, onClose, selectedTrainer }) => {
     const [newGymId, setNewGymId] = useState("");
     const dispatch = useDispatch();
@@ -19,17 +21,14 @@ const TrainerModal = ({ isOpen, onClose, selectedTrainer }) => {
     const availableGyms = gyms.filter((gym) => !currentGyms.includes(gym.id));
 
     const handleDeleteGym = async (gymId) => {
-        const success = await deleteTrainerByUserAndGym(userId, gymId);
-        if (success) {
-            console.log("Trainer kaydı silindi:", gymId);
-            dispatch(fetchAllTrainers());
-            onClose();
-        }
+        await deleteTrainerByUserAndGym(userId, gymId);
+        dispatch(fetchAllTrainers());
+        onClose();
     };
 
     const handleAddGym = async () => {
         if (!newGymId || !userId) {
-            alert("Lütfen bir kullanıcı ve salon seçin!");
+            toast.error("Lütfen bir kullanıcı ve salon seçin!");
             return;
         }
 

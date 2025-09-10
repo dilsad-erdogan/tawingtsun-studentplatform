@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllGyms } from '../../../redux/gymSlice';
 import { addTrainers, deleteTrainerById } from '../../../firebase/trainers';
 
+import toast from "react-hot-toast";
+
 const GymModal = ({ isOpen, onClose, selectedGym }) => {
     const dispatch = useDispatch();
     const [formData, setFormData] = useState({ name: "", address: "" });
@@ -27,13 +29,9 @@ const GymModal = ({ isOpen, onClose, selectedGym }) => {
     };
 
     const handleSave = async () => {
-        try {
-            await updateGymByID(selectedGym.id, formData);
-            dispatch(fetchAllGyms());
-            onClose();
-        } catch (error) {
-            console.error("Update failed:", error);
-        }
+        await updateGymByID(selectedGym.id, formData);
+        dispatch(fetchAllGyms());
+        onClose();
     };
 
     const handleAddOwn = async () => {    
@@ -44,38 +42,27 @@ const GymModal = ({ isOpen, onClose, selectedGym }) => {
     };
 
     const handleRemoveOwn = async () => {
-        if (!selectedToRemove) return alert("Lütfen bir sahip seçin!");
+        if (!selectedToRemove) return toast.error("Lütfen bir sahip seçin!");
         await removeOwn(selectedGym.id, selectedToRemove);
-    
         dispatch(fetchAllGyms());
         setSelectedToRemove("");
         onClose();
     };
 
     const handleAddTrainer = async () => {    
-        if (!selectedUserId) return alert("Lütfen bir kullanıcı seçin!");
+        if (!selectedUserId) return toast.error("Lütfen bir kullanıcı seçin!");
 
-        try {
-            await addTrainers({ userId: selectedUserId, gymId: selectedGym.id });
-
-            dispatch(fetchAllGyms());
-            onClose();
-        } catch (error) {
-            console.error("Eğitmen eklenirken hata:", error);
-        }
+        await addTrainers({ userId: selectedUserId, gymId: selectedGym.id });
+        dispatch(fetchAllGyms());
+        onClose();
     };
 
     const handleRemoveTrainer = async () => {
-        if (!selectedToRemove) return alert("Lütfen bir eğitmen seçin!");
-
-        try {
-            await deleteTrainerById(selectedToRemove);
-            dispatch(fetchAllGyms());
-            setSelectedToRemove("");
-            onClose();
-        } catch (error) {
-            console.error("Eğitmen silinirken hata:", error);
-        }
+        if (!selectedToRemove) return toast.error("Lütfen bir eğitmen seçin!");
+        await deleteTrainerById(selectedToRemove);
+        dispatch(fetchAllGyms());
+        setSelectedToRemove("");
+        onClose();
     };
 
     if (!isOpen || !selectedGym || selectedGym.length === 0) return null;

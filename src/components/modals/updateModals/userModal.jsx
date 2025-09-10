@@ -22,13 +22,9 @@ const UserModal = ({ isOpen, onClose, selectedUser }) => {
   };
 
   const handleSave = async () => {
-    try {
-      await updateUserByUID(selectedUser.uid, { name: formData.name, email: formData.email, phone: formData.phone, gender: formData.gender, weight: formData.weight, height: formData.height, age: formData.age });
-      dispatch(fetchAllUsers());
-      onClose();
-    } catch (error) {
-      console.error("Update failed:", error);
-    }
+    await updateUserByUID(selectedUser.uid, { name: formData.name, email: formData.email, phone: formData.phone, gender: formData.gender, weight: formData.weight, height: formData.height, age: formData.age });
+    dispatch(fetchAllUsers());
+    onClose();
   };
 
 //   const handleAddPayment = async () => {
