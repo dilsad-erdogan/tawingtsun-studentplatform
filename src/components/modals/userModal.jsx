@@ -32,13 +32,9 @@ const UserModal = ({ isOpen, onClose, user }) => {
     };
 
     const handleSave = async () => {
-        try {
-            await updateUserByUID(user.uid, { name: formData.name, email: formData.email, phone: formData.phone, weight: formData.weight, height: formData.height });
-            dispatch(fetchAllUsers());
-            handleLogout();
-        } catch (error) {
-          console.error("Update failed:", error);
-        }
+        await updateUserByUID(user.uid, { name: formData.name, email: formData.email, phone: formData.phone, weight: formData.weight, height: formData.height });
+        dispatch(fetchAllUsers());
+        handleLogout();
     };
 
     if (!isOpen) return null;
