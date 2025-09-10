@@ -139,7 +139,7 @@ const TrainerTable = () => {
                 </div>
 
                 <AddTrainerModal isOpen={addModalOpen} onClose={closeModal} />
-                <TrainerModal isOpen={modalOpen} onClose={closeModal} selectedTrainer={selectedTrainer} allGyms={gyms} users={users} />
+                <TrainerModal isOpen={modalOpen} onClose={closeModal} selectedTrainer={selectedTrainer} />
             </div>
 
             {/* Right section */}

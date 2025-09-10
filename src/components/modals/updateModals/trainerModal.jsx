@@ -2,19 +2,21 @@ import React, { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { addTrainers, deleteAllTrainersByUser, deleteTrainerByUserAndGym } from "../../../firebase/trainers";
 import { updateUserRole } from "../../../firebase/users";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchAllTrainers } from "../../../redux/trainerSlice";
 import { fetchAllUsers } from "../../../redux/userSlice";
 
-const TrainerModal = ({ isOpen, onClose, selectedTrainer, allGyms, users }) => {
+const TrainerModal = ({ isOpen, onClose, selectedTrainer }) => {
     const [newGymId, setNewGymId] = useState("");
     const dispatch = useDispatch();
+    const { users } = useSelector((state) => state.user);
+    const { gyms } = useSelector((state) => state.gym);
 
     if (!isOpen || !selectedTrainer || selectedTrainer.length === 0) return null;
 
     const userId = selectedTrainer[0]?.userId;
     const currentGyms = selectedTrainer.map((t) => t.gymId);
-    const availableGyms = allGyms.filter((gym) => !currentGyms.includes(gym.id));
+    const availableGyms = gyms.filter((gym) => !currentGyms.includes(gym.id));
 
     const handleDeleteGym = async (gymId) => {
         const success = await deleteTrainerByUserAndGym(userId, gymId);
@@ -71,7 +73,7 @@ const TrainerModal = ({ isOpen, onClose, selectedTrainer, allGyms, users }) => {
                 <div className="space-y-2 mb-3">
                     <p className="font-medium">Eğitim Verdiği Salonlar:</p>
                     {currentGyms.map((gymId) => {
-                        const gymName = allGyms.find((g) => g.id === gymId)?.name || "Bilinmiyor";
+                        const gymName = gyms.find((g) => g.id === gymId)?.name || "Bilinmiyor";
                         return (
                             <div key={gymId} className="flex justify-between items-center bg-gray-100 p-2 rounded">
                                 <span>{gymName}</span>
