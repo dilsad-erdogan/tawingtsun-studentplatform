@@ -1,8 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GymModal from "../modals/updateModals/gymModal";
 import AddGymModal from "../modals/addModals/gymModal";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllUsers } from "../../redux/userSlice";
+import { fetchAllGyms } from "../../redux/gymSlice";
+import { fetchAllTrainers } from "../../redux/trainerSlice";
+import { fetchAllStudents } from "../../redux/studentSlice";
 
-const GymsTable = ({ gyms, users, trainers, students }) => {
+const GymsTable = () => {
+    const dispatch = useDispatch();
+    const { users, loadingUser, errorUser } = useSelector((state) => state.user);
+    const { gyms, loading, error } = useSelector((state) => state.gym);
+    const { trainers, loadingTrainer, errorTrainer } = useSelector((state) => state.trainer);
+    const { students, loadingStudent, errorStudent } = useSelector((state) => state.student);
+
     const [openGymId, setOpenGymId] = useState(null);
     const [updateModalOpen, setUpdateModalOpen] = useState(false);
     const [addModalOpen, setAddModalOpen] = useState(false);
@@ -36,6 +47,17 @@ const GymsTable = ({ gyms, users, trainers, students }) => {
     const openAddModal = () => {
         setAddModalOpen(true);
     };
+
+    useEffect(() => {
+        dispatch(fetchAllUsers());
+        dispatch(fetchAllGyms());
+        dispatch(fetchAllTrainers());
+        dispatch(fetchAllStudents());
+    }, [dispatch]);
+    
+    if (loadingUser || loading || loadingTrainer || loadingStudent) return <div className="p-4">Loading...</div>;
+    if (errorUser || error || errorTrainer || errorStudent) return <div className="p-4 text-red-500">{errorUser || error}</div>;
+    
 
     return (
         <div className="p-6 max-w-2xl mx-auto">
