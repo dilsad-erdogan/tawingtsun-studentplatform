@@ -1,9 +1,22 @@
-import { useState } from "react";
-import AddTrainerModal from "../modals/addModals/trainerModal";
-import TrainerModal from "../modals/updateModals/trainerModal";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Filter } from "lucide-react";
 
-const TrainerTable = ({ trainers, users, gyms, students }) => {
+import { fetchAllUsers } from "../../redux/userSlice";
+import { fetchAllGyms } from "../../redux/gymSlice";
+import { fetchAllTrainers } from "../../redux/trainerSlice";
+import { fetchAllStudents } from "../../redux/studentSlice";
+
+import AddTrainerModal from "../modals/addModals/trainerModal";
+import TrainerModal from "../modals/updateModals/trainerModal";
+
+const TrainerTable = () => {
+    const dispatch = useDispatch();
+    const { users, loadingUser, errorUser } = useSelector((state) => state.user);
+    const { gyms, loading, error } = useSelector((state) => state.gym);
+    const { trainers, loadingTrainer, errorTrainer } = useSelector((state) => state.trainer);
+    const { students, loadingStudent, errorStudent } = useSelector((state) => state.student);
+
     const [openTrainerId, setOpenTrainerId] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [addModalOpen, setAddModalOpen] = useState(false);
@@ -51,16 +64,28 @@ const TrainerTable = ({ trainers, users, gyms, students }) => {
         acc[trainer.userId].push(trainer);
         return acc;
     }, {});
+
+    useEffect(() => {
+        dispatch(fetchAllUsers());
+        dispatch(fetchAllGyms());
+        dispatch(fetchAllTrainers());
+        dispatch(fetchAllStudents());
+    }, [dispatch]);
+
+    if (loadingUser || loading || loadingTrainer || loadingStudent) return <div className="p-4">Loading...</div>;
+    if (errorUser || error || errorTrainer || errorStudent) return <div className="p-4 text-red-500">{errorUser || error}</div>;
     
     return (
         <div className={`grid gap-4 transition-all duration-300 ${filterOpen ? "lg:grid-cols-[1fr_300px]" : "lg:grid-cols-1"} grid-cols-1`}>
             {/* Main table */}
             <div className="p-6 max-w-2xl mx-auto w-full">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex justify-between items-center mb-4 gap-2">
                     <h1 className="text-2xl font-bold">Trainers</h1>
-                    <button onClick={() => openAddModal()} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Eğitimci Ekle</button>
-                    <button onClick={() => setFilterOpen(!filterOpen)} className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 flex items-center gap-1"><Filter size={18} /></button>
-                    <input type="text" placeholder="İsme göre ara..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="border px-3 py-1 rounded w-48" />
+                    <div className="flex items-center gap-2">
+                        <button onClick={() => openAddModal()} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Eğitimci Ekle</button>
+                        <button onClick={() => setFilterOpen(!filterOpen)} className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 flex items-center gap-1"><Filter size={18} /></button>
+                        <input type="text" placeholder="İsme göre ara..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="border px-3 py-1 rounded w-48" />
+                    </div>
                 </div>
                 
                 <div className="space-y-2">
