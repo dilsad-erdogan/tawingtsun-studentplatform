@@ -2,7 +2,7 @@ import React from 'react'
 
 const StudentPanel = () => {
   return (
-    <div>StudentPanel</div>
+    <div className="mt-10 gap-10">StudentPanel</div>
   )
 }
 
