@@ -1,48 +1,69 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getUserByUID, getAllUsers } from "../firebase/users";
 
-// Single user capture
+// 🔹 Tek kullanıcıyı Firestore'dan UID ile getir
 export const fetchUserByUID = createAsyncThunk(
   "user/fetchUserByUID",
-  async (uid) => {
-    const userData = await getUserByUID(uid);
+  async (uid, thunkAPI) => {
+    try {
+      const userData = await getUserByUID(uid);
 
-    if (userData) {
-      localStorage.setItem("user", JSON.stringify(userData.name));
+      if (userData) {
+        // Tüm user objesini kaydedelim (sadece name değil)
+        localStorage.setItem("user", JSON.stringify(userData));
+        return userData;
+      } else {
+        return thunkAPI.rejectWithValue("Kullanıcı bulunamadı");
+      }
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
     }
-
-    return userData;
   }
 );
 
-// Pull all users
+// 🔹 Tüm kullanıcıları getir (admin için)
 export const fetchAllUsers = createAsyncThunk(
   "user/fetchAllUsers",
-  async () => {
-    const allUsers = await getAllUsers();
-    return allUsers;
+  async (_, thunkAPI) => {
+    try {
+      const allUsers = await getAllUsers();
+      return allUsers;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
   }
 );
 
 const userSlice = createSlice({
   name: "user",
   initialState: {
-    data: JSON.parse(localStorage.getItem("user")) || null, // Single user
-    users: [], // All users
+    data: JSON.parse(localStorage.getItem("user")) || null, // Tek kullanıcı
+    users: [], // Tüm kullanıcılar
+    status: "idle", // idle | loading | succeeded | failed
     loading: false,
     error: null,
   },
   reducers: {
+    // Kullanıcı çıkış yaparsa
+    logout: (state) => {
+      state.data = null;
+      state.users = [];
+      state.status = "idle";
+      state.loading = false;
+      state.error = null;
+      localStorage.removeItem("user");
+    },
     clearUser: (state) => {
       state.data = null;
+      localStorage.removeItem("user");
     },
     clearUsers: (state) => {
       state.users = [];
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
-      // Single user
+      // Tek kullanıcı
       .addCase(fetchUserByUID.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -50,13 +71,15 @@ const userSlice = createSlice({
       .addCase(fetchUserByUID.fulfilled, (state, action) => {
         state.loading = false;
         state.data = action.payload;
+        state.status = "succeeded";
       })
       .addCase(fetchUserByUID.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
+        state.status = "failed";
       })
 
-      // All users
+      // Tüm kullanıcılar
       .addCase(fetchAllUsers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -64,13 +87,15 @@ const userSlice = createSlice({
       .addCase(fetchAllUsers.fulfilled, (state, action) => {
         state.loading = false;
         state.users = action.payload;
+        state.status = "succeeded";
       })
       .addCase(fetchAllUsers.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
+        state.status = "failed";
       });
   },
 });
 
-export const { clearUser, clearUsers } = userSlice.actions;
+export const { logout, clearUser, clearUsers } = userSlice.actions;
 export default userSlice.reducer;
