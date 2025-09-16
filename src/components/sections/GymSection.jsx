@@ -5,12 +5,11 @@ import { firestore } from "../../firebase/firebase";
 
 const GymSection = () => {
     const user = useSelector((state) => state.user.data);
-    console.log(user)
     const [gyms, setGyms] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!user?.uid) return;
+        if (!user?.id) return;
 
         const fetchGymsForTrainer = async () => {
             try {
@@ -25,16 +24,21 @@ const GymSection = () => {
                     return;
                 }
 
-                // 2. GymId'leri al
-                const gymIds = trainerSnap.docs.map((doc) => doc.data().gymId);
-
-                // 3. Gym bilgilerini çek
+                // 2. Hem gymId hem eğitmen maaşı bilgisini al
                 const gymsData = [];
-                for (let gid of gymIds) {
-                    const gymRef = doc(firestore, "gyms", gid);
+                for (let trainerDoc of trainerSnap.docs) {
+                    const { gymId, totalSalaryMonth: trainerSalary } = trainerDoc.data();
+
+                    // 3. Gym bilgisini çek
+                    const gymRef = doc(firestore, "gyms", gymId);
                     const gymSnap = await getDoc(gymRef);
+
                     if (gymSnap.exists()) {
-                        gymsData.push({ id: gymSnap.id, ...gymSnap.data() });
+                        gymsData.push({
+                            id: gymSnap.id,
+                            ...gymSnap.data(),
+                            trainerSalary,
+                        });
                     }
                 }
 
@@ -62,13 +66,14 @@ const GymSection = () => {
                         <li key={gym.id} className="border rounded p-3 bg-white shadow">
                             <h3 className="font-semibold">{gym.name}</h3>
                             <p><strong>Adres:</strong> {gym.address}</p>
-                            <p><strong>Aylık Toplam Maaş:</strong> {gym.totalSalaryMonth}</p>
+                            <p><strong>Senin Aylık Kazancın:</strong> {gym.trainerSalary}</p>
+                            <p><strong>Spor Salonunun Aylık Kazancı:</strong> {gym.totalSalaryMonth}</p>
                         </li>
                     ))}
                 </ul>
             )}
         </div>
     );
-}
+};
 
-export default GymSection
+export default GymSection;
