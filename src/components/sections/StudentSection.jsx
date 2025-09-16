@@ -4,64 +4,76 @@ import { getTrainerGymsWithStudents } from "../../firebase/students";
 
 const StudentSection = () => {
   const user = useSelector((state) => state.user.data);
-  const [gymsWithStudents, setGymsWithStudents] = useState([]);
+  const [gyms, setGyms] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user?.id) return;
 
-    const fetchData = async () => {
+    const fetchGyms = async () => {
       try {
-        const data = await getTrainerGymsWithStudents(user.id);
-        setGymsWithStudents(data);
-      } catch (err) {
-        console.error("StudentSection fetchData Hatası:", err);
+        const gymsData = await getTrainerGymsWithStudents(user.id);
+        setGyms(gymsData);
+      } catch (error) {
+        console.error("Hata:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    fetchGyms();
   }, [user]);
+
+  const handlePayment = (gymId, studentId) => {
+    // Burada Firebase'de paymentStatus: true olarak güncelle
+    console.log("Ödendi olarak işaretlenecek:", gymId, studentId);
+  };
 
   if (loading) return <p>Yükleniyor...</p>;
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Eğitmen Olduğun Öğrenciler</h2>
-      {gymsWithStudents.length === 0 ? (
-        <p>Hiç öğrenci bulunamadı.</p>
+      <h2 className="text-xl font-bold mb-4">Öğrencilerin ve Ödeme Durumları</h2>
+      {gyms.length === 0 ? (
+        <p>Hiçbir salona bağlı değilsiniz.</p>
       ) : (
-        gymsWithStudents.map((gym) => (
-          <div
-            key={gym.gymId}
-            className="mb-6 border rounded p-4 bg-white shadow"
-          >
-            <h3 className="text-lg font-semibold mb-3">{gym.gymName}</h3>
+        gyms.map((gym) => (
+          <div key={gym.gymId} className="mb-6 border rounded p-4 bg-white shadow">
+            <h3 className="font-semibold mb-2">{gym.gymName}</h3>
 
             {gym.students.length === 0 ? (
               <p>Bu salonda öğrenci yok.</p>
             ) : (
-              <table className="w-full border border-gray-300">
+              <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-gray-100">
-                    <th className="p-2 border">Ad Soyad</th>
-                    <th className="p-2 border">Email</th>
-                    <th className="p-2 border">Telefon</th>
-                    <th className="p-2 border">Durum</th>
+                    <th className="border px-2 py-1">Öğrenci Adı</th>
+                    <th className="border px-2 py-1">Email</th>
+                    <th className="border px-2 py-1">Ücret</th>
+                    <th className="border px-2 py-1">Tarih</th>
+                    <th className="border px-2 py-1">Ödenme Durumu</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {gym.students.map((student) => (
-                    <tr key={student.id} className="text-center">
-                      <td className="p-2 border">{student.user?.name}</td>
-                      <td className="p-2 border">{student.user?.email}</td>
-                      <td className="p-2 border">{student.user?.phone}</td>
-                      <td className="p-2 border">
-                        {student.isActive ? "Aktif" : "Pasif"}
-                      </td>
-                    </tr>
-                  ))}
+                  {gym.students.map((student) =>
+                    student.user.payments.map((payment, idx) => (
+                      <tr key={student.userId + idx}>
+                        <td className="border px-2 py-1">{student.user.name}</td>
+                        <td className="border px-2 py-1">{student.user.email}</td>
+                        <td className="border px-2 py-1">{payment.salary}</td>
+                        <td className="border px-2 py-1">{payment.entryDate}</td>
+                        <td className="border px-2 py-1 text-center">
+                          {payment.paymentStatus ? (
+                            "✅"
+                          ) : (
+                            <button onClick={() => handlePayment(gym.gymId, student.userId)} className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
+                              Ödendi
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             )}
