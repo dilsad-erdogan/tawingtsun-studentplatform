@@ -5,21 +5,17 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import toast from "react-hot-toast";
 
 export const getUserByUID = async (uid) => {
-  try {
-    const usersRef = collection(firestore, "users");
-    const q = query(usersRef, where("uid", "==", uid));
-    const querySnapshot = await getDocs(q);
+  const usersRef = collection(firestore, "users");
+  const snapshot = await getDocs(usersRef);
+  let foundUser = null;
 
-    if (!querySnapshot.empty) {
-      return querySnapshot.docs[0].data();
-    } else {
-      toast.error("User not found");
-      return null;
+  snapshot.forEach((docSnap) => {
+    if (docSnap.data().uid === uid) {
+      foundUser = { id: docSnap.id, ...docSnap.data() };
     }
-  } catch (error) {
-    toast.error("Error while withdrawing user:", error);
-    return null;
-  }
+  });
+
+  return foundUser;
 };
 
 export const getAllUsers = async () => {
