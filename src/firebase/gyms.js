@@ -1,4 +1,4 @@
-import { addDoc, arrayRemove, arrayUnion, collection, doc, getDocs, updateDoc } from "firebase/firestore";
+import { addDoc, arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { firestore } from "./firebase";
 
 import toast from "react-hot-toast";
@@ -117,5 +117,40 @@ export const addGyms = async (gymData) => {
   } catch (error) {
     toast.error("Salon eklenirken hata:", error);
     return null;
+  }
+};
+
+export const getGymsForTrainer = async (userId) => {
+  try {
+    // 1. Bu user'a bağlı trainer kayıtlarını bul
+    const trainersRef = collection(firestore, "trainers");
+    const q = query(trainersRef, where("userId", "==", userId));
+    const trainerSnap = await getDocs(q);
+
+    if (trainerSnap.empty) return [];
+
+    const gymsData = [];
+
+    // 2. Trainer kayıtlarını dolaş
+    for (let trainerDoc of trainerSnap.docs) {
+      const { gymId, totalSalaryMonth: trainerSalary } = trainerDoc.data();
+
+      // 3. Gym bilgisini çek
+      const gymRef = doc(firestore, "gyms", gymId);
+      const gymSnap = await getDoc(gymRef);
+
+      if (gymSnap.exists()) {
+        gymsData.push({
+          id: gymSnap.id,
+          ...gymSnap.data(),
+          trainerSalary,
+        });
+      }
+    }
+
+    return gymsData;
+  } catch (error) {
+    console.error("Hata (getGymsForTrainer):", error);
+    throw error;
   }
 };
