@@ -1,6 +1,6 @@
 import React from 'react'
-import GymSection from '../sections/GymSection'
-import StudentSection from '../sections/StudentSection'
+import GymSection from '../sections/trainer/GymSection'
+import StudentSection from '../sections/trainer/StudentSection'
 
 const TrainerPanel = () => {
   return (

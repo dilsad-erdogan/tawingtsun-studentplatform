@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { getTrainerGymsWithStudents } from "../../firebase/students";
-import { updatePaymentStatus, addPaymentToUser } from "../../firebase/users";
+import { getTrainerGymsWithStudents } from "../../../firebase/students";
+import { updatePaymentStatus, addPaymentToUser } from "../../../firebase/users";
 import toast from "react-hot-toast";
 
 const StudentSection = () => {

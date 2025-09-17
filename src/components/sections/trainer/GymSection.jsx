@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux"; 
-import { getGymsForTrainer } from "../../firebase/gyms";
+import { getGymsForTrainer } from "../../../firebase/gyms";
 
 const GymSection = () => {
   const user = useSelector((state) => state.user.data);
