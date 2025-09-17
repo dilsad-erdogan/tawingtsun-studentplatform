@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getTrainerGymsWithStudents } from "../../firebase/students";
-import { updatePaymentStatus } from "../../firebase/users";
+import { updatePaymentStatus, addPaymentToUser } from "../../firebase/users";
 import toast from "react-hot-toast";
 
 const StudentSection = () => {
   const user = useSelector((state) => state.user.data);
   const [gyms, setGyms] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [salaryInput, setSalaryInput] = useState("");
 
   useEffect(() => {
     if (!user?.id) return;
@@ -26,12 +31,29 @@ const StudentSection = () => {
     fetchGyms();
   }, [user]);
 
+  const refreshGyms = async () => {
+    const gymsData = await getTrainerGymsWithStudents(user.id);
+    setGyms(gymsData);
+  };
+
   const handlePayment = async (entryDate, id) => {
     try {
       await updatePaymentStatus(id, entryDate);
+      await refreshGyms();
+    } catch (error) {
+      toast.error("Ödeme güncellenemedi:", error);
+    }
+  };
 
-      const gymsData = await getTrainerGymsWithStudents(user.id);
-      setGyms(gymsData);
+  const handleAddPayment = async () => {
+    if (!salaryInput || !selectedUserId) return;
+
+    try {
+      await addPaymentToUser(selectedUserId, salaryInput);
+      toast.success("Yeni ödeme eklendi ✅");
+      setSalaryInput("");
+      setIsModalOpen(false);
+      await refreshGyms();
     } catch (error) {
       toast.error("Ödeme eklenemedi:", error);
     }
@@ -46,7 +68,10 @@ const StudentSection = () => {
         <p>Hiçbir salona bağlı değilsiniz.</p>
       ) : (
         gyms.map((gym) => (
-          <div key={gym.gymId} className="mb-6 border rounded p-4 bg-white shadow">
+          <div
+            key={gym.gymId}
+            className="mb-6 border rounded p-4 bg-white shadow"
+          >
             <h3 className="font-semibold mb-2">{gym.gymName}</h3>
 
             {gym.students.length === 0 ? (
@@ -63,30 +88,81 @@ const StudentSection = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {gym.students.map((student) =>
-                    student.user.payments.map((payment, idx) => (
-                      <tr key={student.userId + idx}>
+                  {gym.students.map((student) => {
+                    // Ödemeleri tarihe göre sırala (en yeni en başta)
+                    const sortedPayments = [...student.user.payments].sort(
+                      (a, b) => new Date(b.entryDate) - new Date(a.entryDate)
+                    );
+
+                    // Sadece en güncel ödeme
+                    const latestPayment = sortedPayments[0];
+
+                    return (
+                      <tr key={student.userId}>
                         <td className="border px-2 py-1">{student.user.name}</td>
                         <td className="border px-2 py-1">{student.user.email}</td>
-                        <td className="border px-2 py-1">{payment.salary}</td>
-                        <td className="border px-2 py-1">{payment.entryDate}</td>
+                        <td className="border px-2 py-1">{latestPayment.salary}</td>
+                        <td className="border px-2 py-1">{latestPayment.entryDate}</td>
                         <td className="border px-2 py-1 text-center">
-                          {payment.paymentStatus ? (
-                            "✅"
+                          {latestPayment.paymentStatus ? (
+                            <button
+                              onClick={() => {
+                                setSelectedUserId(student.userId);
+                                setIsModalOpen(true);
+                              }}
+                              className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                            >
+                              Yeni Ödeme Ekle
+                            </button>
                           ) : (
-                            <button onClick={() => handlePayment(payment.entryDate, student.userId)} className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
+                            <button
+                              onClick={() =>
+                                handlePayment(latestPayment.entryDate, student.userId)
+                              }
+                              className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                            >
                               Ödendi
                             </button>
                           )}
                         </td>
                       </tr>
-                    ))
-                  )}
+                    );
+                  })}
                 </tbody>
               </table>
             )}
           </div>
         ))
+      )}
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow w-96">
+            <h2 className="text-lg font-bold mb-4">Yeni Ödeme Ekle</h2>
+            <input
+              type="number"
+              placeholder="Ücret"
+              value={salaryInput}
+              onChange={(e) => setSalaryInput(e.target.value)}
+              className="w-full border px-3 py-2 mb-4 rounded"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                İptal
+              </button>
+              <button
+                onClick={handleAddPayment}
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              >
+                Ekle
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
