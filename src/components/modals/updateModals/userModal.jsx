@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { updateUserByUID, addPaymentToUser } from "../../../firebase/users";
+import { updateUserByUID } from "../../../firebase/users";
 import { fetchAllUsers } from "../../../redux/userSlice";
 
 const UserModal = ({ isOpen, onClose, selectedUser }) => {
@@ -26,20 +26,6 @@ const UserModal = ({ isOpen, onClose, selectedUser }) => {
     dispatch(fetchAllUsers());
     onClose();
   };
-
-//   const handleAddPayment = async () => {
-//     if (!formData.salary) {
-//       alert("Lütfen bir ücret girin!");
-//       return;
-//     }
-//     try {
-//       await addPaymentToUser(selectedUser.uid, formData.salary);
-//       dispatch(fetchAllUsers());
-//       onClose();
-//     } catch (error) {
-//       console.error("Add payment failed:", error);
-//     }
-//   };
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center">
@@ -100,19 +86,6 @@ const UserModal = ({ isOpen, onClose, selectedUser }) => {
             Kaydet
           </button>
         </div>
-
-        {/* <div className="mt-6 border-t pt-4">
-          <h3 className="text-lg font-semibold mb-2">Ödeme Ekle</h3>
-          <label className="block">
-            Ücret
-            <input type="number" name="salary" value={formData.salary || ""} onChange={handleChange} className="w-full border p-2 rounded mt-1" />
-          </label>
-          <div className="flex justify-end mt-3">
-            <button onClick={handleAddPayment} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-              Ekle
-            </button>
-          </div>
-        </div> */}
       </div>
     </div>
   );
