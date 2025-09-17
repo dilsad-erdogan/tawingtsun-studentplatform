@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getTrainerGymsWithStudents } from "../../firebase/students";
+import { updatePaymentStatus } from "../../firebase/users";
+import toast from "react-hot-toast";
 
 const StudentSection = () => {
   const user = useSelector((state) => state.user.data);
@@ -24,9 +26,15 @@ const StudentSection = () => {
     fetchGyms();
   }, [user]);
 
-  const handlePayment = (gymId, studentId) => {
-    // Burada Firebase'de paymentStatus: true olarak güncelle
-    console.log("Ödendi olarak işaretlenecek:", gymId, studentId);
+  const handlePayment = async (entryDate, id) => {
+    try {
+      await updatePaymentStatus(id, entryDate);
+
+      const gymsData = await getTrainerGymsWithStudents(user.id);
+      setGyms(gymsData);
+    } catch (error) {
+      toast.error("Ödeme eklenemedi:", error);
+    }
   };
 
   if (loading) return <p>Yükleniyor...</p>;
@@ -66,7 +74,7 @@ const StudentSection = () => {
                           {payment.paymentStatus ? (
                             "✅"
                           ) : (
-                            <button onClick={() => handlePayment(gym.gymId, student.userId)} className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
+                            <button onClick={() => handlePayment(payment.entryDate, student.userId)} className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
                               Ödendi
                             </button>
                           )}

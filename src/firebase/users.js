@@ -1,4 +1,4 @@
-import { collection, query, where, getDocs, updateDoc, doc, arrayUnion, addDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, updateDoc, doc, arrayUnion, addDoc, getDoc } from "firebase/firestore";
 import { auth, firestore } from "./firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
@@ -74,6 +74,35 @@ export const addPaymentToUser = async (userId, salary) => {
     return true;
   } catch (error) {
     toast.error("Payment eklenirken hata:", error);
+    return false;
+  }
+};
+
+export const updatePaymentStatus = async (userId, entryDate) => {
+  try {
+    const userRef = doc(firestore, "users", userId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      toast.error("Kullanıcı bulunamadı");
+      return false;
+    }
+
+    const userData = userSnap.data();
+    const updatedPayments = (userData.payments || []).map((payment) => {
+      if (payment.entryDate === entryDate) {
+        return { ...payment, paymentStatus: true };
+      }
+      return payment;
+    });
+
+    await updateDoc(userRef, { payments: updatedPayments });
+
+    toast.success("Ödeme başarıyla güncellendi ✅");
+    return true;
+  } catch (error) {
+    console.error("updatePaymentStatus hata:", error);
+    toast.error("Ödeme güncellenirken hata oluştu");
     return false;
   }
 };
