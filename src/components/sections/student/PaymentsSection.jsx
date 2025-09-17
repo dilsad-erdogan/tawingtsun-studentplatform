@@ -13,7 +13,7 @@ const PaymentsSection = () => {
   );
 
   return (
-    <div className="p-4">
+    <div className="m-10 p-4">
       <h2 className="text-xl font-bold mb-4">Ödeme Geçmişim</h2>
       <table className="w-full border-collapse">
         <thead>
