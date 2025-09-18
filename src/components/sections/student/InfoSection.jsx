@@ -4,6 +4,7 @@ import { getStudentTrainerAndGym } from "../../../firebase/students";
 
 const InfoSection = () => {
   const user = useSelector((state) => state.user.data);
+  console.log(user)
   const [info, setInfo] = useState(null);
 
   useEffect(() => {
@@ -22,6 +23,7 @@ const InfoSection = () => {
   }, [user]);
 
   if (!info) return <p>Yükleniyor...</p>;
+  if (info.message) return <p>{info.message}</p>;
 
   return (
     <div className="m-10 p-4 border rounded bg-white shadow">

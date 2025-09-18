@@ -87,7 +87,6 @@ export const getTrainerGymsWithStudents = async (userId) => {
 
 export const getStudentTrainerAndGym = async (studentUserId) => {
   try {
-    // 1. Students tablosunda userId eşleşen dokümanı bul
     const q = query(
       collection(firestore, "students"),
       where("userId", "==", studentUserId)
@@ -95,49 +94,45 @@ export const getStudentTrainerAndGym = async (studentUserId) => {
     const studentSnap = await getDocs(q);
 
     if (studentSnap.empty) {
-      throw new Error("Öğrenci bulunamadı");
+      return { student: null, trainer: null, gym: null, message: "Öğrenci kaydı bulunamadı" };
     }
 
-    // tek sonuç alacağını varsayıyorum (her öğrenci 1 satır)
     const studentDoc = studentSnap.docs[0];
     const studentData = studentDoc.data();
     const trainerId = studentData.trainerId;
 
     if (!trainerId) {
-      throw new Error("Bu öğrenciye atanmış bir eğitmen yok");
+      return { student: studentData, trainer: null, gym: null, message: "Bu öğrenciye atanmış bir eğitmen yok" };
     }
 
-    // 2. Trainers tablosundan userId ve gymId'yi al
+    // 2. trainer çek
     const trainerRef = doc(firestore, "trainers", trainerId);
     const trainerSnap = await getDoc(trainerRef);
-
     if (!trainerSnap.exists()) {
-      throw new Error("Eğitmen bulunamadı");
+      return { student: studentData, trainer: null, gym: null, message: "Eğitmen bulunamadı" };
     }
 
     const trainerData = trainerSnap.data();
     const { userId: trainerUserId, gymId } = trainerData;
 
-    // 3. Eğitmenin user bilgilerini getir (users tablosu)
+    // 3. trainer user bilgisi
     const trainerUserRef = doc(firestore, "users", trainerUserId);
     const trainerUserSnap = await getDoc(trainerUserRef);
-
     const trainerUserData = trainerUserSnap.exists() ? trainerUserSnap.data() : null;
 
-    // 4. Gym bilgilerini getir
+    // 4. gym bilgisi
     const gymRef = doc(firestore, "gyms", gymId);
     const gymSnap = await getDoc(gymRef);
-
     const gymData = gymSnap.exists() ? gymSnap.data() : null;
 
-    // 🔥 Geriye birleşik obje dön
     return {
       student: { id: studentUserId, ...studentData },
       trainer: { id: trainerId, ...trainerData, user: trainerUserData },
-      gym: { id: gymId, ...gymData }
+      gym: { id: gymId, ...gymData },
+      message: null
     };
   } catch (error) {
     console.error("getStudentTrainerAndGym hata:", error);
-    throw error;
+    return { student: null, trainer: null, gym: null, message: "Bilinmeyen hata" };
   }
 };
