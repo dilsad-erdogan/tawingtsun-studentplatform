@@ -3,10 +3,12 @@ import { useSelector } from "react-redux";
 import { getTrainerGymsWithStudents } from "../../../firebase/students";
 import { updatePaymentStatus, addPaymentToUser } from "../../../firebase/users";
 import toast from "react-hot-toast";
+import AddUserModal from "../../modals/addModals/userFromTrainer";
 
 const StudentSection = () => {
   const user = useSelector((state) => state.user.data);
   const [gyms, setGyms] = useState([]);
+  const [selectedGym, setSelectedGym] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Modal state
@@ -68,11 +70,17 @@ const StudentSection = () => {
         <p>Hiçbir salona bağlı değilsiniz.</p>
       ) : (
         gyms.map((gym) => (
-          <div
-            key={gym.gymId}
-            className="mb-6 border rounded p-4 bg-white shadow"
-          >
-            <h3 className="font-semibold mb-2">{gym.gymName}</h3>
+          <div key={gym.gymId} className="mb-6 border rounded p-4 bg-white shadow">
+            <h3 className="font-semibold mb-2 flex justify-between items-center">
+              {gym.gymName}
+              <button onClick={() => setSelectedGym(gym)} className="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+                Öğrenci Ekle
+              </button>
+            </h3>
+
+            {selectedGym && (
+              <AddUserModal isOpen={!!selectedGym} onClose={() => setSelectedGym(null)} gym={selectedGym} />
+            )}
 
             {gym.students.length === 0 ? (
               <p>Bu salonda öğrenci yok.</p>
@@ -143,26 +151,10 @@ const StudentSection = () => {
         <div className="fixed inset-0 bg-black/50 text-black backdrop-blur-sm flex justify-center items-center">
           <div className="bg-white p-6 rounded shadow w-96">
             <h2 className="text-lg font-bold mb-4">Yeni Ödeme Ekle</h2>
-            <input
-              type="number"
-              placeholder="Ücret"
-              value={salaryInput}
-              onChange={(e) => setSalaryInput(e.target.value)}
-              className="w-full border px-3 py-2 mb-4 rounded"
-            />
+            <input type="number" placeholder="Ücret" value={salaryInput} onChange={(e) => setSalaryInput(e.target.value)} className="w-full border px-3 py-2 mb-4 rounded" />
             <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-              >
-                İptal
-              </button>
-              <button
-                onClick={handleAddPayment}
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-              >
-                Ekle
-              </button>
+              <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">İptal</button>
+              <button onClick={handleAddPayment} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Ekle</button>
             </div>
           </div>
         </div>

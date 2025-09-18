@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { firestore } from "./firebase";
 import toast from "react-hot-toast";
 
@@ -74,6 +74,7 @@ export const getTrainerGymsWithStudents = async (userId) => {
       gymsData.push({
         gymId,
         gymName,
+        trainerId,
         students: studentsData,
       });
     }
@@ -134,5 +135,20 @@ export const getStudentTrainerAndGym = async (studentUserId) => {
   } catch (error) {
     console.error("getStudentTrainerAndGym hata:", error);
     return { student: null, trainer: null, gym: null, message: "Bilinmeyen hata" };
+  }
+};
+
+export const addStudent = async (studentData) => {
+  try {
+    const studentsRef = collection(firestore, "students");
+    const docRef = await addDoc(studentsRef, {
+      userId: studentData.userId,
+      trainerId: studentData.trainerId,
+      createdAt: new Date(),
+    });
+    return { id: docRef.id, ...studentData };
+  } catch (error) {
+    console.error("Student ekleme hatası:", error);
+    return null;
   }
 };
