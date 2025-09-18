@@ -1,11 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { addUser } from "../../../firebase/users";
 import { fetchAllUsers } from "../../../redux/userSlice";
+import { getAllTrainersWithDetails } from "../../../firebase/trainers";
+import { addDoc, collection } from "firebase/firestore";
+import { firestore } from "../../../firebase/firebase";
 
 const AddUserModal = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
-  const [formData, setFormData] = useState({ name: "", email: "", phone: "", gender: "", weight: 0, height: 0, age: 0, });
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "", gender: "", weight: 0, height: 0, age: 0 });
+  const [trainers, setTrainers] = useState([]);
+
+  useEffect(() => {
+    const fetchTrainers = async () => {
+      const data = await getAllTrainersWithDetails();
+      setTrainers(data);
+    };
+    fetchTrainers();
+  }, []);
 
   if (!isOpen) return null;
 
@@ -17,10 +29,19 @@ const AddUserModal = ({ isOpen, onClose }) => {
   };
 
   const handleSave = async () => {
-    const newUser = { name: formData.name, email: formData.email, phone: formData.phone, gender: formData.gender, weight: formData.weight, height: formData.height, age: formData.age };
-    await addUser(newUser);
-    dispatch(fetchAllUsers());
-    onClose();
+    try {
+      const newUser = { name: formData.name, email: formData.email, phone: formData.phone, gender: formData.gender, weight: formData.weight, height: formData.height, age: formData.age };
+
+      // addUser fonksiyonun addDoc dönüyorsa docRef.id ile id alabilirsin
+      const userDocRef = await addUser(newUser);
+
+      await addDoc(collection(firestore, "students"), { trainerId: formData.trainerId, userId: userDocRef.id, isActive: "true" });
+
+      dispatch(fetchAllUsers());
+      onClose();
+    } catch (error) {
+      console.error("Kullanıcı + öğrenci eklenirken hata:", error);
+    }
   };
 
   return (
@@ -74,6 +95,19 @@ const AddUserModal = ({ isOpen, onClose }) => {
           <label className="block">
             Yaş
             <input type="number" name="age" value={formData.age} onChange={handleChange} className="w-full border p-2 rounded mt-1" />
+          </label>
+
+          <label className="block">
+            Eğitmen Seç
+            <select name="trainerId" value={formData.trainerId} onChange={handleChange} className="w-full border p-2 rounded mt-1">
+              <option value="">Seçiniz</option>
+              {trainers.map((trainer) => (
+                <option key={trainer.id} value={trainer.id}>
+                  {trainer.user?.name || "İsimsiz"} (
+                  {trainer.gym?.name || "Salon Yok"})
+                </option>
+              ))}
+            </select>
           </label>
         </div>
 

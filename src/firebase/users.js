@@ -143,7 +143,7 @@ export const addUser = async (userData) => {
     };
 
     const docRef = await addDoc(usersRef, newUser);
-    toast.success("Yeni kullanıcı eklendi:", docRef.id);
+    toast.success(`Yeni kullanıcı eklendi: ${docRef.id}`);
 
     return { id: docRef.id, ...newUser };
   } catch (error) {

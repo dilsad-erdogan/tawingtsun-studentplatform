@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDocs, query, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { firestore } from "./firebase";
 
 import toast from "react-hot-toast";
@@ -96,4 +96,43 @@ export const deleteTrainerById = async (trainerDocId) => {
     toast.error("Trainer silinirken hata:", error);
     return false;
   }
+};
+
+export const getAllTrainersWithDetails = async () => {
+  const trainersRef = collection(firestore, "trainers");
+  const trainersSnap = await getDocs(trainersRef);
+
+  const trainersData = await Promise.all(
+    trainersSnap.docs.map(async (trainerDoc) => {
+      const trainer = { id: trainerDoc.id, ...trainerDoc.data() };
+
+      // User bilgisini getir
+      let userData = {};
+      if (trainer.userId) {
+        const userRef = doc(firestore, "users", trainer.userId);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          userData = { id: userSnap.id, ...userSnap.data() };
+        }
+      }
+
+      // Gym bilgisini getir
+      let gymData = {};
+      if (trainer.gymId) {
+        const gymRef = doc(firestore, "gyms", trainer.gymId);
+        const gymSnap = await getDoc(gymRef);
+        if (gymSnap.exists()) {
+          gymData = { id: gymSnap.id, ...gymSnap.data() };
+        }
+      }
+
+      return {
+        ...trainer,
+        user: userData,
+        gym: gymData,
+      };
+    })
+  );
+
+  return trainersData;
 };
