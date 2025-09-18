@@ -101,27 +101,30 @@ const StudentSection = () => {
                       <tr key={student.userId}>
                         <td className="border px-2 py-1">{student.user.name}</td>
                         <td className="border px-2 py-1">{student.user.email}</td>
-                        <td className="border px-2 py-1">{latestPayment.salary}</td>
-                        <td className="border px-2 py-1">{latestPayment.entryDate}</td>
+                        <td className="border px-2 py-1">{latestPayment ? latestPayment.salary : "Ödeme yok"}</td>
+                        <td className="border px-2 py-1">{latestPayment ? latestPayment.entryDate : "-"}</td>
                         <td className="border px-2 py-1 text-center">
-                          {latestPayment.paymentStatus ? (
-                            <button
-                              onClick={() => {
+                          {latestPayment ? (
+                            latestPayment.paymentStatus ? (
+                              <button onClick={() => {
+                                  setSelectedUserId(student.userId);
+                                  setIsModalOpen(true);
+                                }} className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">
+                                Yeni Ödeme Ekle
+                              </button>
+                            ) : (
+                              <button onClick={() =>
+                                  handlePayment(latestPayment.entryDate, student.userId)
+                                } className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
+                                Ödendi
+                              </button>
+                            )
+                          ) : (
+                            <button onClick={() => {
                                 setSelectedUserId(student.userId);
                                 setIsModalOpen(true);
-                              }}
-                              className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                            >
-                              Yeni Ödeme Ekle
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() =>
-                                handlePayment(latestPayment.entryDate, student.userId)
-                              }
-                              className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                            >
-                              Ödendi
+                              }} className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">
+                              İlk Ödeme Ekle
                             </button>
                           )}
                         </td>
@@ -137,7 +140,7 @@ const StudentSection = () => {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 bg-black/50 text-black backdrop-blur-sm flex justify-center items-center">
           <div className="bg-white p-6 rounded shadow w-96">
             <h2 className="text-lg font-bold mb-4">Yeni Ödeme Ekle</h2>
             <input
