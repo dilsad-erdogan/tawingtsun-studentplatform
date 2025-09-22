@@ -10,6 +10,7 @@ const StudentSection = () => {
   const [gyms, setGyms] = useState([]);
   const [selectedGym, setSelectedGym] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [searchTerms, setSearchTerms] = useState({});
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -69,92 +70,98 @@ const StudentSection = () => {
       {gyms.length === 0 ? (
         <p>Hiçbir salona bağlı değilsiniz.</p>
       ) : (
-        gyms.map((gym) => (
-          <div key={gym.gymId} className="mb-6 border rounded p-4 bg-white shadow">
-            <h3 className="font-semibold mb-2 flex justify-between items-center">
-              {gym.gymName}
-              <button onClick={() => setSelectedGym(gym)} className="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
-                Öğrenci Ekle
-              </button>
-            </h3>
+        gyms.map((gym) => {
+          const searchValue = searchTerms[gym.gymId] || "";
 
-            {selectedGym && (
-              <AddUserModal isOpen={!!selectedGym} onClose={() => setSelectedGym(null)} gym={selectedGym} />
-            )}
+          // Öğrenci arama filtresi
+          const filteredStudents = gym.students.filter((student) =>
+            student.user.name
+              ?.toLocaleLowerCase("tr")
+              .includes(searchValue.trim().toLocaleLowerCase("tr"))
+          );
 
-            {gym.students.length === 0 ? (
-              <p>Bu salonda öğrenci yok.</p>
-            ) : (
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="border px-2 py-1">Öğrenci Adı</th>
-                    <th className="border px-2 py-1">Email</th>
-                    <th className="border px-2 py-1">Ücret</th>
-                    <th className="border px-2 py-1">Tarih</th>
-                    <th className="border px-2 py-1">Ödenme Durumu</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {gym.students.map((student) => {
-                    // Ödemeleri tarihe göre sırala (en yeni en başta)
-                    const sortedPayments = [...student.user.payments].sort(
-                      (a, b) => new Date(b.entryDate) - new Date(a.entryDate)
-                    );
+          return (
+            <div key={gym.gymId} className="mb-6 border rounded p-4 bg-white shadow">
+              <div className="flex justify-between items-center mb-2 gap-4">
+                <h3 className="font-semibold text-lg">{gym.gymName}</h3>
+                <input type="text" placeholder="Öğrenci adına göre ara..." value={searchValue} onChange={(e) => setSearchTerms((prev) => ({...prev, [gym.gymId]: e.target.value}))} className="border px-3 py-1 rounded w-48" />
+                <button onClick={() => setSelectedGym(gym)} className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+                  Öğrenci Ekle
+                </button>
+              </div>
 
-                    // Sadece en güncel ödeme
-                    const latestPayment = sortedPayments[0];
+              {selectedGym && (
+                <AddUserModal isOpen={!!selectedGym} onClose={() => setSelectedGym(null)} gym={selectedGym} />
+              )}
 
-                    return (
-                      <tr key={student.userId}>
-                        <td className="border px-2 py-1">{student.user.name}</td>
-                        <td className="border px-2 py-1">{student.user.email}</td>
-                        <td className="border px-2 py-1">{latestPayment ? latestPayment.salary : "Ödeme yok"}</td>
-                        <td className="border px-2 py-1">{latestPayment ? latestPayment.entryDate : "-"}</td>
-                        <td className="border px-2 py-1 text-center">
-                          {latestPayment ? (
-                            latestPayment.paymentStatus ? (
-                              <button onClick={() => {
-                                  setSelectedUserId(student.userId);
-                                  setIsModalOpen(true);
-                                }} className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">
-                                Yeni Ödeme Ekle
-                              </button>
+              {/* Öğrenci tablosu */}
+              {filteredStudents.length === 0 ? (
+                <p>Bu salonda öğrenci bulunamadı.</p>
+              ) : (
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="border px-2 py-1">Öğrenci Adı</th>
+                      <th className="border px-2 py-1">Email</th>
+                      <th className="border px-2 py-1">Ücret</th>
+                      <th className="border px-2 py-1">Tarih</th>
+                      <th className="border px-2 py-1">Ödenme Durumu</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredStudents.map((student) => {
+                      const sortedPayments = [...student.user.payments].sort(
+                        (a, b) => new Date(b.entryDate) - new Date(a.entryDate)
+                      );
+                      const latestPayment = sortedPayments[0];
+
+                      return (
+                        <tr key={student.userId}>
+                          <td className="border px-2 py-1">{student.user.name}</td>
+                          <td className="border px-2 py-1">{student.user.email}</td>
+                          <td className="border px-2 py-1">{latestPayment ? latestPayment.salary : "Ödeme yok"}</td>
+                          <td className="border px-2 py-1">{latestPayment ? latestPayment.entryDate : "-"}</td>
+                          <td className="border px-2 py-1 text-center">
+                            {latestPayment ? (
+                              latestPayment.paymentStatus ? (
+                                <button onClick={() => {setSelectedUserId(student.userId); setIsModalOpen(true);}} className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">
+                                  Yeni Ödeme Ekle
+                                </button>
+                              ) : (
+                                <button onClick={() => handlePayment(latestPayment.entryDate, student.userId)} className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
+                                  Ödendi
+                                </button>
+                              )
                             ) : (
-                              <button onClick={() =>
-                                  handlePayment(latestPayment.entryDate, student.userId)
-                                } className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
-                                Ödendi
+                              <button onClick={() => { setSelectedUserId(student.userId); setIsModalOpen(true); }} className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">
+                                İlk Ödeme Ekle
                               </button>
-                            )
-                          ) : (
-                            <button onClick={() => {
-                                setSelectedUserId(student.userId);
-                                setIsModalOpen(true);
-                              }} className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">
-                              İlk Ödeme Ekle
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            )}
-          </div>
-        ))
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          );
+        })
       )}
 
-      {/* Modal */}
+      {/* Ödeme modalı */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 text-black backdrop-blur-sm flex justify-center items-center">
           <div className="bg-white p-6 rounded shadow w-96">
             <h2 className="text-lg font-bold mb-4">Yeni Ödeme Ekle</h2>
             <input type="number" placeholder="Ücret" value={salaryInput} onChange={(e) => setSalaryInput(e.target.value)} className="w-full border px-3 py-2 mb-4 rounded" />
             <div className="flex justify-end gap-2">
-              <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">İptal</button>
-              <button onClick={handleAddPayment} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Ekle</button>
+              <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+                İptal
+              </button>
+              <button onClick={handleAddPayment} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                Ekle
+              </button>
             </div>
           </div>
         </div>
