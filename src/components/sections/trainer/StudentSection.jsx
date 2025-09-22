@@ -11,6 +11,7 @@ const StudentSection = () => {
   const [selectedGym, setSelectedGym] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerms, setSearchTerms] = useState({});
+  const [expandedStudents, setExpandedStudents] = useState(new Set());
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,6 +61,19 @@ const StudentSection = () => {
     } catch (error) {
       toast.error("Ödeme eklenemedi:", error);
     }
+  };
+
+  // toggle fonksiyonu
+  const toggleExpand = (studentId) => {
+    setExpandedStudents((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(studentId)) {
+        newSet.delete(studentId);
+      } else {
+        newSet.add(studentId);
+      }
+      return newSet;
+    });
   };
 
   if (loading) return <p>Yükleniyor...</p>;
@@ -114,31 +128,83 @@ const StudentSection = () => {
                         (a, b) => new Date(b.entryDate) - new Date(a.entryDate)
                       );
                       const latestPayment = sortedPayments[0];
+                      const isExpanded = expandedStudents.has(student.userId);
 
                       return (
-                        <tr key={student.userId}>
-                          <td className="border px-2 py-1">{student.user.name}</td>
-                          <td className="border px-2 py-1">{student.user.email}</td>
-                          <td className="border px-2 py-1">{latestPayment ? latestPayment.salary : "Ödeme yok"}</td>
-                          <td className="border px-2 py-1">{latestPayment ? latestPayment.entryDate : "-"}</td>
-                          <td className="border px-2 py-1 text-center">
-                            {latestPayment ? (
-                              latestPayment.paymentStatus ? (
-                                <button onClick={() => {setSelectedUserId(student.userId); setIsModalOpen(true);}} className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">
-                                  Yeni Ödeme Ekle
-                                </button>
+                        <React.Fragment key={student.userId}>
+                          <tr onClick={() => toggleExpand(student.userId)} className="cursor-pointer hover:bg-gray-50">
+                            <td className="border px-2 py-1">{student.user.name}</td>
+                            <td className="border px-2 py-1">{student.user.email}</td>
+                            <td className="border px-2 py-1">{latestPayment ? latestPayment.salary : "Ödeme yok"}</td>
+                            <td className="border px-2 py-1">{latestPayment ? latestPayment.entryDate : "-"}</td>
+                            <td className="border px-2 py-1 text-center">
+                              {latestPayment ? (
+                                latestPayment.paymentStatus ? (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedUserId(student.userId);
+                                      setIsModalOpen(true);
+                                    }}
+                                    className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                                  >
+                                    Yeni Ödeme Ekle
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handlePayment(latestPayment.entryDate, student.userId);
+                                    }}
+                                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                                  >
+                                    Ödendi
+                                  </button>
+                                )
                               ) : (
-                                <button onClick={() => handlePayment(latestPayment.entryDate, student.userId)} className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
-                                  Ödendi
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedUserId(student.userId);
+                                    setIsModalOpen(true);
+                                  }}
+                                  className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
+                                >
+                                  İlk Ödeme Ekle
                                 </button>
-                              )
-                            ) : (
-                              <button onClick={() => { setSelectedUserId(student.userId); setIsModalOpen(true); }} className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">
-                                İlk Ödeme Ekle
-                              </button>
-                            )}
-                          </td>
-                        </tr>
+                              )}
+                            </td>
+                          </tr>
+
+                          {/* Ödeme geçmişi satırı */}
+                          {isExpanded && sortedPayments.length > 0 && (
+                            <tr>
+                              <td colSpan={5} className="border px-2 py-2 bg-gray-50">
+                                <h4 className="font-semibold mb-2">Ödeme Geçmişi</h4>
+                                <table className="w-full text-sm border">
+                                  <thead>
+                                    <tr className="bg-gray-100">
+                                      <th className="border px-2 py-1">Tarih</th>
+                                      <th className="border px-2 py-1">Miktar</th>
+                                      <th className="border px-2 py-1">Durum</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {sortedPayments.map((p, idx) => (
+                                      <tr key={idx}>
+                                        <td className="border px-2 py-1">{p.entryDate}</td>
+                                        <td className="border px-2 py-1">{p.salary}</td>
+                                        <td className="border px-2 py-1">
+                                          {p.paymentStatus ? "Ödendi ✅" : "Bekliyor ⏳"}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
                       );
                     })}
                   </tbody>
