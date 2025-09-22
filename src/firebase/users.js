@@ -61,7 +61,7 @@ export const addPaymentToUser = async (userId, salary) => {
     const userRef = doc(firestore, "users", userId);
 
     const newPayment = {
-      entryDate: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+      entryDate: new Date().toISOString().slice(0, 16).replace("T", " "),
       salary: Number(salary),
       paymentStatus: false, // default
     };
