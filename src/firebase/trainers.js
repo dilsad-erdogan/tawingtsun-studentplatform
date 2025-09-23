@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
 import { firestore } from "./firebase";
 
 import toast from "react-hot-toast";
@@ -135,4 +135,20 @@ export const getAllTrainersWithDetails = async () => {
   );
 
   return trainersData;
+};
+
+export const addSalaryToTrainer = async (trainerId, amount) => {
+  try {
+    const trainerRef = doc(firestore, "trainers", trainerId);
+
+    const numericAmount = Number(amount);
+    if (isNaN(numericAmount)) throw new Error("Geçersiz ödeme miktarı");
+
+    await updateDoc(trainerRef, {
+      totalSalaryMonth: increment(numericAmount),
+    });
+  } catch (error) {
+    console.error("addSalaryToTrainer hata:", error);
+    throw error;
+  }
 };

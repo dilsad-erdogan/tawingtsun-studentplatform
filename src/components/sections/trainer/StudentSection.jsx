@@ -4,6 +4,8 @@ import { getTrainerGymsWithStudents } from "../../../firebase/students";
 import { updatePaymentStatus, addPaymentToUser } from "../../../firebase/users";
 import toast from "react-hot-toast";
 import AddUserModal from "../../modals/addModals/userFromTrainer";
+import { addSalaryToTrainer } from "../../../firebase/trainers";
+import { addSalaryToGym } from "../../../firebase/gyms";
 
 const StudentSection = () => {
   const user = useSelector((state) => state.user.data);
@@ -40,12 +42,26 @@ const StudentSection = () => {
     setGyms(gymsData);
   };
 
-  const handlePayment = async (entryDate, id) => {
+  // const handlePayment = async (entryDate, id) => {
+  //   try {
+  //     await updatePaymentStatus(id, entryDate);
+  //     await refreshGyms();
+  //   } catch (error) {
+  //     toast.error("Ödeme güncellenemedi:", error);
+  //   }
+  // };
+
+  const handlePayment = async (entryDate, student) => {
     try {
-      await updatePaymentStatus(id, entryDate);
+      const payment = await updatePaymentStatus(student.userId, entryDate);
+      console.log(payment)
+
+      await addSalaryToTrainer(student.trainerId, payment.salary);
+      await addSalaryToGym(student.gymId, payment.salary);
+
       await refreshGyms();
     } catch (error) {
-      toast.error("Ödeme güncellenemedi:", error);
+      toast.error("Ödeme güncellenemedi: " + error.message);
     }
   };
 
@@ -154,7 +170,11 @@ const StudentSection = () => {
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      handlePayment(latestPayment.entryDate, student.userId);
+                                      handlePayment(latestPayment.entryDate, {
+                                        userId: student.userId,
+                                        trainerId: student.trainerId,
+                                        gymId: gym.gymId,
+                                      });
                                     }}
                                     className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
                                   >

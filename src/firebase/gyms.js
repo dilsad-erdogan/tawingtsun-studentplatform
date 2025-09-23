@@ -1,4 +1,4 @@
-import { addDoc, arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { addDoc, arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
 import { firestore } from "./firebase";
 
 import toast from "react-hot-toast";
@@ -151,6 +151,22 @@ export const getGymsForTrainer = async (userId) => {
     return gymsData;
   } catch (error) {
     console.error("Hata (getGymsForTrainer):", error);
+    throw error;
+  }
+};
+
+export const addSalaryToGym = async (gymId, amount) => {
+  try {
+    const gymRef = doc(firestore, "gyms", gymId);
+
+    const numericAmount = Number(amount);
+    if (isNaN(numericAmount)) throw new Error("Geçersiz ödeme miktarı");
+
+    await updateDoc(gymRef, {
+      totalSalaryMonth: increment(numericAmount),
+    });
+  } catch (error) {
+    console.error("addSalaryToGym hata:", error);
     throw error;
   }
 };

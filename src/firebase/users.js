@@ -85,13 +85,16 @@ export const updatePaymentStatus = async (userId, entryDate) => {
 
     if (!userSnap.exists()) {
       toast.error("Kullanıcı bulunamadı");
-      return false;
+      return null;
     }
 
     const userData = userSnap.data();
+    let updatedPayment = null;
+
     const updatedPayments = (userData.payments || []).map((payment) => {
       if (payment.entryDate === entryDate) {
-        return { ...payment, paymentStatus: true };
+        updatedPayment = { ...payment, paymentStatus: true };
+        return updatedPayment;
       }
       return payment;
     });
@@ -99,11 +102,17 @@ export const updatePaymentStatus = async (userId, entryDate) => {
     await updateDoc(userRef, { payments: updatedPayments });
 
     toast.success("Ödeme başarıyla güncellendi ✅");
-    return true;
+
+    // salary'yi number'a çevirerek döndür
+    if (updatedPayment) {
+      return { ...updatedPayment, salary: Number(updatedPayment.salary) };
+    }
+
+    return null;
   } catch (error) {
     console.error("updatePaymentStatus hata:", error);
     toast.error("Ödeme güncellenirken hata oluştu");
-    return false;
+    return null;
   }
 };
 
