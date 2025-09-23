@@ -98,7 +98,7 @@ const StudentSection = () => {
             <div key={gym.gymId} className="mb-6 border rounded p-4 bg-white shadow">
               <div className="flex justify-between items-center mb-2 gap-4">
                 <h3 className="font-semibold text-lg">{gym.gymName}</h3>
-                <input type="text" placeholder="Öğrenci adına göre ara..." value={searchValue} onChange={(e) => setSearchTerms((prev) => ({...prev, [gym.gymId]: e.target.value}))} className="border px-3 py-1 rounded w-48" />
+                <input type="text" placeholder="Öğrenci adına göre ara..." value={searchValue} onChange={(e) => setSearchTerms((prev) => ({...prev, [gym.gymId]: e.target.value}))} className="border px-3 py-1 rounded w-60" />
                 <button onClick={() => setSelectedGym(gym)} className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
                   Öğrenci Ekle
                 </button>
