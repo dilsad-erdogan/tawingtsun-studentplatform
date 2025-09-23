@@ -42,15 +42,6 @@ const StudentSection = () => {
     setGyms(gymsData);
   };
 
-  // const handlePayment = async (entryDate, id) => {
-  //   try {
-  //     await updatePaymentStatus(id, entryDate);
-  //     await refreshGyms();
-  //   } catch (error) {
-  //     toast.error("Ödeme güncellenemedi:", error);
-  //   }
-  // };
-
   const handlePayment = async (entryDate, student) => {
     try {
       const payment = await updatePaymentStatus(student.userId, entryDate);
