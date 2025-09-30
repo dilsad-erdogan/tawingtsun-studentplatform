@@ -1,4 +1,4 @@
-import { addDoc, arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, increment, query, updateDoc, where } from "firebase/firestore";
+import { addDoc, arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { firestore } from "./firebase";
 
 import toast from "react-hot-toast";
@@ -162,8 +162,36 @@ export const addSalaryToGym = async (gymId, amount) => {
     const numericAmount = Number(amount);
     if (isNaN(numericAmount)) throw new Error("Geçersiz ödeme miktarı");
 
+    // 🔹 Şu anki yıl-ay bilgisi (örn: 2025-09)
+    const now = new Date();
+    const monthKey = `${now.getFullYear()}-${String(
+      now.getMonth() + 1
+    ).padStart(2, "0")}`;
+
+    // 🔹 Mevcut gym verisini çek
+    const gymSnap = await getDoc(gymRef);
+    if (!gymSnap.exists()) throw new Error("Gym bulunamadı");
+
+    const gymData = gymSnap.data();
+    let salaryArray = gymData.totalSalaryMonth || [];
+
+    // 🔹 O ay için kayıt var mı?
+    const existingMonthIndex = salaryArray.findIndex((m) => m.month === monthKey);
+
+    if (existingMonthIndex >= 0) {
+      // Varsa toplamı güncelle
+      salaryArray[existingMonthIndex].total += numericAmount;
+    } else {
+      // Yoksa yeni kayıt aç
+      salaryArray.push({
+        month: monthKey,
+        total: numericAmount,
+      });
+    }
+
+    // 🔹 Firestore’a güncelle
     await updateDoc(gymRef, {
-      totalSalaryMonth: increment(numericAmount),
+      totalSalaryMonth: salaryArray,
     });
   } catch (error) {
     console.error("addSalaryToGym hata:", error);
