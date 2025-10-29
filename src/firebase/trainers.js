@@ -1,6 +1,5 @@
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { firestore } from "./firebase";
-
 import toast from "react-hot-toast";
 
 export const addTrainers = async (data) => {
@@ -13,11 +12,12 @@ export const addTrainers = async (data) => {
     };
 
     const docRef = await addDoc(trainersRef, newTrainer);
-    toast.success("Yeni kullanıcı eklendi:", docRef.id);
+    toast.success("Yeni eğitmen eklendi.");
 
     return { id: docRef.id, ...newTrainer };
   } catch (error) {
-    toast.error("Trainer eklenirken hata:", error);
+    console.error("addTrainer error:", error);
+    toast.error("Eğitmen eklenirken hata oluştu.");
     return null;
   }
 };
@@ -34,7 +34,8 @@ export const getAllTrainer = async () => {
 
     return trainers;
   } catch (error) {
-    toast.error("Error while withdrawing trainers:", error);
+    console.error("getAllTrainer error:", error);
+    toast.error("Eğitmenler çekilirken hata oluştu.");
     return [];
   }
 };
@@ -53,12 +54,13 @@ export const deleteTrainerByUserAndGym = async (userId, gymId) => {
     // eşleşen tüm kayıtları sil
     for (const document of querySnapshot.docs) {
       await deleteDoc(doc(firestore, "trainers", document.id));
-      toast.success("Trainer silindi:", document.id);
+      toast.success("Trainer silindi.");
     }
 
     return true;
   } catch (error) {
-    toast.error("Trainer silinirken hata:", error);
+    console.error("deleteTrainerByUserAndGym error:", error);
+    toast.error("Trainer silinirken hata oluştu.");
     return false;
   }
 };
@@ -77,12 +79,13 @@ export const deleteAllTrainersByUser = async (userId) => {
     // eşleşen tüm kayıtları sil
     for (const document of querySnapshot.docs) {
       await deleteDoc(doc(firestore, "trainers", document.id));
-      toast.success("Trainer silindi:", document.id);
+      toast.success("Trainer silindi.");
     }
 
     return true;
   } catch (error) {
-    toast.error("Trainer silinirken hata:", error);
+    console.error("DeleteAllTrainersByUser error:", error);
+    toast.error("Trainer silinirken hata oluştu.");
     return false;
   }
 };
@@ -90,10 +93,11 @@ export const deleteAllTrainersByUser = async (userId) => {
 export const deleteTrainerById = async (trainerDocId) => {
   try {
     await deleteDoc(doc(firestore, "trainers", trainerDocId));
-    toast.success("Trainer silindi:", trainerDocId);
+    toast.success("Trainer silindi.");
     return true;
   } catch (error) {
-    toast.error("Trainer silinirken hata:", error);
+    console.error("deleteTrainerById error:", error);
+    toast.error("Trainer silinirken hata oluştu.");
     return false;
   }
 };

@@ -14,7 +14,8 @@ export const getAllStudent = async () => {
 
     return students;
   } catch (error) {
-    toast.error("Error while withdrawing students:", error);
+    console.error("getAllStudent error:", error);
+    toast.error("Öğrencilerin çekilmesi sırasında hata oluştu.");
     return [];
   }
 };
@@ -81,7 +82,7 @@ export const getTrainerGymsWithStudents = async (userId) => {
 
     return gymsData;
   } catch (error) {
-    console.error("Hata (getTrainerGymsWithStudents):", error);
+    console.error("getTrainerGymsWithStudents error:", error);
     throw error;
   }
 };
@@ -133,7 +134,7 @@ export const getStudentTrainerAndGym = async (studentUserId) => {
       message: null
     };
   } catch (error) {
-    console.error("getStudentTrainerAndGym hata:", error);
+    console.error("getStudentTrainerAndGym error:", error);
     return { student: null, trainer: null, gym: null, message: "Bilinmeyen hata" };
   }
 };
@@ -148,7 +149,8 @@ export const addStudent = async (studentData) => {
     });
     return { id: docRef.id, ...studentData };
   } catch (error) {
-    console.error("Student ekleme hatası:", error);
+    console.error("addStudent error:", error);
+    toast.error("Öğrenci eklenirken hata oluştu.");
     return null;
   }
 };

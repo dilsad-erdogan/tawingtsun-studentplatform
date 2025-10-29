@@ -1,6 +1,5 @@
 import { addDoc, arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
-import { firestore } from "./firebase";
-
+import { auth, firestore } from "./firebase";
 import toast from "react-hot-toast";
 
 export const getAllGyms = async () => {
@@ -15,19 +14,27 @@ export const getAllGyms = async () => {
 
     return gyms;
   } catch (error) {
-    toast.error("Error while withdrawing gyms:", error);
+    console.error("getAllGyms error:", error);
+    toast.error("Spor salonlarından çekilirken hata oluştu.");
     return [];
   }
 };
 
 export const updateGymByID = async (id, updatedData) => {
+  const user = auth.currentUser;
+  if (!user) {
+    toast.error("Oturum açmanız gerekiyor!");
+    return false;
+  }
+
   try {
     const gymRef = doc(firestore, "gyms", id);
     await updateDoc(gymRef, updatedData);
-    toast.success("Gym updated successfully!");
+    toast.success("Salon başarıyla güncellendi!");
     return true;
   } catch (error) {
-    toast.error("Error updating gym:", error);
+    console.error("updateGymByID error:", error);
+    toast.error("Salon güncellenemedi");
     return false;
   }
 };
@@ -40,10 +47,11 @@ export const addOwnsToGym = async (gymId, userId) => {
       ownUser: arrayUnion(userId),
     });
 
-    toast.success("Kullanıcı başarıyla eklendi:", userId);
+    toast.success("Kullanıcı başarıyla eklendi.");
     return true;
   } catch (error) {
-    toast.error("Kullanıcı eklenirken hata:", error);
+    console.error("addOwnsToGym error:", error);
+    toast.error("Kullanıcı eklenirken hata.");
     return false;
   }
 };
@@ -59,7 +67,8 @@ export const removeOwn = async (gymId, userId) => {
     toast.success("Kullanıcı başarıyla silindi");
     return true;
   } catch (error){
-    toast.error("Kullanıcı silinirken hata:", error);
+    console.error("removeOwn error:", error);
+    toast.error("Kullanıcı silinirken hata.");
     return false;
   }
 };
@@ -72,10 +81,11 @@ export const addTrainersToGym = async (gymId, userId) => {
       trainers: arrayUnion(userId),
     });
 
-    toast.success("Kullanıcı başarıyla eklendi:", userId);
+    toast.success("Kullanıcı başarıyla eklendi.");
     return true;
   } catch (error) {
-    toast.error("Kullanıcı eklenirken hata:", error);
+    console.error("addTrainersToGym error:", error);
+    toast.error("Kullanıcı eklenirken hata.");
     return false;
   }
 };
@@ -91,7 +101,8 @@ export const removeTrainer = async (gymId, userId) => {
     toast.success("Kullanıcı başarıyla silindi");
     return true;
   } catch (error){
-    toast.error("Kullanıcı silinirken hata:", error);
+    console.error("removeTrainer error:", error);
+    toast.error("Kullanıcı silinirken hata.");
     return false;
   }
 };
@@ -111,11 +122,12 @@ export const addGyms = async (gymData) => {
     };
 
     const docRef = await addDoc(gymsRef, newGym);
-    toast.success("Yeni salon eklendi:", docRef.id);
+    toast.success("Yeni salon eklendi.");
 
     return { id: docRef.id, ...newGym };
   } catch (error) {
-    toast.error("Salon eklenirken hata:", error);
+    console.error("addGyms error:", error);
+    toast.error("Salon eklenirken hata.");
     return null;
   }
 };
@@ -150,7 +162,7 @@ export const getGymsForTrainer = async (userId) => {
 
     return gymsData;
   } catch (error) {
-    console.error("Hata (getGymsForTrainer):", error);
+    console.error("getGymsForTrainer error:", error);
     throw error;
   }
 };
@@ -194,7 +206,7 @@ export const addSalaryToGym = async (gymId, amount) => {
       totalSalaryMonth: salaryArray,
     });
   } catch (error) {
-    console.error("addSalaryToGym hata:", error);
+    console.error("addSalaryToGym error:", error);
     throw error;
   }
 };
