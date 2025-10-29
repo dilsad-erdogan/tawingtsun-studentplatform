@@ -10,7 +10,7 @@ export const fetchUserByUID = createAsyncThunk(
 
       if (userData) {
         // Tüm user objesini kaydedelim (sadece name değil)
-        localStorage.setItem("user", JSON.stringify(userData));
+        sessionStorage.setItem("user", JSON.stringify(userData));
         return userData;
       } else {
         return thunkAPI.rejectWithValue("Kullanıcı bulunamadı");
@@ -37,7 +37,7 @@ export const fetchAllUsers = createAsyncThunk(
 const userSlice = createSlice({
   name: "user",
   initialState: {
-    data: JSON.parse(localStorage.getItem("user")) || null, // Tek kullanıcı
+    data: JSON.parse(sessionStorage.getItem("user")) || null, // Tek kullanıcı
     users: [], // Tüm kullanıcılar
     status: "idle", // idle | loading | succeeded | failed
     loading: false,
@@ -51,11 +51,11 @@ const userSlice = createSlice({
       state.status = "idle";
       state.loading = false;
       state.error = null;
-      localStorage.removeItem("user");
+      sessionStorage.removeItem("user");
     },
     clearUser: (state) => {
       state.data = null;
-      localStorage.removeItem("user");
+      sessionStorage.removeItem("user");
     },
     clearUsers: (state) => {
       state.users = [];
