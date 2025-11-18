@@ -9,11 +9,11 @@ import { useNavigate } from "react-router-dom";
 const UserModal = ({ isOpen, onClose, user }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({ name: "", email: "", phone: "", weight: 0, height: 0 });
+    const [formData, setFormData] = useState({ name: "", phone: "" });
 
     useEffect(() => {
         if (user) {
-          setFormData({ name: user.name || "", email: user.email || "", phone: user.phone || "", weight: user.weight || 0, height: user.height || 0 });
+          setFormData({ name: user.name || "", phone: user.phone || "" });
         }
     }, [user]);
 
@@ -32,7 +32,7 @@ const UserModal = ({ isOpen, onClose, user }) => {
     };
 
     const handleSave = async () => {
-        await updateUserByUID(user.uid, { name: formData.name, email: formData.email, phone: formData.phone, weight: formData.weight, height: formData.height });
+        await updateUserByUID(user.uid, { name: formData.name, phone: formData.phone });
         dispatch(fetchAllUsers());
         handleLogout();
     };
@@ -54,26 +54,9 @@ const UserModal = ({ isOpen, onClose, user }) => {
                     </label>
 
                     <label className="block">
-                        Email
-                        <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full border p-2 rounded mt-1" />
-                    </label>
-
-                    <label className="block">
                         Telefon
                         <input type="text" name="phone" value={formData.phone} onChange={handleChange} className="w-full border p-2 rounded mt-1" />
                     </label>
-
-                    <div className="flex gap-2 items-center justify-center">
-                        <label className="block">
-                            Kilo
-                            <input type="number" name="weight" value={formData.weight} onChange={handleChange} className="w-full border p-2 rounded mt-1" />
-                        </label>
-
-                        <label className="block">
-                            Boy
-                            <input type="number" name="height" value={formData.height} onChange={handleChange} className="w-full border p-2 rounded mt-1" />
-                        </label>
-                    </div>
                 </div>
 
                 <div className="flex justify-end mt-3">

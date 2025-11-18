@@ -24,11 +24,13 @@ const PanelCards = () => {
         { label: "Kullanıcı Sayısı", value: users?.length || 0, icon: <Users className="text-red-600 w-8 h-8" /> },
         { label: "Eğitmen Sayısı", value: uniqueTrainerCount || 0, icon: <UserCheck className="text-red-600 w-8 h-8" /> },
         { label: "Spor Salonu Sayısı", value: gyms?.length || 0, icon: <Dumbbell className="text-red-600 w-8 h-8" /> },
+        { label: "Spor Salonu Sayısı", value: gyms?.length || 0, icon: <Dumbbell className="text-red-600 w-8 h-8" /> },
+        { label: "Spor Salonu Sayısı", value: gyms?.length || 0, icon: <Dumbbell className="text-red-600 w-8 h-8" /> }
     ];
 
     return (
         <div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-6">
                 {stats.map((item, index) => (
                 <div key={index} className="bg-white shadow-md rounded-xl p-6 flex items-center justify-between hover:shadow-lg transition-all border border-gray-100">
                     <div>

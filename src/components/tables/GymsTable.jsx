@@ -60,7 +60,7 @@ const GymsTable = () => {
     
 
     return (
-        <div className="p-6 max-w-2xl mx-auto">
+        <div className="p-6 mx-auto">
             <div className="flex justify-between items-center mb-4 gap-2">
                 <h1 className="text-2xl font-bold mb-4">Gyms</h1>
                 <div className="flex items-center gap-2">
