@@ -1,5 +1,5 @@
 import { Users, UserCheck, Dumbbell } from "lucide-react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { fetchAllUsers } from "../../redux/userSlice";
 import { fetchAllTrainers } from "../../redux/trainerSlice";
 import { fetchAllGyms } from "../../redux/gymSlice";
@@ -8,12 +8,6 @@ import { useEffect } from "react";
 const PanelCards = () => {
     const dispatch = useDispatch();
 
-    const { users } = useSelector((state) => state.user);
-    const { trainers } = useSelector((state) => state.trainer);
-    const { gyms } = useSelector((state) => state.gym);
-
-    const uniqueTrainerCount = new Set( trainers.map((t) => t.userId).filter(Boolean)).size;
-
     useEffect(() => {
         dispatch(fetchAllUsers());
         dispatch(fetchAllTrainers());
@@ -21,11 +15,11 @@ const PanelCards = () => {
     }, [dispatch]);
 
     const stats = [
-        { label: "Kullanıcı Sayısı", value: users?.length || 0, icon: <Users className="text-red-600 w-8 h-8" /> },
-        { label: "Eğitmen Sayısı", value: uniqueTrainerCount || 0, icon: <UserCheck className="text-red-600 w-8 h-8" /> },
-        { label: "Spor Salonu Sayısı", value: gyms?.length || 0, icon: <Dumbbell className="text-red-600 w-8 h-8" /> },
-        { label: "Spor Salonu Sayısı", value: gyms?.length || 0, icon: <Dumbbell className="text-red-600 w-8 h-8" /> },
-        { label: "Spor Salonu Sayısı", value: gyms?.length || 0, icon: <Dumbbell className="text-red-600 w-8 h-8" /> }
+        { label: "Toplam aktif öğrenci", value: "5", icon: <Users className="text-red-600 w-8 h-8" /> },
+        { label: "Toplam pasif öğrenci", value: "2", icon: <UserCheck className="text-red-600 w-8 h-8" /> },
+        { label: "Aylık yeni kayıt", value: "4", icon: <Dumbbell className="text-red-600 w-8 h-8" /> },
+        { label: "Aylık kaydı bitenler", value: "5", icon: <Dumbbell className="text-red-600 w-8 h-8" /> },
+        { label: "Toplam salon sayısı", value: "6", icon: <Dumbbell className="text-red-600 w-8 h-8" /> }
     ];
 
     return (
