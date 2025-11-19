@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import Login from "./pages/Login";
 import Trainer from "./pages/Trainer";
 import Admin from "./pages/Admin";
-import Student from "./pages/Student";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -13,48 +12,39 @@ function App() {
     <div className="h-screen text-black">
       <Router>
         <Routes>
-          {/* Giriş sayfası */}
           <Route path="/login" element={<Login />} />
 
-          {/* Korumalı sayfalar */}
           <Route
-            path="/trainer/:uid"
+            path="/trainer/:authId"
             element={
-              <ProtectedRoute role="trainer">
+              <ProtectedRoute isAdminAllowed={false}>
                 <Trainer />
               </ProtectedRoute>
             }
           />
+
           <Route
-            path="/student/:uid"
+            path="/admin/:authId"
             element={
-              <ProtectedRoute role="student">
-                <Student />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/:uid"
-            element={
-              <ProtectedRoute role="admin">
+              <ProtectedRoute isAdminAllowed={true}>
                 <Admin />
               </ProtectedRoute>
             }
           />
 
-          {/* Root yönlendirme */}
           <Route
             path="/"
             element={
               !user ? (
                 <Navigate to="/login" replace />
+              ) : user.isAdmin ? (
+                <Navigate to={`/admin/${user.authId}`} replace />
               ) : (
-                <Navigate to={`/${user.role}/${user.uid}`} replace />
+                <Navigate to={`/trainer/${user.authId}`} replace />
               )
             }
           />
 
-          {/* 404 fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

@@ -14,21 +14,10 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [attempts, setAttempts] = useState(0); // brute-force koruması
+  const [attempts, setAttempts] = useState(0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // E-posta ve parola geçerlilik kontrolü (istemci tarafı)
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("Geçerli bir e-posta adresi giriniz.");
-      return;
-    }
-
-    if (password.length < 6) {
-      toast.error("Şifre en az 6 karakter olmalı.");
-      return;
-    }
 
     if (attempts >= 5) {
       toast.error("Çok fazla deneme yaptınız. 1 dakika bekleyin.");
@@ -37,29 +26,39 @@ const Login = () => {
 
     try {
       setLoading(true);
-      const user = await login(email.trim(), password);
+
+      const user = await login(email.trim(), password); // Firebase auth login
 
       if (user) {
-        // Firebase oturumu zaten güvenli, ama ekstra kontrol:
-        const token = await auth.currentUser.getIdToken(/* forceRefresh */ true);
-        sessionStorage.setItem("token", token); // Local değil, sessionStorage kullan
-        dispatch(fetchUserByUID(user.uid));
+        const authId = user.uid;
+
+        // Token sakla
+        const token = await auth.currentUser.getIdToken(true);
+        sessionStorage.setItem("token", token);
+
+        // Accounts tablosundaki kullanıcıyı çek
+        dispatch(fetchUserByUID(authId));
+
         toast.success("Giriş başarılı!");
-      } else {
-        toast.error("Kullanıcı bulunamadı.");
       }
     } catch (err) {
-      console.error(err);
       setAttempts((prev) => prev + 1);
-      toast.error("Giriş başarısız. E-posta veya şifre hatalı.");
+      toast.error("Email veya şifre hatalı.");
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  // YÖNLENDİRME: Admin mi eğitmen mi?
   useEffect(() => {
     if (data) {
-      navigate(`/${data.role}/${data.uid}`);
+      console.log(data)
+      if (data.isAdmin === true) {
+        navigate(`/admin/${data.id}`);
+      } else {
+        navigate(`/trainer/${data.id}`);
+      }
     }
   }, [data]);
 
@@ -72,9 +71,10 @@ const Login = () => {
         </h1>
 
         <form className="flex flex-col gap-4" onSubmit={handleSubmit} autoComplete="off">
-          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-red-50 border border-gray-300 rounded-md px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-red-400" />
-          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required className="bg-red-50 border border-gray-300 rounded-md px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-red-400" />
-          <button type="submit" disabled={loading || !email || !password} className={`${ loading ? "bg-red-300 cursor-not-allowed" : "bg-red-600 hover:bg-red-700" } text-white py-2 rounded-md transition`}>
+          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-red-50 border border-gray-300 rounded-md px-4 py-2 text-lg" />
+          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required className="bg-red-50 border border-gray-300 rounded-md px-4 py-2 text-lg" />
+
+          <button type="submit" disabled={loading || !email || !password} className={`${loading ? "bg-red-300" : "bg-red-600 hover:bg-red-700"} text-white py-2 rounded-md transition`}>
             {loading ? "Giriş yapılıyor..." : "Log in"}
           </button>
         </form>

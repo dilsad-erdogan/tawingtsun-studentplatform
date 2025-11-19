@@ -1,20 +1,22 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getUserByUID, getAllUsers } from "../firebase/users";
+import { getAllUsers } from "../firebase/users";
+import { getUserByUID } from "../firebase/accounts";
 
 // 🔹 Tek kullanıcıyı Firestore'dan UID ile getir
 export const fetchUserByUID = createAsyncThunk(
   "user/fetchUserByUID",
-  async (uid, thunkAPI) => {
+  async (authId, thunkAPI) => {
     try {
-      const userData = await getUserByUID(uid);
+      const account = await getUserByUID(authId);
 
-      if (userData) {
-        // Tüm user objesini kaydedelim (sadece name değil)
-        sessionStorage.setItem("user", JSON.stringify(userData));
-        return userData;
-      } else {
-        return thunkAPI.rejectWithValue("Kullanıcı bulunamadı");
+      if (!account) {
+        return thunkAPI.rejectWithValue("Bu kullanıcı Accounts tablosunda bulunamadı");
       }
+
+      // Oturumu SessionStorage’da sakla
+      sessionStorage.setItem("account", JSON.stringify(account));
+
+      return account;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }

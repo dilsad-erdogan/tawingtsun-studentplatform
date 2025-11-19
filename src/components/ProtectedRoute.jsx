@@ -1,36 +1,20 @@
 import { Navigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase/firebase";
-import { logout } from "../redux/userSlice";
+import { useSelector } from "react-redux";
 
-export default function ProtectedRoute({ children, role }) {
-  const dispatch = useDispatch();
+export default function ProtectedRoute({ children, isAdminAllowed }) {
   const user = useSelector((state) => state.user.data);
-  const [authChecked, setAuthChecked] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (!firebaseUser) {
-        dispatch(logout());
-      }
-      setAuthChecked(true);
-    });
+  // 1) Login olmayan kullanıcı → login’e
+  if (!user) return <Navigate to="/login" replace />;
 
-    return () => unsubscribe();
-  }, [dispatch]);
-
-  if (!authChecked) {
-    return <div className="flex items-center justify-center h-screen">Oturum kontrol ediliyor...</div>;
+  // 2) Admin değil ama admin sayfasına erişmeye çalışıyor
+  if (isAdminAllowed && !user.isAdmin) {
+    return <Navigate to={`/trainer/${user.authId}`} replace />;
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (role && user.role !== role) {
-    return <Navigate to={`/${user.role}/${user.uid}`} replace />;
+  // 3) Admin olan biri eğitmen sayfasına erişmeye çalışıyorsa
+  if (!isAdminAllowed && user.isAdmin) {
+    return <Navigate to={`/admin/${user.authId}`} replace />;
   }
 
   return children;
