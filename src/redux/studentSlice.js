@@ -8,9 +8,7 @@ export const fetchAllStudents = createAsyncThunk(
     const allUsers = await getAllStudent();
 
     const serializedUsers = allUsers.map(user => ({
-      ...user,
-      createdAt: user.createdAt?.toDate().toISOString() ?? null,
-      updatedAt: user.updatedAt?.toDate().toISOString() ?? null,
+      ...user
     }));
 
     return serializedUsers;

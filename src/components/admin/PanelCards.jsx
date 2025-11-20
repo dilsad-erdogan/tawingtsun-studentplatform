@@ -2,7 +2,7 @@ import { Users, UserRoundX, UserPlus, UserMinus, Dumbbell } from "lucide-react";
 import { useSelector } from "react-redux";
 
 const PanelCards = () => {
-    const students = useSelector((state) => state.student.students);
+    const { students, loading } = useSelector((state) => state.student);
     const gyms = useSelector((state) => state.gym.gyms);
 
     const now = new Date();
@@ -40,6 +40,14 @@ const PanelCards = () => {
         { label: "Aylık kaydı bitenler", value: monthlyExpired, icon: <UserMinus className="text-red-600 w-8 h-8" /> },
         { label: "Toplam salon sayısı", value: gyms.length, icon: <Dumbbell className="text-red-600 w-8 h-8" /> }
     ];
+
+    if (loading || !students.length) {
+        return (
+            <div className="text-center text-gray-500 p-4">
+                Yükleniyor...
+            </div>
+        );
+    }
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-5 gap-6">

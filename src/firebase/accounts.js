@@ -1,16 +1,14 @@
-import { collection, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { firestore } from "./firebase";
 
 export const getUserByUID = async (authId) => {
   const accountsRef = collection(firestore, "accounts");
-  const snapshot = await getDocs(accountsRef);
 
-  let found = null;
-  snapshot.forEach((doc) => {
-    if (doc.data().authId === authId) {
-      found = { id: doc.id, ...doc.data() };
-    }
-  });
+  const q = query(accountsRef, where("authId", "==", authId));
+  const snapshot = await getDocs(q);
 
-  return found;
+  if (snapshot.empty) return null;
+
+  const doc = snapshot.docs[0];
+  return { id: doc.id, ...doc.data() };
 };
