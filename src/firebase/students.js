@@ -18,7 +18,7 @@ export const getAllStudent = async () => {
     toast.error("Öğrencilerin çekilmesi sırasında hata oluştu.");
     return [];
   }
-};
+};//kullandım
 
 export const getTrainerGymsWithStudents = async (userId) => {
   try {
