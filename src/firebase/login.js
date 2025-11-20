@@ -18,9 +18,9 @@ export const login = async (email, password) => {
     }
     return null;
   }
-};
+}; //kullandım
 
 export const logout = async () => {
   await signOut(auth);
   return true;
-};
+}; //kullandım
