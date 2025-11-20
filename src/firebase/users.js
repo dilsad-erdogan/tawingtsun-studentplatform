@@ -3,20 +3,6 @@ import { auth, firestore } from "./firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import toast from "react-hot-toast";
 
-export const getUserByUID = async (uid) => {
-  const usersRef = collection(firestore, "users");
-  const snapshot = await getDocs(usersRef);
-  let foundUser = null;
-
-  snapshot.forEach((docSnap) => {
-    if (docSnap.data().uid === uid) {
-      foundUser = { id: docSnap.id, ...docSnap.data() };
-    }
-  });
-
-  return foundUser;
-};
-
 export const getAllUsers = async () => {
   try {
     const usersRef = collection(firestore, "users");

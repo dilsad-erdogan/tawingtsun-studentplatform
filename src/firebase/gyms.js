@@ -18,7 +18,7 @@ export const getAllGyms = async () => {
     toast.error("Spor salonlarından çekilirken hata oluştu.");
     return [];
   }
-};
+}; //kullandım
 
 export const updateGymByID = async (id, updatedData) => {
   const user = auth.currentUser;

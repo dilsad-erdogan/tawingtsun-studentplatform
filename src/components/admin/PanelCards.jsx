@@ -1,31 +1,49 @@
-import { Users, UserCheck, Dumbbell } from "lucide-react";
-import { useDispatch } from "react-redux";
-import { fetchAllUsers } from "../../redux/userSlice";
-import { fetchAllTrainers } from "../../redux/trainerSlice";
-import { fetchAllGyms } from "../../redux/gymSlice";
-import { useEffect } from "react";
+import { Users, UserRoundX, UserPlus, UserMinus, Dumbbell } from "lucide-react";
+import { useSelector } from "react-redux";
 
 const PanelCards = () => {
-    const dispatch = useDispatch();
+    const students = useSelector((state) => state.student.students);
+    const gyms = useSelector((state) => state.gym.gyms);
 
-    useEffect(() => {
-        dispatch(fetchAllUsers());
-        dispatch(fetchAllTrainers());
-        dispatch(fetchAllGyms());
-    }, [dispatch]);
+    const now = new Date();
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(now.getMonth() - 1);
+
+    const convertTimestamp = (ts) => {
+        if (!ts) return null;
+        if (ts instanceof Date) return ts;
+        return new Date(ts.seconds * 1000);
+    };
+
+    const activeStudents = students.filter(s => s.isActive === true);
+    const monthlyNew = activeStudents.filter(s => {
+        const registerDate = convertTimestamp(s.date);
+        return registerDate && registerDate >= oneMonthAgo;
+    }).length;
+
+    const passiveStudents = students.filter(s => s.isActive === false);
+    const monthlyExpired = passiveStudents.filter(s => {
+        const registerDate = convertTimestamp(s.date);
+        if (!registerDate) return false;
+
+        // Bitiş tarihi = kayıt + studyPeriod ay
+        const endDate = new Date(registerDate);
+        endDate.setMonth(endDate.getMonth() + s.studyPeriod);
+
+        return endDate >= oneMonthAgo && endDate <= now;
+    }).length;
 
     const stats = [
-        { label: "Toplam aktif öğrenci", value: "5", icon: <Users className="text-red-600 w-8 h-8" /> },
-        { label: "Toplam pasif öğrenci", value: "2", icon: <UserCheck className="text-red-600 w-8 h-8" /> },
-        { label: "Aylık yeni kayıt", value: "4", icon: <Dumbbell className="text-red-600 w-8 h-8" /> },
-        { label: "Aylık kaydı bitenler", value: "5", icon: <Dumbbell className="text-red-600 w-8 h-8" /> },
-        { label: "Toplam salon sayısı", value: "6", icon: <Dumbbell className="text-red-600 w-8 h-8" /> }
+        { label: "Toplam aktif öğrenci", value: activeStudents.length, icon: <Users className="text-red-600 w-8 h-8" /> },
+        { label: "Toplam pasif öğrenci", value: passiveStudents.length, icon: <UserRoundX className="text-red-600 w-8 h-8" /> },
+        { label: "Aylık yeni kayıt", value: monthlyNew, icon: <UserPlus className="text-red-600 w-8 h-8" /> },
+        { label: "Aylık kaydı bitenler", value: monthlyExpired, icon: <UserMinus className="text-red-600 w-8 h-8" /> },
+        { label: "Toplam salon sayısı", value: gyms.length, icon: <Dumbbell className="text-red-600 w-8 h-8" /> }
     ];
 
     return (
-        <div>
-            <div className="grid grid-cols-1 sm:grid-cols-5 gap-6">
-                {stats.map((item, index) => (
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-6">
+            {stats.map((item, index) => (
                 <div key={index} className="bg-white shadow-md rounded-xl p-6 flex items-center justify-between hover:shadow-lg transition-all border border-gray-100">
                     <div>
                         <p className="text-gray-500 text-sm font-medium">{item.label}</p>
@@ -35,10 +53,9 @@ const PanelCards = () => {
                         {item.icon}
                     </div>
                 </div>
-                ))}
-            </div>
+            ))}
         </div>
-    )
-}
+    );
+};
 
-export default PanelCards
+export default PanelCards;
