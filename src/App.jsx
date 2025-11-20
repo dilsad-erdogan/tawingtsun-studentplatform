@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/firebase";
 import { fetchUserByUID, clearUser } from "./redux/userSlice";
+import GymDetail from "./pages/GymDetail";
 
 function App() {
   const user = useSelector((state) => state.user.data);   // undefined | null | data
@@ -70,6 +71,15 @@ function App() {
                 <Navigate to={`/trainer/${user.authId}`} replace />
               )
             }
+          />
+
+          <Route
+              path="/admin/:authId/gym/:gymId"
+              element={
+                  <ProtectedRoute isAdminAllowed={true}>
+                      <GymDetail />
+                  </ProtectedRoute>
+              }
           />
 
           {/* --- Unknown route: redirect to root --- */}
