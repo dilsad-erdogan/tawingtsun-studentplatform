@@ -1,5 +1,5 @@
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { auth } from "./firebase.js";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { auth, secondaryAuth } from "./firebase.js";
 import toast from 'react-hot-toast';
 
 export const login = async (email, password) => {
@@ -15,6 +15,23 @@ export const login = async (email, password) => {
       toast.error("Çok fazla deneme. Lütfen biraz bekleyin.");
     } else {
       toast.error("Bir hata oluştu");
+    }
+    return null;
+  }
+}; //kullandım
+
+export const register = async (email, password) => {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+    toast.success("Hesap başarıyla oluşturuldu");
+    return userCredential.user;
+  } catch (err) {
+    if (err.code === "auth/email-already-in-use") {
+      toast.error("Bu email zaten kayıtlı");
+    } else if (err.code === "auth/weak-password") {
+      toast.error("Şifre çok zayıf (en az 6 karakter olmalı)");
+    } else {
+      toast.error("Kayıt oluşturulurken bir hata oluştu");
     }
     return null;
   }

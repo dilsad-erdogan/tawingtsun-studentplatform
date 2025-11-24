@@ -1,4 +1,4 @@
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
 import { firestore } from "./firebase";
 
 export const getUserByUID = async (authId) => {
@@ -11,4 +11,22 @@ export const getUserByUID = async (authId) => {
 
   const doc = snapshot.docs[0];
   return { id: doc.id, ...doc.data() };
-};
+}; //kullandım
+
+export const addAccount = async ({ authId, email, gymId, isAdmin = false }) => {
+  try {
+    const accountRef = doc(collection(firestore, "accounts"));
+
+    await setDoc(accountRef, {
+      authId,
+      email,
+      gymId,
+      isAdmin
+    });
+
+    return { id: accountRef.id };
+  } catch (error) {
+    console.error("Add Account Error:", error);
+    throw error;
+  }
+}; //kullandım

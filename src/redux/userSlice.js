@@ -39,7 +39,7 @@ export const fetchAllUsers = createAsyncThunk(
 const userSlice = createSlice({
   name: "user",
   initialState: {
-    data: JSON.parse(sessionStorage.getItem("user")) || null, // Tek kullanıcı
+    data: JSON.parse(sessionStorage.getItem("account")) || null, // Tek kullanıcı
     users: [], // Tüm kullanıcılar
     status: "idle", // idle | loading | succeeded | failed
     loading: false,

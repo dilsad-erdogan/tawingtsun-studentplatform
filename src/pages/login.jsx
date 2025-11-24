@@ -1,15 +1,12 @@
 import { Toaster, toast } from "react-hot-toast";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { login } from "../firebase/login";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { fetchUserByUID } from "../redux/userSlice";
-import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase/firebase";
 
 const Login = () => {
-  const { data } = useSelector((state) => state.user);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -49,18 +46,6 @@ const Login = () => {
       setLoading(false);
     }
   };
-
-  // YÖNLENDİRME: Admin mi eğitmen mi?
-  useEffect(() => {
-    if (data) {
-      console.log(data)
-      if (data.isAdmin === true) {
-        navigate(`/admin/${data.id}`);
-      } else {
-        navigate(`/trainer/${data.id}`);
-      }
-    }
-  }, [data]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

@@ -20,6 +20,40 @@ export const getAllGyms = async () => {
   }
 }; //kullandım
 
+export const addGyms = async (gymData) => {
+  try {
+    const gymsRef = collection(firestore, "gyms");
+
+    const newGym = {
+      name: gymData.name || "",
+      address: gymData.address || "",
+      monthlySalary: [],
+      studentCount: 0,
+      isActive: false
+    };
+
+    const docRef = await addDoc(gymsRef, newGym);
+    toast.success("Yeni salon eklendi.");
+
+    return { id: docRef.id, ...newGym };
+  } catch (error) {
+    console.error("addGyms error:", error);
+    toast.error("Salon eklenirken hata.");
+    return null;
+  }
+}; //kullandım
+
+export const updateGymActiveStatus = async (gymId, isActive) => {
+  try {
+    const gymRef = doc(firestore, "gyms", gymId);
+    await updateDoc(gymRef, { isActive });
+    return true;
+  } catch (error) {
+    console.error("GYM STATUS UPDATE ERROR:", error);
+    throw error;
+  }
+}; //kullandım
+
 export const updateGymByID = async (id, updatedData) => {
   const user = auth.currentUser;
   if (!user) {
@@ -104,31 +138,6 @@ export const removeTrainer = async (gymId, userId) => {
     console.error("removeTrainer error:", error);
     toast.error("Kullanıcı silinirken hata.");
     return false;
-  }
-};
-
-export const addGyms = async (gymData) => {
-  try {
-    const gymsRef = collection(firestore, "gyms");
-
-    const newGym = {
-      name: gymData.name || "",
-      address: gymData.address || "",
-      ownUser: [],
-      students: [],
-      trainers: [],
-      totalSalaryMonth: 0,
-      isActive: true
-    };
-
-    const docRef = await addDoc(gymsRef, newGym);
-    toast.success("Yeni salon eklendi.");
-
-    return { id: docRef.id, ...newGym };
-  } catch (error) {
-    console.error("addGyms error:", error);
-    toast.error("Salon eklenirken hata.");
-    return null;
   }
 };
 
