@@ -5,6 +5,7 @@ import StudentSection from '../sections/trainer/StudentSection'
 const TrainerPanel = ({gymId, gymName}) => {
   console.log(gymId)
   console.log(gymName)
+  
   return (
     <div className="mt-10 gap-10">
       <GymSection />
