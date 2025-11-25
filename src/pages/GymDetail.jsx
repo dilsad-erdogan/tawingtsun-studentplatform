@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import TrainerPanel from "../components/trainer/TrainerPanel";
 
 const GymDetail = () => {
-    const { gymId, gymName } = useParams();
+    const { gymId } = useParams();
 
     return (
         <div className="min-h-screen bg-gray-100 gap-5 pt-5">
@@ -12,7 +12,7 @@ const GymDetail = () => {
 
             <Navbar />
             <div className="m-2">
-                <TrainerPanel gymId={gymId} gymName={gymName} />
+                <TrainerPanel gymId={gymId} />
             </div>
         </div>
     );

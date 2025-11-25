@@ -12,7 +12,10 @@ const PanelCards = () => {
     const convertTimestamp = (ts) => {
         if (!ts) return null;
         if (ts instanceof Date) return ts;
-        return new Date(ts.seconds * 1000);
+        if (typeof ts === "string") return new Date(ts);
+        if (ts.seconds) return new Date(ts.seconds * 1000);
+
+        return null;
     };
 
     const activeStudents = students.filter(s => s.isActive === true);
