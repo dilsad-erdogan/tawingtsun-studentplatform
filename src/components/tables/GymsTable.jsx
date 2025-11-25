@@ -44,7 +44,7 @@ const GymsTable = () => {
     );
 
     const goGymDetail = (gym) => {
-        navigate(`/admin/${gym.toLowerCase().replace(/\s+/g, "-")}`);
+        navigate(`/admin/${gym.id}/${gym.name.toLowerCase().replace(/\s+/g, "-")}`);
     };
 
     return (
@@ -96,7 +96,7 @@ const GymsTable = () => {
 
                     <tbody>
                         {filteredGyms.map((gym) => (
-                            <tr key={gym.id} onClick={() => goGymDetail(gym.name)} className="border-b hover:bg-gray-50 cursor-pointer transition" >
+                            <tr key={gym.id} onClick={() => goGymDetail(gym)} className="border-b hover:bg-gray-50 cursor-pointer transition" >
                                 <td className="py-3 px-4">{gym.name}</td>
                                 <td className="py-3 px-4">{gym.address}</td>
                                 <td className="py-3 px-4">{gym.studentCount ?? 0}</td>
