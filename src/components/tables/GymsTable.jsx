@@ -8,9 +8,7 @@ import { useNavigate } from "react-router-dom";
 const GymsTable = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
     const { gyms, loading, error } = useSelector((state) => state.gym);
-    const user = useSelector((state) => state.user.data);
 
     const [addModalOpen, setAddModalOpen] = useState(false);
     const [registerModalOpen, setRegisterModalOpen] = useState(false);
@@ -45,8 +43,8 @@ const GymsTable = () => {
         gym.name.toLocaleLowerCase("tr").includes(searchTerm.trim().toLocaleLowerCase("tr"))
     );
 
-    const goGymDetail = (gymId) => {
-        navigate(`/admin/${user.authId}/gym/${gymId}`);
+    const goGymDetail = (gym) => {
+        navigate(`/admin/${gym.toLowerCase().replace(/\s+/g, "-")}`);
     };
 
     return (
@@ -98,7 +96,7 @@ const GymsTable = () => {
 
                     <tbody>
                         {filteredGyms.map((gym) => (
-                            <tr key={gym.id} onClick={() => goGymDetail(gym.id)} className="border-b hover:bg-gray-50 cursor-pointer transition" >
+                            <tr key={gym.id} onClick={() => goGymDetail(gym.name)} className="border-b hover:bg-gray-50 cursor-pointer transition" >
                                 <td className="py-3 px-4">{gym.name}</td>
                                 <td className="py-3 px-4">{gym.address}</td>
                                 <td className="py-3 px-4">{gym.studentCount ?? 0}</td>

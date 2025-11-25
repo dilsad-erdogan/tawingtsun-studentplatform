@@ -54,6 +54,20 @@ export const updateGymActiveStatus = async (gymId, isActive) => {
   }
 }; //kullandım
 
+export const getGymById = async (id) => {
+  try {
+    const ref = doc(firestore, "gyms", id);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) return null;
+    return { id: snap.id, ...snap.data() };
+
+  } catch (error) {
+    console.error("getGymById Error:", error);
+    throw error;
+  }
+};//kullandım
+
 export const updateGymByID = async (id, updatedData) => {
   const user = auth.currentUser;
   if (!user) {

@@ -1,24 +1,39 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Login from "./pages/Login";
 import Trainer from "./pages/Trainer";
 import Admin from "./pages/Admin";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useEffect } from "react";
 import GymDetail from "./pages/GymDetail";
+import { fetchGymById } from "./redux/gymSlice";
 
 function RedirectHandler() {
   const { data: user, loading } = useSelector((state) => state.user);
+  const { gym } = useSelector((state) => state.gym);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!loading && user && !user.isAdmin) {
+      // admin değilse → kullanıcının gym bilgisi yoksa çek
+      if (!gym && user.gymId) dispatch(fetchGymById(user.gymId));
+    }
+  }, [user, loading, gym, dispatch]);
+
+  useEffect(() => {
     if (!loading && user) {
+      // login sayfasındaysan yönlendir
       if (window.location.pathname === "/login") {
-        if (user.isAdmin) navigate(`/admin/${user.authId}`);
-        else navigate(`/trainer/${user.authId}`);
+        if (user.isAdmin) {
+          navigate("/admin");
+        } else if (gym) {
+          const gymUrl = gym.name.toLowerCase().replace(/\s+/g, "-");
+          navigate(`/${gymUrl}`);
+        }
       }
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, gym]);
 
   return null;
 }
@@ -33,42 +48,48 @@ function App() {
   return (
     <Router>
       <RedirectHandler />
+
       <Routes>
         <Route path="/login" element={<Login />} />
+
         <Route
-          path="/trainer/:authId"
-          element={
-            <ProtectedRoute isAdminAllowed={false}>
-              <Trainer />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/:authId"
+          path="/admin"
           element={
             <ProtectedRoute isAdminAllowed={true}>
               <Admin />
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/:gymName"
+          element={
+            <ProtectedRoute isAdminAllowed={false}>
+              <Trainer />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/"
           element={
             !user
               ? <Navigate to="/login" replace />
               : user.isAdmin
-              ? <Navigate to={`/admin/${user.authId}`} replace />
-              : <Navigate to={`/trainer/${user.authId}`} replace />
+              ? <Navigate to="/admin" replace />
+              : <Navigate to="/login" replace /> // redirect handler yönlendirecek
           }
         />
+
         <Route
-          path="/admin/:authId/gym/:gymId"
+          path="/admin/:gymId"
           element={
             <ProtectedRoute isAdminAllowed={true}>
               <GymDetail />
             </ProtectedRoute>
           }
         />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

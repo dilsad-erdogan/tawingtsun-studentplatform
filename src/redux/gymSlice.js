@@ -1,25 +1,35 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getAllGyms } from "../firebase/gyms";
+import { getAllGyms, getGymById } from "../firebase/gyms";
 
-// Pull all gyms
+// ✔ Tüm salonları çek
 export const fetchAllGyms = createAsyncThunk(
   "gym/fetchAllGyms",
   async () => {
-    const allUsers = await getAllGyms();
-    return allUsers;
+    return await getAllGyms();
+  }
+);
+
+// ✔ Tek bir salonu çek
+export const fetchGymById = createAsyncThunk(
+  "gym/fetchGymById",
+  async (gymId) => {
+    return await getGymById(gymId);
   }
 );
 
 const gymSlice = createSlice({
   name: "gym",
   initialState: {
-    gyms: [], // All gyms
+    gyms: [],     // tüm salonlar
+    gym: null,    // tek salon (login olan kullanıcıya ait)
     loading: false,
     error: null,
   },
+  reducers: {},
   extraReducers: (builder) => {
     builder
-      // All users
+
+      // ------- ▼ Tüm salonlar ▼ -------
       .addCase(fetchAllGyms.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -30,6 +40,21 @@ const gymSlice = createSlice({
       })
       .addCase(fetchAllGyms.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.error.message;
+      })
+
+      // ------- ▼ Tek salon ▼ -------
+      .addCase(fetchGymById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchGymById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.gym = action.payload;
+      })
+      .addCase(fetchGymById.rejected, (state, action) => {
+        state.loading = false;
+        state.gym = null;
         state.error = action.error.message;
       });
   },
