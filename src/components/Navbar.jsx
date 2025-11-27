@@ -10,7 +10,7 @@ const Navbar = () => {
     const navigate = useNavigate();
     const user = useSelector((state) => state.user.data);
 
-    const handleLogout =  async() => {
+    const handleLogout = async () => {
         dispatch(clearUser());
         await logout();
         sessionStorage.clear();
@@ -27,21 +27,21 @@ const Navbar = () => {
     }
 
     return (
-        <div className="bg-red-600 text-white px-4 sm:px-6 py-5 mt-10 flex justify-between items-center relative">
+        <div className="bg-red-600 text-white px-4 sm:px-6 py-4 mt-10 flex flex-col sm:flex-row justify-between items-center relative gap-4 sm:gap-0">
             {/* Left side */}
-            <div className="flex items-center relative">
-                <div className="absolute -left-2">
-                    <img src={logo} alt="Logo" className="w-36 h-36 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-2 border-white object-cover shadow-lg" />
+            <div className="flex flex-col sm:flex-row items-center relative w-full sm:w-auto">
+                <div className="relative sm:absolute sm:-left-2 mb-2 sm:mb-0">
+                    <img src={logo} alt="Logo" className="w-24 h-24 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-2 border-white object-cover shadow-lg" />
                 </div>
 
-                <span className="ml-24 sm:ml-28 md:ml-36 text-base sm:text-lg font-semibold">
+                <span className="text-center sm:text-left sm:ml-28 md:ml-36 text-xl sm:text-lg font-semibold">
                     {navbarTitle}
                 </span>
             </div>
 
             {/* Right side */}
-            <div className="text-sm sm:text-base">
-                <button onClick={handleLogout} className="flex items-center gap-2 hover:opacity-80 transition text-sm sm:text-base">
+            <div className="text-sm sm:text-base w-full sm:w-auto flex justify-center sm:justify-end">
+                <button onClick={handleLogout} className="flex items-center gap-2 hover:opacity-80 transition text-sm sm:text-base bg-red-700 sm:bg-transparent px-4 py-2 rounded-lg sm:p-0">
                     <LogOut size={20} />
                     <span>Logout</span>
                 </button>

@@ -53,7 +53,7 @@ const PanelCards = () => {
     }
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {stats.map((item, index) => (
                 <div key={index} className="bg-white shadow-md rounded-xl p-6 flex items-center justify-between hover:shadow-lg transition-all border border-gray-100">
                     <div>
