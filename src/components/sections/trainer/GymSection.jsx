@@ -1,101 +1,108 @@
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux"; 
-import { getGymsForTrainer } from "../../../firebase/gyms";
 
-const GymSection = ({gymId}) => {
-  console.log(gymId)
-  const user = useSelector((state) => state.user.data);
-  const [gyms, setGyms] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [openGym, setOpenGym] = useState(null); // hangi gym expand edilmiş?
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchGymById } from "../../../redux/gymSlice";
+import { Users, UserRoundX, UserPlus, UserMinus } from "lucide-react";
+
+const GymSection = ({ gymId }) => {
+  const dispatch = useDispatch();
+  const { gym, loading: gymLoading } = useSelector((state) => state.gym);
+  const { students } = useSelector((state) => state.student);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (gymId) {
+      dispatch(fetchGymById(gymId));
+    }
+  }, [dispatch, gymId]);
 
-    const fetchGyms = async () => {
-      try {
-        const gymsData = await getGymsForTrainer(user.id);
-        setGyms(gymsData);
-      } catch (error) {
-        console.error("GymSection fetchGyms Hatası:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (gymLoading || !gym) {
+    return <div className="p-4">Salon bilgileri yükleniyor...</div>;
+  }
 
-    fetchGyms();
-  }, [user]);
+  // --- İstatistik Hesaplama ---
+  const now = new Date();
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(now.getMonth() - 1);
 
-  if (loading) return <p>Yükleniyor...</p>;
-
-  // 🔹 Yardımcı: Array'i tarihe göre sıralayıp sonuncuyu al
-  const getLatestRecord = (arr) => {
-    if (!Array.isArray(arr) || arr.length === 0) return null;
-    return [...arr].sort((a, b) => (a.month < b.month ? 1 : -1))[0];
+  const convertTimestamp = (ts) => {
+    if (!ts) return null;
+    if (ts instanceof Date) return ts;
+    if (typeof ts === "string") return new Date(ts);
+    if (ts.seconds) return new Date(ts.seconds * 1000);
+    return null;
   };
 
+  // Sadece bu salona ait öğrencileri filtrele
+  const gymStudents = students.filter((s) => s.gymId === gymId);
+
+  const activeStudents = gymStudents.filter((s) => s.isActive === true);
+  const monthlyNew = activeStudents.filter((s) => {
+    const registerDate = convertTimestamp(s.date);
+    return registerDate && registerDate >= oneMonthAgo;
+  }).length;
+
+  const passiveStudents = gymStudents.filter((s) => s.isActive === false);
+  const monthlyExpired = passiveStudents.filter((s) => {
+    const registerDate = convertTimestamp(s.date);
+    if (!registerDate) return false;
+
+    // Bitiş tarihi = kayıt + studyPeriod ay
+    const endDate = new Date(registerDate);
+    endDate.setMonth(endDate.getMonth() + s.studyPeriod);
+
+    return endDate >= oneMonthAgo && endDate <= now;
+  }).length;
+
+  const stats = [
+    {
+      label: "Toplam aktif öğrenci",
+      value: activeStudents.length,
+      icon: <Users className="text-red-600 w-8 h-8" />,
+    },
+    {
+      label: "Toplam pasif öğrenci",
+      value: passiveStudents.length,
+      icon: <UserRoundX className="text-red-600 w-8 h-8" />,
+    },
+    {
+      label: "Aylık yeni kayıt",
+      value: monthlyNew,
+      icon: <UserPlus className="text-red-600 w-8 h-8" />,
+    },
+    {
+      label: "Aylık kaydı bitenler",
+      value: monthlyExpired,
+      icon: <UserMinus className="text-red-600 w-8 h-8" />,
+    },
+  ];
+
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Eğitmen Olduğun Salonlar</h2>
-      {gyms.length === 0 ? (
-        <p>Hiçbir salona bağlı değilsiniz.</p>
-      ) : (
-        <ul className="space-y-2">
-          {gyms.map((gym) => {
-            const latestTrainerSalary = getLatestRecord(gym.trainerSalary);
-            const latestGymSalary = getLatestRecord(gym.totalSalaryMonth);
+    <div className="p-4 space-y-6">
+      {/* Salon Bilgileri */}
+      <div className="bg-white shadow rounded-lg p-6 border border-gray-100">
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">{gym.name}</h2>
+        <p className="text-gray-600">
+          <strong>Adres:</strong> {gym.address}
+        </p>
+      </div>
 
-            return (
-              <li key={gym.id} className="border rounded p-3 bg-white shadow">
-                <h3 className="font-semibold">{gym.name}</h3>
-                <p><strong>Adres:</strong> {gym.address}</p>
-
-                <p>
-                  <strong>Senin Güncel Kazancın:</strong>{" "}
-                  {latestTrainerSalary ? `${latestTrainerSalary.total}₺ (${latestTrainerSalary.month})` : "-"}
-                </p>
-                <p>
-                  <strong>Salonun Güncel Kazancı:</strong>{" "}
-                  {latestGymSalary ? `${latestGymSalary.total}₺ (${latestGymSalary.month})` : "-"}
-                </p>
-
-                {/* Açılır Liste Butonu */}
-                {(gym.trainerSalary?.length > 1 || gym.totalSalaryMonth?.length > 1) && (
-                  <button
-                    onClick={() => setOpenGym(openGym === gym.id ? null : gym.id)}
-                    className="mt-2 text-blue-600 underline text-sm"
-                  >
-                    {openGym === gym.id ? "Kapat" : "Geçmişi Görüntüle"}
-                  </button>
-                )}
-
-                {/* Geçmiş kayıtları */}
-                {openGym === gym.id && (
-                  <div className="mt-2 p-2 border-t text-sm space-y-1">
-                    <p className="font-semibold">Senin Kazanç Geçmişin:</p>
-                    {gym.trainerSalary
-                      ?.sort((a, b) => (a.month < b.month ? 1 : -1))
-                      .map((s, idx) => (
-                        <p key={idx}>
-                          {s.month}: {s.total}₺
-                        </p>
-                      ))}
-
-                    <p className="font-semibold mt-2">Salon Kazanç Geçmişi:</p>
-                    {gym.totalSalaryMonth
-                      ?.sort((a, b) => (a.month < b.month ? 1 : -1))
-                      .map((s, idx) => (
-                        <p key={idx}>
-                          {s.month}: {s.total}₺
-                        </p>
-                      ))}
-                  </div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
+      {/* İstatistik Kartları */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((item, index) => (
+          <div
+            key={index}
+            className="bg-white shadow-md rounded-xl p-6 flex items-center justify-between hover:shadow-lg transition-all border border-gray-100"
+          >
+            <div>
+              <p className="text-gray-500 text-sm font-medium">{item.label}</p>
+              <h2 className="text-3xl font-bold text-gray-800 mt-1">
+                {item.value}
+              </h2>
+            </div>
+            <div className="bg-red-100 rounded-full p-3">{item.icon}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
