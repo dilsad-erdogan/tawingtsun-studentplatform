@@ -21,7 +21,7 @@ export const fetchUserByUID = createAsyncThunk(
       return thunkAPI.rejectWithValue(error.message);
     }
   }
-);
+); //kullanıyorum
 
 // 🔹 Tüm kullanıcıları getir (admin için)
 export const fetchAllUsers = createAsyncThunk(

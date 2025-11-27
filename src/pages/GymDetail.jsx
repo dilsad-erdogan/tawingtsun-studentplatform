@@ -1,10 +1,11 @@
+import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { fetchAllStudents } from "../redux/studentSlice";
+
 import Navbar from "../components/Navbar";
 import TrainerPanel from "../components/trainer/TrainerPanel";
-import { useDispatch } from "react-redux";
-import { useEffect } from "react";
-import { fetchAllStudents } from "../redux/studentSlice";
 
 const GymDetail = () => {
     const { gymId } = useParams();

@@ -1,8 +1,9 @@
 import { Toaster, toast } from "react-hot-toast";
 import { useState } from "react";
-import { login } from "../firebase/login";
 import { useDispatch } from "react-redux";
 import { fetchUserByUID } from "../redux/userSlice";
+
+import { login } from "../firebase/login";
 import { auth } from "../firebase/firebase";
 
 const Login = () => {

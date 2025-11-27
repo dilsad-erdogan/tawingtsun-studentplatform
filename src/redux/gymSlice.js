@@ -7,7 +7,7 @@ export const fetchAllGyms = createAsyncThunk(
   async () => {
     return await getAllGyms();
   }
-);
+); //kullanıyorum
 
 // ✔ Tek bir salonu çek
 export const fetchGymById = createAsyncThunk(
@@ -15,7 +15,7 @@ export const fetchGymById = createAsyncThunk(
   async (gymId) => {
     return await getGymById(gymId);
   }
-);
+); //kullanıyorum
 
 const gymSlice = createSlice({
   name: "gym",

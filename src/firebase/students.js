@@ -18,7 +18,7 @@ export const getAllStudent = async () => {
     toast.error("Öğrencilerin çekilmesi sırasında hata oluştu.");
     return [];
   }
-};
+}; //kullanıyorum
 
 export const getTrainerGymsWithStudents = async (userId) => {
   try {
@@ -228,4 +228,4 @@ export const addNewStudent = async (data) => {
     console.error("addNewStudent error:", error);
     throw error;
   }
-};
+}; //kullanıyorum

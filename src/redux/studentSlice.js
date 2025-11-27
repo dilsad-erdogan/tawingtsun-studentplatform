@@ -14,7 +14,7 @@ export const fetchAllStudents = createAsyncThunk(
 
     return serializedUsers;
   }
-);
+); //kullanıyorum
 
 const studentSlice = createSlice({
   name: "student",
