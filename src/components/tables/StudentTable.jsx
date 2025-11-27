@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import AddStudentModal from "../modals/addModals/AddStudentModal";
 
 const StudentTable = ({ gymId }) => {
     const navigate = useNavigate();
     const { students } = useSelector((state) => state.student);
     const [searchTerm, setSearchTerm] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // 1. Gym'e göre filtrele
     const gymStudents = students.filter((s) => s.gymId === gymId);
@@ -25,14 +27,28 @@ const StudentTable = ({ gymId }) => {
         <div className="p-4 bg-white shadow rounded-lg border border-gray-100">
             <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
                 <h2 className="text-xl font-bold text-gray-800">Öğrenci Listesi</h2>
-                <input
-                    type="text"
-                    placeholder="Öğrenci adına göre ara..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="border px-3 py-2 rounded w-full sm:w-64"
-                />
+                <div className="flex gap-2 w-full sm:w-auto">
+                    <input
+                        type="text"
+                        placeholder="Öğrenci adına göre ara..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="border px-3 py-2 rounded w-full sm:w-64"
+                    />
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition whitespace-nowrap"
+                    >
+                        Öğrenci Ekle
+                    </button>
+                </div>
             </div>
+
+            <AddStudentModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                gymId={gymId}
+            />
 
             {sortedStudents.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">Bu salonda kayıtlı öğrenci bulunamadı.</p>

@@ -53,11 +53,10 @@ const GymsTable = () => {
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 md:gap-0">
                 <h1 className="text-2xl font-bold">Spor Salonları</h1>
                 <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
+                    <input type="text" placeholder="İsme göre ara..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="border px-3 py-2 rounded w-full sm:w-64" />
                     <button onClick={openAddModal} className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-center">
                         Spor Salonu Ekle
                     </button>
-
-                    <input type="text" placeholder="İsme göre ara..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="border px-3 py-1 rounded w-full sm:w-52" />
                 </div>
             </div>
 

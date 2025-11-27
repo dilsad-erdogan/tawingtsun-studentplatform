@@ -18,7 +18,7 @@ export const getAllStudent = async () => {
     toast.error("Öğrencilerin çekilmesi sırasında hata oluştu.");
     return [];
   }
-};//kullandım
+};
 
 export const getTrainerGymsWithStudents = async (userId) => {
   try {
@@ -201,5 +201,31 @@ export const getStudentsByGym = async (gymId) => {
     console.error("getStudentsByGym error:", error);
     toast.error("Salon öğrencileri çekilirken hata oluştu.");
     return [];
+  }
+};
+
+export const addNewStudent = async (data) => {
+  try {
+    const studentsRef = collection(firestore, "students");
+
+    const newStudent = {
+      name: data.name,
+      phone: data.phone,
+      group: data.group,
+      level: data.level,
+      studyPeriod: data.studyPeriod,
+      gymId: data.gymId,
+      isActive: true,
+      date: new Date().toISOString(),
+      monthlySalary: [],
+      registrationForms: []
+    };
+
+    const docRef = await addDoc(studentsRef, newStudent);
+    return { id: docRef.id, ...newStudent };
+
+  } catch (error) {
+    console.error("addNewStudent error:", error);
+    throw error;
   }
 };
