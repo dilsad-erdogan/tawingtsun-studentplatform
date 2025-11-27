@@ -1,8 +1,18 @@
 import { Toaster } from "react-hot-toast";
 import Navbar from "../components/Navbar";
 import TrainerPanel from "../components/trainer/TrainerPanel";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { fetchAllStudents } from "../redux/studentSlice";
 
 const Trainer = () => {
+  const dispatch = useDispatch();
+  const { data: user } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    dispatch(fetchAllStudents());
+  }, [dispatch]);
+
   return (
     <div className="min-h-screen bg-gray-100 gap-5 pt-5">
       <Toaster position='top-right' />
@@ -15,11 +25,11 @@ const Trainer = () => {
 
         {/* Panel */}
         <div className="flex-1 p-6">
-          <TrainerPanel />
+          <TrainerPanel gymId={user?.gymId} />
         </div>
       </div>
     </div>
   )
 }
 
-export default Trainer
+export default Trainer;

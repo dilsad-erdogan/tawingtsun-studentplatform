@@ -8,7 +8,7 @@ export const getAllStudent = async () => {
     const querySnapshot = await getDocs(studentsRef);
 
     const students = querySnapshot.docs.map(doc => ({
-      id: doc.id, 
+      id: doc.id,
       ...doc.data()
     }));
 
@@ -152,5 +152,54 @@ export const addStudent = async (studentData) => {
     console.error("addStudent error:", error);
     toast.error("Öğrenci eklenirken hata oluştu.");
     return null;
+  }
+};
+
+export const getStudentsByGym = async (gymId) => {
+  try {
+    // 1. Bu gym'deki tüm trainerları bul
+    const trainersRef = collection(firestore, "trainers");
+    const qTrainers = query(trainersRef, where("gymId", "==", gymId));
+    const trainersSnap = await getDocs(qTrainers);
+
+    if (trainersSnap.empty) return [];
+
+    const trainerIds = trainersSnap.docs.map(doc => doc.id);
+
+    // 2. Bu trainerlara bağlı öğrencileri bul
+    const studentsRef = collection(firestore, "students");
+
+    let allStudents = [];
+
+    for (const trainerId of trainerIds) {
+      const qStudents = query(studentsRef, where("trainerId", "==", trainerId));
+      const studentsSnap = await getDocs(qStudents);
+
+      for (const studentDoc of studentsSnap.docs) {
+        const studentData = studentDoc.data();
+
+        // User detaylarını çek
+        const userRef = doc(firestore, "users", studentData.userId);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+          allStudents.push({
+            id: studentDoc.id,
+            ...studentData,
+            user: {
+              id: userSnap.id,
+              ...userSnap.data()
+            }
+          });
+        }
+      }
+    }
+
+    return allStudents;
+
+  } catch (error) {
+    console.error("getStudentsByGym error:", error);
+    toast.error("Salon öğrencileri çekilirken hata oluştu.");
+    return [];
   }
 };

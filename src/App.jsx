@@ -6,6 +6,7 @@ import Admin from "./pages/Admin";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useEffect } from "react";
 import GymDetail from "./pages/GymDetail";
+import StudentDetail from "./pages/StudentDetail";
 import { fetchGymById } from "./redux/gymSlice";
 
 function RedirectHandler() {
@@ -76,8 +77,8 @@ function App() {
             !user
               ? <Navigate to="/login" replace />
               : user.isAdmin
-              ? <Navigate to="/admin" replace />
-              : <Navigate to="/login" replace /> // redirect handler yönlendirecek
+                ? <Navigate to="/admin" replace />
+                : <Navigate to="/login" replace /> // redirect handler yönlendirecek
           }
         />
 
@@ -86,6 +87,15 @@ function App() {
           element={
             <ProtectedRoute isAdminAllowed={true}>
               <GymDetail />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/student/:id"
+          element={
+            <ProtectedRoute isAdminAllowed={true}>
+              <StudentDetail />
             </ProtectedRoute>
           }
         />
