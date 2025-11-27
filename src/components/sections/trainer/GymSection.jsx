@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux"; 
 import { getGymsForTrainer } from "../../../firebase/gyms";
 
-const GymSection = () => {
+const GymSection = ({gymId}) => {
+  console.log(gymId)
   const user = useSelector((state) => state.user.data);
   const [gyms, setGyms] = useState([]);
   const [loading, setLoading] = useState(true);
