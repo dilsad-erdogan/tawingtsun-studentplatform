@@ -4,6 +4,8 @@ import StudentTable from '../tables/StudentTable'
 import { useDispatch } from 'react-redux'
 import { fetchGymById } from '../../redux/gymSlice'
 import PanelCards from './PanelCards'
+import PaymentSection from './PaymentSection'
+import MonthlySection from './MonthlySection'
 
 const TrainerPanel = ({ gymId }) => {
   const dispatch = useDispatch();
@@ -22,6 +24,10 @@ const TrainerPanel = ({ gymId }) => {
       </div>
 
       <StudentTable gymId={gymId} />
+
+      <PaymentSection />
+
+      <MonthlySection />
     </div>
   )
 }
