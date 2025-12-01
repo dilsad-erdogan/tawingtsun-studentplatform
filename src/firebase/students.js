@@ -20,6 +20,48 @@ export const getAllStudent = async () => {
   }
 }; //kullanıyorum
 
+export const addNewStudent = async (data) => {
+  try {
+    const studentsRef = collection(firestore, "students");
+
+    const newStudent = {
+      name: data.name,
+      phone: data.phone,
+      group: data.group,
+      level: data.level,
+      studyPeriod: data.studyPeriod,
+      gymId: data.gymId,
+      isActive: true,
+      date: new Date().toISOString(),
+      monthlySalary: [],
+      registrationForms: []
+    };
+
+    const docRef = await addDoc(studentsRef, newStudent);
+    return { id: docRef.id, ...newStudent };
+
+  } catch (error) {
+    console.error("addNewStudent error:", error);
+    throw error;
+  }
+}; //kullanıyorum
+
+export const getActiveStudentsCountByGymId = async (gymId) => {
+  try {
+    const studentsRef = collection(firestore, "students");
+    const q = query(
+      studentsRef,
+      where("gymId", "==", gymId),
+      where("isActive", "==", true)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.size;
+  } catch (error) {
+    console.error("getActiveStudentsCountByGymId error:", error);
+    return 0;
+  }
+}; //kullanıyorum
+
 export const getTrainerGymsWithStudents = async (userId) => {
   try {
     // 1. Trainer kayıtlarını bul
@@ -139,22 +181,6 @@ export const getStudentTrainerAndGym = async (studentUserId) => {
   }
 };
 
-export const addStudent = async (studentData) => {
-  try {
-    const studentsRef = collection(firestore, "students");
-    const docRef = await addDoc(studentsRef, {
-      userId: studentData.userId,
-      trainerId: studentData.trainerId,
-      createdAt: new Date(),
-    });
-    return { id: docRef.id, ...studentData };
-  } catch (error) {
-    console.error("addStudent error:", error);
-    toast.error("Öğrenci eklenirken hata oluştu.");
-    return null;
-  }
-};
-
 export const getStudentsByGym = async (gymId) => {
   try {
     // 1. Bu gym'deki tüm trainerları bul
@@ -203,29 +229,3 @@ export const getStudentsByGym = async (gymId) => {
     return [];
   }
 };
-
-export const addNewStudent = async (data) => {
-  try {
-    const studentsRef = collection(firestore, "students");
-
-    const newStudent = {
-      name: data.name,
-      phone: data.phone,
-      group: data.group,
-      level: data.level,
-      studyPeriod: data.studyPeriod,
-      gymId: data.gymId,
-      isActive: true,
-      date: new Date().toISOString(),
-      monthlySalary: [],
-      registrationForms: []
-    };
-
-    const docRef = await addDoc(studentsRef, newStudent);
-    return { id: docRef.id, ...newStudent };
-
-  } catch (error) {
-    console.error("addNewStudent error:", error);
-    throw error;
-  }
-}; //kullanıyorum

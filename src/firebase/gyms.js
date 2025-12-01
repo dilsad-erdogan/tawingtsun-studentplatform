@@ -8,7 +8,7 @@ export const getAllGyms = async () => {
     const querySnapshot = await getDocs(gymsRef);
 
     const gyms = querySnapshot.docs.map(doc => ({
-      id: doc.id, 
+      id: doc.id,
       ...doc.data()
     }));
 
@@ -28,7 +28,6 @@ export const addGyms = async (gymData) => {
       name: gymData.name || "",
       address: gymData.address || "",
       monthlySalary: [],
-      studentCount: 0,
       isActive: false
     };
 
@@ -105,7 +104,7 @@ export const addOwnsToGym = async (gymId, userId) => {
 };
 
 export const removeOwn = async (gymId, userId) => {
-  try{
+  try {
     const gymRef = doc(firestore, "gyms", gymId);
 
     await updateDoc(gymRef, {
@@ -114,7 +113,7 @@ export const removeOwn = async (gymId, userId) => {
 
     toast.success("Kullanıcı başarıyla silindi");
     return true;
-  } catch (error){
+  } catch (error) {
     console.error("removeOwn error:", error);
     toast.error("Kullanıcı silinirken hata.");
     return false;
@@ -139,7 +138,7 @@ export const addTrainersToGym = async (gymId, userId) => {
 };
 
 export const removeTrainer = async (gymId, userId) => {
-  try{
+  try {
     const gymRef = doc(firestore, "gyms", gymId);
 
     await updateDoc(gymRef, {
@@ -148,7 +147,7 @@ export const removeTrainer = async (gymId, userId) => {
 
     toast.success("Kullanıcı başarıyla silindi");
     return true;
-  } catch (error){
+  } catch (error) {
     console.error("removeTrainer error:", error);
     toast.error("Kullanıcı silinirken hata.");
     return false;

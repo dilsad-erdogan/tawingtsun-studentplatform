@@ -4,6 +4,7 @@ import RegisterGymModal from "../modals/addModals/registerGymModal";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllGyms } from "../../redux/gymSlice";
 import { useNavigate } from "react-router-dom";
+import { getActiveStudentsCountByGymId } from "../../firebase/students";
 
 const GymsTable = () => {
     const dispatch = useDispatch();
@@ -14,6 +15,7 @@ const GymsTable = () => {
     const [registerModalOpen, setRegisterModalOpen] = useState(false);
     const [selectedGym, setSelectedGym] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [studentCounts, setStudentCounts] = useState({});
 
     const closeModal = () => setAddModalOpen(false);
     const openAddModal = () => setAddModalOpen(true);
@@ -33,10 +35,26 @@ const GymsTable = () => {
         dispatch(fetchAllGyms());
     }, [dispatch]);
 
+    const activeGyms = gyms.filter((gym) => gym.isActive !== false);
+
+    useEffect(() => {
+        const fetchCounts = async () => {
+            const counts = {};
+            for (const gym of activeGyms) {
+                const count = await getActiveStudentsCountByGymId(gym.id);
+                counts[gym.id] = count;
+            }
+            setStudentCounts(counts);
+        };
+
+        if (activeGyms.length > 0) {
+            fetchCounts();
+        }
+    }, [activeGyms]);
+
     if (loading) return <div className="p-4">Loading...</div>;
     if (error) return <div className="p-4 text-red-500">{error}</div>;
 
-    const activeGyms = gyms.filter((gym) => gym.isActive !== false);
     const inactiveGyms = gyms.filter((gym) => gym.isActive === false);
 
     const filteredGyms = activeGyms.filter((gym) =>
@@ -98,7 +116,7 @@ const GymsTable = () => {
                             <tr key={gym.id} onClick={() => goGymDetail(gym)} className="border-b hover:bg-gray-50 cursor-pointer transition" >
                                 <td className="py-3 px-4">{gym.name}</td>
                                 <td className="py-3 px-4">{gym.address}</td>
-                                <td className="py-3 px-4">{gym.studentCount ?? 0}</td>
+                                <td className="py-3 px-4">{studentCounts[gym.id] ?? "..."}</td>
                             </tr>
                         ))}
 
