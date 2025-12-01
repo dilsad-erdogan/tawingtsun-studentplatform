@@ -9,6 +9,9 @@ const StudentTable = ({ gymId }) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
     // 1. Gym'e göre filtrele
     const gymStudents = students.filter((s) => s.gymId === gymId);
 
@@ -22,6 +25,17 @@ const StudentTable = ({ gymId }) => {
         if (a.isActive === b.isActive) return 0;
         return a.isActive ? -1 : 1;
     });
+
+    // Reset page when search term changes
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
+    // Pagination Logic
+    const totalPages = Math.ceil(sortedStudents.length / itemsPerPage);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentStudents = sortedStudents.slice(indexOfFirstItem, indexOfLastItem);
 
     return (
         <div className="p-4 sm:p-6 mx-auto">
@@ -66,7 +80,7 @@ const StudentTable = ({ gymId }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {sortedStudents.map((student) => {
+                        {currentStudents.map((student) => {
                             const isPassive = !student.isActive;
                             const rowClass = `border-b hover:bg-gray-50 cursor-pointer transition ${isPassive ? "text-gray-400" : "text-gray-800"}`;
 
@@ -95,7 +109,7 @@ const StudentTable = ({ gymId }) => {
                             );
                         })}
 
-                        {sortedStudents.length === 0 && (
+                        {currentStudents.length === 0 && (
                             <tr>
                                 <td colSpan="7" className="text-center py-6 text-gray-500">
                                     Bu salonda kayıtlı öğrenci bulunamadı.
@@ -105,6 +119,29 @@ const StudentTable = ({ gymId }) => {
                     </tbody>
                 </table>
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages == 1 && (
+                <div className="flex justify-between items-center mt-4">
+                    <button
+                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className={`px-4 py-2 rounded ${currentPage === 1 ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+                    >
+                        Önceki
+                    </button>
+                    <span className="text-gray-600">
+                        Sayfa {currentPage} / {totalPages}
+                    </span>
+                    <button
+                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className={`px-4 py-2 rounded ${currentPage === totalPages ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+                    >
+                        Sonraki
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

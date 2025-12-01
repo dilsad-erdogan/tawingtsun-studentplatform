@@ -17,6 +17,9 @@ const GymsTable = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [studentCounts, setStudentCounts] = useState({});
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
     const closeModal = () => setAddModalOpen(false);
     const openAddModal = () => setAddModalOpen(true);
 
@@ -52,6 +55,11 @@ const GymsTable = () => {
         }
     }, [activeGyms]);
 
+    // Reset page when search term changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
     if (loading) return <div className="p-4">Loading...</div>;
     if (error) return <div className="p-4 text-red-500">{error}</div>;
 
@@ -60,6 +68,12 @@ const GymsTable = () => {
     const filteredGyms = activeGyms.filter((gym) =>
         gym.name.toLocaleLowerCase("tr").includes(searchTerm.trim().toLocaleLowerCase("tr"))
     );
+
+    // Pagination Logic
+    const totalPages = Math.ceil(filteredGyms.length / itemsPerPage);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentGyms = filteredGyms.slice(indexOfFirstItem, indexOfLastItem);
 
     const goGymDetail = (gym) => {
         navigate(`/admin/${gym.id}/${gym.name.toLowerCase().replace(/\s+/g, "-")}`);
@@ -112,7 +126,7 @@ const GymsTable = () => {
                     </thead>
 
                     <tbody>
-                        {filteredGyms.map((gym) => (
+                        {currentGyms.map((gym) => (
                             <tr key={gym.id} onClick={() => goGymDetail(gym)} className="border-b hover:bg-gray-50 cursor-pointer transition" >
                                 <td className="py-3 px-4">{gym.name}</td>
                                 <td className="py-3 px-4">{gym.address}</td>
@@ -120,7 +134,7 @@ const GymsTable = () => {
                             </tr>
                         ))}
 
-                        {filteredGyms.length === 0 && (
+                        {currentGyms.length === 0 && (
                             <tr>
                                 <td colSpan="3" className="text-center py-6 text-gray-500">
                                     Hiç salon bulunamadı.
@@ -130,6 +144,29 @@ const GymsTable = () => {
                     </tbody>
                 </table>
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages == 1 && (
+                <div className="flex justify-between items-center mt-4">
+                    <button
+                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className={`px-4 py-2 rounded ${currentPage === 1 ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+                    >
+                        Önceki
+                    </button>
+                    <span className="text-gray-600">
+                        Sayfa {currentPage} / {totalPages}
+                    </span>
+                    <button
+                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className={`px-4 py-2 rounded ${currentPage === totalPages ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+                    >
+                        Sonraki
+                    </button>
+                </div>
+            )}
 
             <AddGymModal isOpen={addModalOpen} onClose={closeModal} />
             <RegisterGymModal gym={selectedGym} isOpen={registerModalOpen} onClose={closeRegisterModal} />
