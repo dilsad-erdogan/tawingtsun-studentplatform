@@ -84,7 +84,7 @@ export const updateGymByID = async (id, updatedData) => {
     toast.error("Salon güncellenemedi");
     return false;
   }
-};
+};//kullandım
 
 export const addOwnsToGym = async (gymId, userId) => {
   try {
