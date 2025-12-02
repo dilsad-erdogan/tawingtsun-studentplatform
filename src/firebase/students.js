@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { firestore } from "./firebase";
 import toast from "react-hot-toast";
 
@@ -73,6 +73,19 @@ export const getStudentById = async (id) => {
   } catch (error) {
     console.error("getStudentById Error:", error);
     throw error;
+  }
+};//kullandım
+
+export const updateStudent = async (id, updatedData) => {
+  try {
+    const studentRef = doc(firestore, "students", id);
+    await updateDoc(studentRef, updatedData);
+    toast.success("Öğrenci başarıyla güncellendi!");
+    return true;
+  } catch (error) {
+    console.error("updateStudent error:", error);
+    toast.error("Öğrenci güncellenemedi");
+    return false;
   }
 };//kullandım
 

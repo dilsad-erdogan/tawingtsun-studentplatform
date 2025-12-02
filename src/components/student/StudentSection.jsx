@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
+import StudentModal from '../modals/updateModals/StudentModal';
 
 const StudentSection = () => {
     const { student, loading } = useSelector((state) => state.student);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     if (loading) {
         return <div className="p-4">Öğrenci bilgileri yükleniyor...</div>;
@@ -23,12 +25,23 @@ const StudentSection = () => {
                             <p><strong>Telefon:</strong> {student.phone}</p>
                             <p><strong>Grup:</strong> {student.group}</p>
                             <p><strong>Seviye:</strong> {student.level}</p>
-                            <p><strong>Çalışma Süresi:</strong> {student.studyPeriod}</p>
+                            <p><strong>Çalışma Süresi:</strong> {student.studyPeriod} ay</p>
                         </div>
                     </div>
-                    {/* Buraya güncelle butonu veya başka aksiyonlar eklenebilir */}
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-center"
+                    >
+                        Güncelle
+                    </button>
                 </div>
             </div>
+
+            <StudentModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                selectedStudent={student}
+            />
         </div>
     );
 };
