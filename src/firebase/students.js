@@ -62,6 +62,20 @@ export const getActiveStudentsCountByGymId = async (gymId) => {
   }
 }; //kullanıyorum
 
+export const getStudentById = async (id) => {
+  try {
+    const ref = doc(firestore, "students", id);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) return null;
+    return { id: snap.id, ...snap.data() };
+
+  } catch (error) {
+    console.error("getStudentById Error:", error);
+    throw error;
+  }
+};//kullandım
+
 export const getTrainerGymsWithStudents = async (userId) => {
   try {
     // 1. Trainer kayıtlarını bul

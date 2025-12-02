@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getAllStudent } from "../firebase/students";
+import { getAllStudent, getStudentById } from "../firebase/students";
 
 // Pull all trainer
 export const fetchAllStudents = createAsyncThunk(
@@ -16,10 +16,25 @@ export const fetchAllStudents = createAsyncThunk(
   }
 ); //kullanıyorum
 
+export const fetchStudentById = createAsyncThunk(
+  "student/fetchStudentById",
+  async (studentId) => {
+    const student = await getStudentById(studentId);
+    if (student) {
+      return {
+        ...student,
+        date: student.date?.toDate ? student.date.toDate().toISOString() : student.date
+      };
+    }
+    return null;
+  }
+);  //kullanıyorum
+
 const studentSlice = createSlice({
   name: "student",
   initialState: {
     students: [],
+    student: null,
     loading: false,
     error: null,
   },
@@ -35,6 +50,18 @@ const studentSlice = createSlice({
         state.students = action.payload;
       })
       .addCase(fetchAllStudents.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchStudentById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchStudentById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.student = action.payload;
+      })
+      .addCase(fetchStudentById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });
