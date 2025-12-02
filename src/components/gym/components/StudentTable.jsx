@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import AddStudentModal from "../modals/addModals/AddStudentModal";
+import AddStudentModal from "../modals/AddStudentModal";
 
 const StudentTable = ({ gymId }) => {
     const navigate = useNavigate();

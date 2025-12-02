@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux';
+
 import { addGyms } from '../../../firebase/gyms';
 import { fetchAllGyms } from '../../../redux/gymSlice';
 
@@ -20,13 +21,13 @@ const AddGymModal = ({ isOpen, onClose }) => {
             address: formData.address
         };
         await addGyms(newGym);
-        
+
         dispatch(fetchAllGyms());
         onClose();
     };
 
     if (!isOpen) return null;
-    
+
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg w-[450px]">
@@ -45,7 +46,7 @@ const AddGymModal = ({ isOpen, onClose }) => {
                 </div>
             </div>
         </div>
-   )
+    )
 }
 
 export default AddGymModal

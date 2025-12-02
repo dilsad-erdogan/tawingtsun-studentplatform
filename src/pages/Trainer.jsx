@@ -1,6 +1,6 @@
 import { Toaster } from "react-hot-toast";
 import Navbar from "../components/Navbar";
-import TrainerPanel from "../components/trainer/TrainerPanel";
+import GymPanel from "../components/gym/GymPanel";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { fetchAllStudents } from "../redux/studentSlice";
@@ -25,7 +25,7 @@ const Trainer = () => {
 
         {/* Panel */}
         <div className="flex-1 p-6">
-          <TrainerPanel gymId={user?.gymId} />
+          <GymPanel gymId={user?.gymId} />
         </div>
       </div>
     </div>

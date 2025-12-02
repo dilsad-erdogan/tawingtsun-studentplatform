@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react'
-import PaymentSection from './PaymentSection'
-import StudentSection from './StudentSection';
 import { useDispatch } from 'react-redux';
+
 import { fetchStudentById } from '../../redux/studentSlice';
+
+import PaymentSection from './components/PaymentSection'
+import StudentSection from './components/StudentSection';
 
 const StudentPanel = ({ id }) => {
   const dispatch = useDispatch();
@@ -15,7 +17,6 @@ const StudentPanel = ({ id }) => {
 
   return (
     <div className="mt-10 gap-10">
-
       <div className='p-4 flex flex-col gap-5'>
         <StudentSection />
         <PaymentSection />

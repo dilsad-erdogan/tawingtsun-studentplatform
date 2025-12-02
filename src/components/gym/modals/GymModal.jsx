@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { updateGymByID } from '../../../firebase/gyms';
 import { useDispatch } from 'react-redux';
+
+import { updateGymByID } from '../../../firebase/gyms';
 import { fetchAllGyms, fetchGymById } from '../../../redux/gymSlice';
 
 const GymModal = ({ isOpen, onClose, selectedGym }) => {

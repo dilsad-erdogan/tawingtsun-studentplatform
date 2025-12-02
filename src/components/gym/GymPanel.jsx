@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react'
-import GymSection from './GymSection'
-import StudentTable from '../tables/StudentTable'
+import GymSection from './components/GymSection'
+import StudentTable from './components/StudentTable'
 import { useDispatch } from 'react-redux'
 import { fetchGymById } from '../../redux/gymSlice'
-import PanelCards from './PanelCards'
-import PaymentSection from './PaymentSection'
-import MonthlySection from './MonthlySection'
+import PanelCards from './components/PanelCards'
+import PaymentSection from './components/PaymentSection'
+import MonthlySection from './components/MonthlySection'
 
-const TrainerPanel = ({ gymId }) => {
+const GymPanel = ({ gymId }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -24,12 +24,10 @@ const TrainerPanel = ({ gymId }) => {
       </div>
 
       <StudentTable gymId={gymId} />
-
       <PaymentSection />
-
       <MonthlySection />
     </div>
   )
 }
 
-export default TrainerPanel
+export default GymPanel

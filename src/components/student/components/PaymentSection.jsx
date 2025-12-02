@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+
 import PaymentModal from '../modals/PaymentModal';
-import { updateStudentPayment } from '../../redux/studentSlice';
+import { updateStudentPayment } from '../../../redux/studentSlice';
 
 const PaymentSection = () => {
     const { student } = useSelector((state) => state.student);

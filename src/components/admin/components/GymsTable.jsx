@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import AddGymModal from "../modals/addModals/gymModal";
-import RegisterGymModal from "../modals/addModals/registerGymModal";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllGyms } from "../../redux/gymSlice";
 import { useNavigate } from "react-router-dom";
-import { getActiveStudentsCountByGymId } from "../../firebase/students";
+
+import { fetchAllGyms } from "../../../redux/gymSlice";
+import { getActiveStudentsCountByGymId } from "../../../firebase/students";
+
+import AddGymModal from "../modals/GymModal";
+import RegisterGymModal from "../modals/RegisterGymModal";
 
 const GymsTable = () => {
     const dispatch = useDispatch();

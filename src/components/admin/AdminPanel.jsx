@@ -1,5 +1,5 @@
-import GymsTable from '../tables/GymsTable'
-import PanelCards from './PanelCards'
+import GymsTable from './components/GymsTable'
+import PanelCards from './components/PanelCards'
 
 const AdminPanel = () => {
   return (

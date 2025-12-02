@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { fetchAllStudents } from "../redux/studentSlice";
 
 import Navbar from "../components/Navbar";
-import TrainerPanel from "../components/trainer/TrainerPanel";
+import GymPanel from "../components/gym/GymPanel";
 
 const GymDetail = () => {
     const { gymId } = useParams();
@@ -21,7 +21,7 @@ const GymDetail = () => {
 
             <Navbar />
             <div className="m-2">
-                <TrainerPanel gymId={gymId} />
+                <GymPanel gymId={gymId} />
             </div>
         </div>
     );

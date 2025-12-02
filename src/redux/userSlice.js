@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getAllUsers } from "../firebase/users";
 import { getUserByUID } from "../firebase/accounts";
 
 // 🔹 Tek kullanıcıyı Firestore'dan UID ile getir
@@ -22,19 +21,6 @@ export const fetchUserByUID = createAsyncThunk(
     }
   }
 ); //kullanıyorum
-
-// 🔹 Tüm kullanıcıları getir (admin için)
-export const fetchAllUsers = createAsyncThunk(
-  "user/fetchAllUsers",
-  async (_, thunkAPI) => {
-    try {
-      const allUsers = await getAllUsers();
-      return allUsers;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
-    }
-  }
-);
 
 const userSlice = createSlice({
   name: "user",
@@ -65,7 +51,6 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Tek kullanıcı
       .addCase(fetchUserByUID.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -80,22 +65,6 @@ const userSlice = createSlice({
         state.error = action.payload;
         state.status = "failed";
       })
-
-      // Tüm kullanıcılar
-      .addCase(fetchAllUsers.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchAllUsers.fulfilled, (state, action) => {
-        state.loading = false;
-        state.users = action.payload;
-        state.status = "succeeded";
-      })
-      .addCase(fetchAllUsers.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-        state.status = "failed";
-      });
   },
 });
 

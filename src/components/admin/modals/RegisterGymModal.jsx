@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
+
 import { register } from "../../../firebase/login";
 import { addAccount } from "../../../firebase/accounts";
-import toast from "react-hot-toast";
 import { updateGymActiveStatus } from "../../../firebase/gyms";
 
 const RegisterGymModal = ({ gym, isOpen, onClose }) => {
@@ -11,9 +12,9 @@ const RegisterGymModal = ({ gym, isOpen, onClose }) => {
 
     useEffect(() => {
         if (!isOpen) {
-        setEmail("");
-        setPassword("");
-        setLoading(false);
+            setEmail("");
+            setPassword("");
+            setLoading(false);
         }
     }, [isOpen]);
 

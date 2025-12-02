@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { addNewStudent } from "../../../firebase/students";
 import { useDispatch } from "react-redux";
-import { fetchAllStudents } from "../../../redux/studentSlice";
 import toast from "react-hot-toast";
+
+import { addNewStudent } from "../../../firebase/students";
+import { fetchAllStudents } from "../../../redux/studentSlice";
 
 const AddStudentModal = ({ isOpen, onClose, gymId }) => {
     const dispatch = useDispatch();

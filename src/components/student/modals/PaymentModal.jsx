@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useDispatch } from 'react-redux';
-import { addPaymentPlan } from '../../redux/studentSlice';
+import { addPaymentPlan } from '../../../redux/studentSlice';
 
 const PaymentModal = ({ isOpen, onClose, studentId }) => {
     const dispatch = useDispatch();

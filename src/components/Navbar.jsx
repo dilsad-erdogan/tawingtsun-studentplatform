@@ -1,9 +1,10 @@
 import logo from "../assets/logo.png";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
+
 import { logout } from "../firebase/login";
 import { clearUser } from "../redux/userSlice";
-import { LogOut } from "lucide-react";
 
 const Navbar = () => {
     const dispatch = useDispatch();
