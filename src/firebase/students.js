@@ -33,7 +33,6 @@ export const addNewStudent = async (data) => {
       gymId: data.gymId,
       isActive: true,
       date: new Date().toISOString(),
-      monthlySalary: [],
       registrationForms: []
     };
 
@@ -109,7 +108,6 @@ export const addPaymentPlan = async (studentId, totalAmount, installmentCount) =
       paymentDate.setMonth(today.getMonth() + i);
 
       newPayments.push({
-        id: Date.now() + i, // Simple unique ID generation
         date: paymentDate.toISOString(),
         amount: monthlyAmount,
         description: `Taksit ${i + 1}/${installmentCount}`,
@@ -129,7 +127,42 @@ export const addPaymentPlan = async (studentId, totalAmount, installmentCount) =
     toast.error("Ödeme planı oluşturulurken hata oluştu.");
     return false;
   }
-};
+};//kullandım
+
+export const updateStudentPayment = async (studentId, paymentId, updates) => {
+  try {
+    const studentRef = doc(firestore, "students", studentId);
+    const studentSnap = await getDoc(studentRef);
+
+    if (!studentSnap.exists()) {
+      toast.error("Öğrenci bulunamadı!");
+      return false;
+    }
+
+    const currentPayments = studentSnap.data().payments || [];
+    const paymentIndex = currentPayments.findIndex(p => p.id === paymentId);
+
+    if (paymentIndex === -1) {
+      toast.error("Ödeme kaydı bulunamadı!");
+      return false;
+    }
+
+    // Update the specific payment
+    currentPayments[paymentIndex] = {
+      ...currentPayments[paymentIndex],
+      ...updates
+    };
+
+    await updateDoc(studentRef, { payments: currentPayments });
+    toast.success("Ödeme bilgisi güncellendi!");
+    return true;
+
+  } catch (error) {
+    console.error("updateStudentPayment error:", error);
+    toast.error("Ödeme güncellenirken hata oluştu.");
+    return false;
+  }
+};//kullandım
 
 export const getTrainerGymsWithStudents = async (userId) => {
   try {

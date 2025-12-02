@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import PaymentModal from '../modals/PaymentModal';
+import { updateStudentPayment } from '../../redux/studentSlice';
 
 const PaymentSection = () => {
     const { student } = useSelector((state) => state.student);
+    const dispatch = useDispatch();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+
+    // New state
+    const [editingPaymentId, setEditingPaymentId] = useState(null);
+    const [editAmount, setEditAmount] = useState("");
 
     if (!student) return null;
 
@@ -19,6 +25,39 @@ const PaymentSection = () => {
         const end = endDate ? new Date(endDate) : new Date('2100-01-01');
         return paymentDate >= start && paymentDate <= end;
     }).sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    const handleEditClick = (payment) => {
+        setEditingPaymentId(payment.id);
+        setEditAmount(payment.amount);
+    };
+
+    const handleCancelClick = () => {
+        setEditingPaymentId(null);
+        setEditAmount("");
+    };
+
+    const handleSaveClick = async (paymentId) => {
+        await dispatch(updateStudentPayment({
+            studentId: student.id,
+            paymentId,
+            updates: { amount: Number(editAmount) }
+        }));
+        setEditingPaymentId(null);
+        setEditAmount("");
+    };
+
+    const handleMarkAsPaidClick = async (paymentId) => {
+        if (window.confirm("Bu ödemeyi ödendi olarak işaretlemek istediğinize emin misiniz?")) {
+            await dispatch(updateStudentPayment({
+                studentId: student.id,
+                paymentId,
+                updates: {
+                    status: 'paid',
+                    paidDate: new Date().toISOString()
+                }
+            }));
+        }
+    };
 
     return (
         <div className="bg-white shadow rounded-lg p-6 border border-gray-100">
@@ -55,6 +94,7 @@ const PaymentSection = () => {
                             <th className="p-3 border-b">Açıklama</th>
                             <th className="p-3 border-b">Tutar</th>
                             <th className="p-3 border-b">Durum</th>
+                            <th className="p-3 border-b">İşlemler</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -63,7 +103,18 @@ const PaymentSection = () => {
                                 <tr key={index} className="hover:bg-gray-50">
                                     <td className="p-3 border-b">{new Date(payment.date).toLocaleDateString('tr-TR')}</td>
                                     <td className="p-3 border-b">{payment.description}</td>
-                                    <td className="p-3 border-b">{payment.amount} ₺</td>
+                                    <td className="p-3 border-b">
+                                        {editingPaymentId === payment.id ? (
+                                            <input
+                                                type="number"
+                                                value={editAmount}
+                                                onChange={(e) => setEditAmount(e.target.value)}
+                                                className="border p-1 rounded w-24"
+                                            />
+                                        ) : (
+                                            `${payment.amount} ₺`
+                                        )}
+                                    </td>
                                     <td className="p-3 border-b">
                                         {payment.status === 'paid' ? (
                                             <span className="text-green-600 font-semibold">Ödendi</span>
@@ -71,11 +122,48 @@ const PaymentSection = () => {
                                             <span className="text-yellow-600 font-semibold">Bekliyor</span>
                                         )}
                                     </td>
+                                    <td className="p-3 border-b">
+                                        <div className="flex gap-2">
+                                            {editingPaymentId === payment.id ? (
+                                                <>
+                                                    <button
+                                                        onClick={() => handleSaveClick(payment.id)}
+                                                        className="px-3 py-1 text-sm font-medium text-white bg-green-600 rounded hover:bg-green-700 transition-colors"
+                                                    >
+                                                        Kaydet
+                                                    </button>
+                                                    <button
+                                                        onClick={handleCancelClick}
+                                                        className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
+                                                    >
+                                                        İptal
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <button
+                                                        onClick={() => handleEditClick(payment)}
+                                                        className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
+                                                    >
+                                                        Düzenle
+                                                    </button>
+                                                    {payment.status !== 'paid' && (
+                                                        <button
+                                                            onClick={() => handleMarkAsPaidClick(payment.id)}
+                                                            className="px-3 py-1 text-sm font-medium text-green-600 bg-green-50 rounded hover:bg-green-100 transition-colors"
+                                                        >
+                                                            Ödendi İşaretle
+                                                        </button>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
+                                    </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="4" className="p-3 text-center text-gray-500">Ödeme kaydı bulunamadı.</td>
+                                <td colSpan="5" className="p-3 text-center text-gray-500">Ödeme kaydı bulunamadı.</td>
                             </tr>
                         )}
                     </tbody>
