@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getAllStudent, getStudentById } from "../firebase/students";
+import { getAllStudent, getStudentById, updateStudent as updateStudentAPI, addPaymentPlan as addPaymentPlanAPI } from "../firebase/students";
 
 // Pull all trainer
 export const fetchAllStudents = createAsyncThunk(
@@ -29,6 +29,25 @@ export const fetchStudentById = createAsyncThunk(
     return null;
   }
 );  //kullanıyorum
+
+export const updateStudent = createAsyncThunk(
+  "student/updateStudent",
+  async ({ studentId, updatedData }) => {
+    const updatedStudent = await updateStudentAPI(studentId, updatedData);
+    return updatedStudent;
+  }
+); //kullanıyorum
+
+export const addPaymentPlan = createAsyncThunk(
+  "student/addPaymentPlan",
+  async ({ studentId, totalAmount, installmentCount }, { dispatch }) => {
+    const success = await addPaymentPlanAPI(studentId, totalAmount, installmentCount);
+    if (success) {
+      dispatch(fetchStudentById(studentId)); // Refresh student data to get new payments
+    }
+    return success;
+  }
+);
 
 const studentSlice = createSlice({
   name: "student",
@@ -65,6 +84,37 @@ const studentSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+      .addCase(updateStudent.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateStudent.fulfilled, (state, action) => {
+        state.loading = false;
+        // Update the specific student in the students array if needed
+        const index = state.students.findIndex(s => s.id === action.payload.id);
+        if (index !== -1) {
+          state.students[index] = { ...state.students[index], ...action.payload };
+        }
+        // Update the currently selected student if it matches
+        if (state.student && state.student.id === action.payload.id) {
+          state.student = { ...state.student, ...action.payload };
+        }
+      })
+      .addCase(updateStudent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(addPaymentPlan.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addPaymentPlan.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(addPaymentPlan.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      });
   },
 });
 

@@ -89,6 +89,48 @@ export const updateStudent = async (id, updatedData) => {
   }
 };//kullandım
 
+export const addPaymentPlan = async (studentId, totalAmount, installmentCount) => {
+  try {
+    const studentRef = doc(firestore, "students", studentId);
+    const studentSnap = await getDoc(studentRef);
+
+    if (!studentSnap.exists()) {
+      toast.error("Öğrenci bulunamadı!");
+      return false;
+    }
+
+    const currentPayments = studentSnap.data().payments || [];
+    const newPayments = [];
+    const monthlyAmount = Math.floor(totalAmount / installmentCount);
+    const today = new Date();
+
+    for (let i = 0; i < installmentCount; i++) {
+      const paymentDate = new Date(today);
+      paymentDate.setMonth(today.getMonth() + i);
+
+      newPayments.push({
+        id: Date.now() + i, // Simple unique ID generation
+        date: paymentDate.toISOString(),
+        amount: monthlyAmount,
+        description: `Taksit ${i + 1}/${installmentCount}`,
+        status: "pending", // pending, paid
+        paidDate: null
+      });
+    }
+
+    const updatedPayments = [...currentPayments, ...newPayments];
+
+    await updateDoc(studentRef, { payments: updatedPayments });
+    toast.success("Ödeme planı oluşturuldu!");
+    return true;
+
+  } catch (error) {
+    console.error("addPaymentPlan error:", error);
+    toast.error("Ödeme planı oluşturulurken hata oluştu.");
+    return false;
+  }
+};
+
 export const getTrainerGymsWithStudents = async (userId) => {
   try {
     // 1. Trainer kayıtlarını bul
