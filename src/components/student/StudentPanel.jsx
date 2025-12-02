@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-import InfoSection from '../sections/student/InfoSection'
 import PaymentsSection from '../sections/student/PaymentsSection'
 import StudentSection from './StudentSection';
 import { useDispatch } from 'react-redux';
@@ -19,10 +18,8 @@ const StudentPanel = ({ id }) => {
 
       <div className='p-4 flex flex-col gap-5'>
         <StudentSection />
-        {/* <PanelCards gymId={gymId} /> */}
       </div>
 
-      <InfoSection />
       <PaymentsSection />
     </div>
   )
