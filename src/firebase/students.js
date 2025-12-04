@@ -188,3 +188,35 @@ export const deleteStudentPayment = async (studentId, paymentId) => {
     return false;
   }
 };//kullandım
+
+export const checkStudentStatus = async (students) => {
+  try {
+    const today = new Date();
+    const updatedStudents = await Promise.all(students.map(async (student) => {
+      if (!student.isActive || !student.date || !student.studyPeriod) {
+        return student;
+      }
+
+      const registrationDate = new Date(student.date);
+      const studyPeriodMonths = parseInt(student.studyPeriod);
+
+      if (isNaN(studyPeriodMonths)) return student;
+
+      const expirationDate = new Date(registrationDate);
+      expirationDate.setMonth(expirationDate.getMonth() + studyPeriodMonths);
+
+      if (today > expirationDate) {
+        // Student is expired, update status
+        await updateStudent(student.id, { isActive: false });
+        return { ...student, isActive: false };
+      }
+
+      return student;
+    }));
+
+    return updatedStudents;
+  } catch (error) {
+    console.error("checkStudentStatus error:", error);
+    return students; // Return original list in case of error
+  }
+};//kullandım

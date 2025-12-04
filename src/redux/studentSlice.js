@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getAllStudent, getStudentById, updateStudent as updateStudentAPI, addPaymentPlan as addPaymentPlanAPI, updateStudentPayment as updateStudentPaymentAPI, deleteStudentPayment as deleteStudentPaymentAPI } from "../firebase/students";
+import { getAllStudent, getStudentById, updateStudent as updateStudentAPI, addPaymentPlan as addPaymentPlanAPI, updateStudentPayment as updateStudentPaymentAPI, deleteStudentPayment as deleteStudentPaymentAPI, checkStudentStatus } from "../firebase/students";
 
-// Pull all trainer
 export const fetchAllStudents = createAsyncThunk(
-  "trainer/fetchAllStudents",
+  "student/fetchAllStudents",
   async () => {
     const allUsers = await getAllStudent();
+    const checkedStudents = await checkStudentStatus(allUsers);
 
-    const serializedUsers = allUsers.map(user => ({
+    const serializedUsers = checkedStudents.map(user => ({
       ...user,
       date: user.date?.toDate ? user.date.toDate().toISOString() : user.date
     }));
