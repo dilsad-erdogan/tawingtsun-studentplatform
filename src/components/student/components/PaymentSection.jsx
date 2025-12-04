@@ -39,7 +39,14 @@ const PaymentSection = () => {
         const start = startDate ? new Date(startDate) : new Date('1900-01-01');
         const end = endDate ? new Date(endDate) : new Date('2100-01-01');
         return paymentDate >= start && paymentDate <= end;
-    }).sort((a, b) => new Date(a.date) - new Date(b.date));
+    }).sort((a, b) => {
+        // First sort by status (pending first, paid last)
+        if (a.status === 'paid' && b.status !== 'paid') return 1;
+        if (a.status !== 'paid' && b.status === 'paid') return -1;
+
+        // Then sort by date
+        return new Date(a.date) - new Date(b.date);
+    });
 
     const handleEditClick = (payment) => {
         setEditingPaymentId(payment.id);
@@ -124,7 +131,7 @@ const PaymentSection = () => {
                     <tbody>
                         {filteredPayments.length > 0 ? (
                             filteredPayments.map((payment, index) => (
-                                <tr key={index} className="hover:bg-gray-50">
+                                <tr key={index} className={`hover:bg-gray-50 ${payment.status === 'paid' ? 'bg-gray-50 opacity-75' : ''}`}>
                                     <td className="p-3 border-b">{new Date(payment.date).toLocaleDateString('tr-TR')}</td>
                                     <td className="p-3 border-b">{payment.description}</td>
                                     <td className="p-3 border-b">
@@ -165,14 +172,14 @@ const PaymentSection = () => {
                                                 </>
                                             ) : (
                                                 <>
-                                                    <button
-                                                        onClick={() => handleEditClick(payment)}
-                                                        className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
-                                                    >
-                                                        Düzenle
-                                                    </button>
                                                     {payment.status !== 'paid' && (
                                                         <>
+                                                            <button
+                                                                onClick={() => handleEditClick(payment)}
+                                                                className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
+                                                            >
+                                                                Düzenle
+                                                            </button>
                                                             <button
                                                                 onClick={() => handleMarkAsPaidClick(payment.id)}
                                                                 className="px-3 py-1 text-sm font-medium text-green-600 bg-green-50 rounded hover:bg-green-100 transition-colors"
