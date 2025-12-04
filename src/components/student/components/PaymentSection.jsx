@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import PaymentModal from '../modals/PaymentModal';
-import { updateStudentPayment } from '../../../redux/studentSlice';
+import { updateStudentPayment, updateStudent } from '../../../redux/studentSlice';
 
 const PaymentSection = () => {
     const { student } = useSelector((state) => state.student);
@@ -14,6 +14,20 @@ const PaymentSection = () => {
     // New state
     const [editingPaymentId, setEditingPaymentId] = useState(null);
     const [editAmount, setEditAmount] = useState("");
+
+    // Auto-fix missing IDs
+    useEffect(() => {
+        if (student?.payments?.some(p => !p.id)) {
+            const fixedPayments = student.payments.map(p => ({
+                ...p,
+                id: p.id || crypto.randomUUID()
+            }));
+            dispatch(updateStudent({
+                studentId: student.id,
+                updatedData: { payments: fixedPayments }
+            }));
+        }
+    }, [student, dispatch]);
 
     if (!student) return null;
 

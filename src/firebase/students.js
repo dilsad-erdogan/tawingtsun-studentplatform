@@ -108,6 +108,7 @@ export const addPaymentPlan = async (studentId, totalAmount, installmentCount) =
       paymentDate.setMonth(today.getMonth() + i);
 
       newPayments.push({
+        id: crypto.randomUUID(),
         date: paymentDate.toISOString(),
         amount: monthlyAmount,
         description: `Taksit ${i + 1}/${installmentCount}`,

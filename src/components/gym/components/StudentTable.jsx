@@ -73,7 +73,7 @@ const StudentTable = ({ gymId }) => {
                             <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Öğrenci Adı</th>
                             <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Telefon</th>
                             <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Grup</th>
-                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Level</th>
+                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Seviye</th>
                             <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Öğrenim Süresi</th>
                             <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Durum</th>
                             <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Kayıt Tarihi</th>
