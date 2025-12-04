@@ -2,12 +2,17 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import AddStudentModal from "../modals/AddStudentModal";
+import ReactivateStudentModal from "../modals/ReactivateStudentModal";
 
 const StudentTable = ({ gymId }) => {
     const navigate = useNavigate();
     const { students } = useSelector((state) => state.student);
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Reactivation Modal State
+    const [isReactivateModalOpen, setIsReactivateModalOpen] = useState(false);
+    const [selectedStudentForReactivate, setSelectedStudentForReactivate] = useState(null);
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -94,7 +99,22 @@ const StudentTable = ({ gymId }) => {
                                     <td className="py-3 px-4">{student.phone}</td>
                                     <td className="py-3 px-4">{student.group}</td>
                                     <td className="py-3 px-4">{student.level}</td>
-                                    <td className="py-3 px-4">{student.studyPeriod}</td>
+                                    <td className="py-3 px-4">
+                                        {!student.isActive ? (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedStudentForReactivate(student);
+                                                    setIsReactivateModalOpen(true);
+                                                }}
+                                                className="bg-blue-100 text-blue-700 px-3 py-1 rounded text-xs font-semibold hover:bg-blue-200 transition"
+                                            >
+                                                Aktifleştir
+                                            </button>
+                                        ) : (
+                                            student.studyPeriod
+                                        )}
+                                    </td>
                                     <td className="py-3 px-4">
                                         {student.isActive ? (
                                             <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold">Aktif</span>
@@ -142,6 +162,12 @@ const StudentTable = ({ gymId }) => {
                     </button>
                 </div>
             )}
+
+            <ReactivateStudentModal
+                isOpen={isReactivateModalOpen}
+                onClose={() => setIsReactivateModalOpen(false)}
+                student={selectedStudentForReactivate}
+            />
         </div>
     );
 };

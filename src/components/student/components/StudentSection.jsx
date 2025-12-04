@@ -21,7 +21,18 @@ const StudentSection = () => {
             <div className="bg-white shadow rounded-lg p-6 border border-gray-100 relative">
                 <div className="flex justify-between items-center">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-800 mb-2">{student.name}</h2>
+                        <div className="flex items-center gap-3 mb-2">
+                            <h2 className="text-2xl font-bold text-gray-800">{student.name}</h2>
+                            {student.isActive ? (
+                                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
+                                    Aktif
+                                </span>
+                            ) : (
+                                <span className="bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-sm font-semibold">
+                                    Pasif
+                                </span>
+                            )}
+                        </div>
                         <div className="text-gray-600 space-y-1">
                             <p><strong>Telefon:</strong> {student.phone}</p>
                             <p><strong>Grup:</strong> {student.group}</p>
