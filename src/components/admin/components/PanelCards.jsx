@@ -27,11 +27,14 @@ const PanelCards = () => {
     const passiveStudents = students.filter(s => s.isActive === false);
     const monthlyExpired = passiveStudents.filter(s => {
         const registerDate = convertTimestamp(s.date);
-        if (!registerDate) return false;
+        if (!registerDate || !s.studyPeriod) return false;
+
+        const studyPeriodMonths = parseInt(s.studyPeriod);
+        if (isNaN(studyPeriodMonths)) return false;
 
         // Bitiş tarihi = kayıt + studyPeriod ay
         const endDate = new Date(registerDate);
-        endDate.setMonth(endDate.getMonth() + s.studyPeriod);
+        endDate.setMonth(endDate.getMonth() + studyPeriodMonths);
 
         return endDate >= oneMonthAgo && endDate <= now;
     }).length;
