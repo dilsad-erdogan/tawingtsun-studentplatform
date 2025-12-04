@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getAllStudent, getStudentById, updateStudent as updateStudentAPI, addPaymentPlan as addPaymentPlanAPI, updateStudentPayment as updateStudentPaymentAPI } from "../firebase/students";
+import { getAllStudent, getStudentById, updateStudent as updateStudentAPI, addPaymentPlan as addPaymentPlanAPI, updateStudentPayment as updateStudentPaymentAPI, deleteStudentPayment as deleteStudentPaymentAPI } from "../firebase/students";
 
 // Pull all trainer
 export const fetchAllStudents = createAsyncThunk(
@@ -53,6 +53,17 @@ export const updateStudentPayment = createAsyncThunk(
   "student/updateStudentPayment",
   async ({ studentId, paymentId, updates }, { dispatch }) => {
     const success = await updateStudentPaymentAPI(studentId, paymentId, updates);
+    if (success) {
+      dispatch(fetchStudentById(studentId));
+    }
+    return success;
+  }
+); //kullanıyorum
+
+export const deleteStudentPayment = createAsyncThunk(
+  "student/deleteStudentPayment",
+  async ({ studentId, paymentId }, { dispatch }) => {
+    const success = await deleteStudentPaymentAPI(studentId, paymentId);
     if (success) {
       dispatch(fetchStudentById(studentId));
     }
@@ -134,6 +145,17 @@ const studentSlice = createSlice({
         state.loading = false;
       })
       .addCase(updateStudentPayment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(deleteStudentPayment.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteStudentPayment.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(deleteStudentPayment.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

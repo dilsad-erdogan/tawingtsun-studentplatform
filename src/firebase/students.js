@@ -164,3 +164,27 @@ export const updateStudentPayment = async (studentId, paymentId, updates) => {
     return false;
   }
 };//kullandım
+
+export const deleteStudentPayment = async (studentId, paymentId) => {
+  try {
+    const studentRef = doc(firestore, "students", studentId);
+    const studentSnap = await getDoc(studentRef);
+
+    if (!studentSnap.exists()) {
+      toast.error("Öğrenci bulunamadı!");
+      return false;
+    }
+
+    const currentPayments = studentSnap.data().payments || [];
+    const updatedPayments = currentPayments.filter(p => p.id !== paymentId);
+
+    await updateDoc(studentRef, { payments: updatedPayments });
+    toast.success("Ödeme başarıyla silindi!");
+    return true;
+
+  } catch (error) {
+    console.error("deleteStudentPayment error:", error);
+    toast.error("Ödeme silinirken hata oluştu.");
+    return false;
+  }
+};//kullandım

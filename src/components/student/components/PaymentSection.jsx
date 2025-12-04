@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import PaymentModal from '../modals/PaymentModal';
-import { updateStudentPayment, updateStudent } from '../../../redux/studentSlice';
+import { updateStudentPayment, updateStudent, deleteStudentPayment } from '../../../redux/studentSlice';
 
 const PaymentSection = () => {
     const { student } = useSelector((state) => state.student);
@@ -70,6 +70,15 @@ const PaymentSection = () => {
                     status: 'paid',
                     paidDate: new Date().toISOString()
                 }
+            }));
+        }
+    };
+
+    const handleDeleteClick = async (paymentId) => {
+        if (window.confirm("Bu ödemeyi silmek istediğinize emin misiniz?")) {
+            await dispatch(deleteStudentPayment({
+                studentId: student.id,
+                paymentId
             }));
         }
     };
@@ -163,12 +172,20 @@ const PaymentSection = () => {
                                                         Düzenle
                                                     </button>
                                                     {payment.status !== 'paid' && (
-                                                        <button
-                                                            onClick={() => handleMarkAsPaidClick(payment.id)}
-                                                            className="px-3 py-1 text-sm font-medium text-green-600 bg-green-50 rounded hover:bg-green-100 transition-colors"
-                                                        >
-                                                            Ödendi İşaretle
-                                                        </button>
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleMarkAsPaidClick(payment.id)}
+                                                                className="px-3 py-1 text-sm font-medium text-green-600 bg-green-50 rounded hover:bg-green-100 transition-colors"
+                                                            >
+                                                                Ödendi İşaretle
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeleteClick(payment.id)}
+                                                                className="px-3 py-1 text-sm font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
+                                                            >
+                                                                Sil
+                                                            </button>
+                                                        </>
                                                     )}
                                                 </>
                                             )}
