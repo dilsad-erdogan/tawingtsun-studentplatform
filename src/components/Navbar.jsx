@@ -18,6 +18,16 @@ const Navbar = () => {
         navigate('/login');
     };
 
+    const handleTitleClick = () => {
+        if (user) {
+            if (user.isAdmin) {
+                navigate('/admin');
+            } else if (user.gymId) {
+                navigate(`/gym/${user.gymId}`);
+            }
+        }
+    };
+
     let navbarTitle = "Admin";
     if (user) {
         if (user.isAdmin) {
@@ -30,7 +40,10 @@ const Navbar = () => {
     return (
         <div className="bg-red-600 text-white px-4 sm:px-6 py-4 mt-10 flex flex-col sm:flex-row justify-between items-center relative gap-4 sm:gap-0">
             {/* Left side */}
-            <div className="flex flex-col sm:flex-row items-center relative w-full sm:w-auto">
+            <div
+                className="flex flex-col sm:flex-row items-center relative w-full sm:w-auto cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={handleTitleClick}
+            >
                 <div className="relative sm:absolute sm:-left-2 mb-2 sm:mb-0">
                     <img src={logo} alt="Logo" className="w-24 h-24 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-2 border-white object-cover shadow-lg" />
                 </div>
