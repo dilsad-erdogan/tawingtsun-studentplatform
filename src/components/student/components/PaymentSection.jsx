@@ -15,6 +15,10 @@ const PaymentSection = () => {
     const [editingPaymentId, setEditingPaymentId] = useState(null);
     const [editAmount, setEditAmount] = useState("");
 
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
     // Auto-fix missing IDs
     useEffect(() => {
         if (student?.payments?.some(p => !p.id)) {
@@ -28,6 +32,11 @@ const PaymentSection = () => {
             }));
         }
     }, [student, dispatch]);
+
+    // Reset page when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [startDate, endDate]);
 
     if (!student) return null;
 
@@ -47,6 +56,12 @@ const PaymentSection = () => {
         // Then sort by date
         return new Date(a.date) - new Date(b.date);
     });
+
+    // Pagination Logic
+    const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentPayments = filteredPayments.slice(indexOfFirstItem, indexOfLastItem);
 
     const handleEditClick = (payment) => {
         setEditingPaymentId(payment.id);
@@ -129,8 +144,8 @@ const PaymentSection = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredPayments.length > 0 ? (
-                            filteredPayments.map((payment, index) => (
+                        {currentPayments.length > 0 ? (
+                            currentPayments.map((payment, index) => (
                                 <tr key={index} className={`hover:bg-gray-50 ${payment.status === 'paid' ? 'bg-gray-50 opacity-75' : ''}`}>
                                     <td className="p-3 border-b">{new Date(payment.date).toLocaleDateString('tr-TR')}</td>
                                     <td className="p-3 border-b">{payment.description}</td>
@@ -207,6 +222,17 @@ const PaymentSection = () => {
                         )}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex justify-between items-center mt-4">
+                <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1} className={`px-4 py-2 rounded ${currentPage === 1 ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}>
+                    Önceki
+                </button>
+                <span className="text-gray-600">Sayfa {currentPage} / {totalPages}</span>
+                <button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className={`px-4 py-2 rounded ${currentPage === totalPages ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}>
+                    Sonraki
+                </button>
             </div>
 
             <PaymentModal
