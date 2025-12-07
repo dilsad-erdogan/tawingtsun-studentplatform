@@ -14,7 +14,7 @@ export const fetchAllStudents = createAsyncThunk(
 
     return serializedUsers;
   }
-); //kullanıyorum
+);
 
 export const fetchStudentById = createAsyncThunk(
   "student/fetchStudentById",
@@ -28,7 +28,7 @@ export const fetchStudentById = createAsyncThunk(
     }
     return null;
   }
-);  //kullanıyorum
+);
 
 export const updateStudent = createAsyncThunk(
   "student/updateStudent",
@@ -36,18 +36,18 @@ export const updateStudent = createAsyncThunk(
     const updatedStudent = await updateStudentAPI(studentId, updatedData);
     return updatedStudent;
   }
-); //kullanıyorum
+);
 
 export const addPaymentPlan = createAsyncThunk(
   "student/addPaymentPlan",
   async ({ studentId, totalAmount, installmentCount }, { dispatch }) => {
     const success = await addPaymentPlanAPI(studentId, totalAmount, installmentCount);
     if (success) {
-      dispatch(fetchStudentById(studentId)); // Refresh student data to get new payments
+      dispatch(fetchStudentById(studentId));
     }
     return success;
   }
-); //kullanıyorum
+);
 
 export const updateStudentPayment = createAsyncThunk(
   "student/updateStudentPayment",
@@ -58,7 +58,7 @@ export const updateStudentPayment = createAsyncThunk(
     }
     return success;
   }
-); //kullanıyorum
+);
 
 export const deleteStudentPayment = createAsyncThunk(
   "student/deleteStudentPayment",
@@ -69,7 +69,7 @@ export const deleteStudentPayment = createAsyncThunk(
     }
     return success;
   }
-); //kullanıyorum
+);
 
 const studentSlice = createSlice({
   name: "student",
@@ -82,6 +82,7 @@ const studentSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // fetchAllStudents
       .addCase(fetchAllStudents.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -94,6 +95,8 @@ const studentSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+
+      // fetchStudentById
       .addCase(fetchStudentById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -101,11 +104,20 @@ const studentSlice = createSlice({
       .addCase(fetchStudentById.fulfilled, (state, action) => {
         state.loading = false;
         state.student = action.payload;
+        // Update the specific student in the students array if needed
+        if (action.payload) {
+          const index = state.students.findIndex(s => s.id === action.payload.id);
+          if (index !== -1) {
+            state.students[index] = { ...state.students[index], ...action.payload };
+          }
+        }
       })
       .addCase(fetchStudentById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
+
+      // updateStudent
       .addCase(updateStudent.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -126,6 +138,8 @@ const studentSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+
+      // addPaymentPlan
       .addCase(addPaymentPlan.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -137,6 +151,8 @@ const studentSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+
+      // updateStudentPayment
       .addCase(updateStudentPayment.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -148,6 +164,8 @@ const studentSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+
+      // deleteStudentPayment
       .addCase(deleteStudentPayment.pending, (state) => {
         state.loading = true;
         state.error = null;

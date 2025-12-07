@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 
 import { fetchStudentById } from '../../redux/studentSlice';
@@ -9,12 +9,21 @@ import RegistrationFormsSection from './components/RegistrationFormsSection';
 
 const StudentPanel = ({ id }) => {
   const dispatch = useDispatch();
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchStudentById(id));
+      setIsInitializing(true);
+      dispatch(fetchStudentById(id))
+        .finally(() => setIsInitializing(false));
+    } else {
+      setIsInitializing(false);
     }
   }, [dispatch, id]);
+
+  if (isInitializing) {
+    return <div className="p-4 text-center">Yükleniyor...</div>;
+  }
 
   return (
     <div className="mt-10 gap-10">

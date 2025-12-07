@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react'
-import GymSection from './components/GymSection'
-import StudentTable from './components/StudentTable'
 import { useDispatch } from 'react-redux'
 import { fetchGymById } from '../../redux/gymSlice'
+import { fetchAllStudents } from '../../redux/studentSlice'
+import GymSection from './components/GymSection'
+import StudentTable from './components/StudentTable'
 import PanelCards from './components/PanelCards'
 import PaymentSection from './components/PaymentSection'
 import MonthlySection from './components/MonthlySection'
@@ -13,6 +14,7 @@ const GymPanel = ({ gymId }) => {
   useEffect(() => {
     if (gymId) {
       dispatch(fetchGymById(gymId));
+      dispatch(fetchAllStudents());
     }
   }, [dispatch, gymId]);
 
@@ -24,7 +26,7 @@ const GymPanel = ({ gymId }) => {
       </div>
 
       <StudentTable gymId={gymId} />
-      <PaymentSection />
+      <PaymentSection gymId={gymId} />
       <MonthlySection />
     </div>
   )
