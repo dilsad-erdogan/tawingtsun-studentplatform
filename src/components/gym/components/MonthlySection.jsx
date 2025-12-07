@@ -55,11 +55,11 @@ const MonthlySection = () => {
                     // Determine color based on month
                     let barColorClass = "";
                     if (index < currentMonth) {
-                        barColorClass = "bg-blue-900"; // Past: Darker
+                        barColorClass = "bg-red-900"; // Past: Darker
                     } else if (index === currentMonth) {
-                        barColorClass = "bg-blue-600"; // Current: Distinct
+                        barColorClass = "bg-red-600"; // Current: Distinct
                     } else {
-                        barColorClass = "bg-blue-300"; // Future: Lighter
+                        barColorClass = "bg-red-300"; // Future: Lighter
                     }
 
                     return (
