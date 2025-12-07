@@ -14,7 +14,7 @@ const GymSection = () => {
         <div className="space-y-6">
             {/* Salon Bilgileri */}
             <div className="bg-white shadow rounded-lg p-6 border border-gray-100 relative">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">{gym.name}</h2>
                         <p className="text-gray-600">

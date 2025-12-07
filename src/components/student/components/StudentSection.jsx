@@ -19,7 +19,7 @@ const StudentSection = () => {
         <div className="space-y-6">
             {/* Öğrenci Bilgileri */}
             <div className="bg-white shadow rounded-lg p-6 border border-gray-100 relative">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
                             <h2 className="text-2xl font-bold text-gray-800">{student.name}</h2>
