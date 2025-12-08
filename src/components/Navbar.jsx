@@ -11,6 +11,8 @@ const Navbar = () => {
     const navigate = useNavigate();
     const user = useSelector((state) => state.user.data);
 
+    const gym = useSelector((state) => state.gym.gym);
+
     const handleLogout = async () => {
         dispatch(clearUser());
         await logout();
@@ -22,8 +24,9 @@ const Navbar = () => {
         if (user) {
             if (user.isAdmin) {
                 navigate('/admin');
-            } else if (user.gymId) {
-                navigate(`/gym/${user.gymId}`);
+            } else if (gym) {
+                const gymName = gym.name.toLowerCase().replace(/\s+/g, "-");
+                navigate(`/${gym.id}/${gymName}`);
             }
         }
     };
@@ -33,7 +36,7 @@ const Navbar = () => {
         if (user.isAdmin) {
             navbarTitle = "Admin";
         } else {
-            navbarTitle = user.gymId || "Gym";
+            navbarTitle = gym?.name || user.gymId || "Gym";
         }
     }
 

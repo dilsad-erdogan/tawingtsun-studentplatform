@@ -32,7 +32,7 @@ function RedirectHandler() {
           navigate("/admin");
         } else if (gym) {
           const gymName = gym.name.toLowerCase().replace(/\s+/g, "-");
-          navigate(`/${gymName}`);
+          navigate(`/${gym.id}/${gymName}`);
         }
       }
     }
@@ -65,7 +65,7 @@ function App() {
         />
 
         <Route
-          path="/:gymName"
+          path="/:gymId/:gymName"
           element={
             <ProtectedRoute isAdminAllowed={false}>
               <Trainer />
