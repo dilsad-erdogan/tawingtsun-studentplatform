@@ -7,6 +7,7 @@ import ReactivateStudentModal from "../modals/ReactivateStudentModal";
 const StudentTable = ({ gymId }) => {
     const navigate = useNavigate();
     const { students } = useSelector((state) => state.student);
+    const { data: user } = useSelector((state) => state.user);
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -92,7 +93,10 @@ const StudentTable = ({ gymId }) => {
                             return (
                                 <tr
                                     key={student.id}
-                                    onClick={() => navigate(`/admin/student/${student.id}`)}
+                                    onClick={() => {
+                                        const path = user?.isAdmin ? `/admin/student/${student.id}` : `/student/${student.id}`;
+                                        navigate(path);
+                                    }}
                                     className={rowClass}
                                 >
                                     <td className="py-3 px-4 font-medium">{student.name}</td>

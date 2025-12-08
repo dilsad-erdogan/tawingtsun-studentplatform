@@ -102,6 +102,15 @@ function App() {
           }
         />
 
+        <Route
+          path="/student/:id"
+          element={
+            <ProtectedRoute isAdminAllowed={false}>
+              <StudentDetail />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
