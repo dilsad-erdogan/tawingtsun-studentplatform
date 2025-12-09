@@ -45,6 +45,23 @@ const ReportModal = ({ isOpen, onClose }) => {
         }
     };
 
+    const turkishToEnglish = (str) => {
+        if (!str) return "";
+        return str
+            .replace(/ğ/g, "g")
+            .replace(/Ğ/g, "G")
+            .replace(/ü/g, "u")
+            .replace(/Ü/g, "U")
+            .replace(/ş/g, "s")
+            .replace(/Ş/g, "S")
+            .replace(/ı/g, "i")
+            .replace(/İ/g, "I")
+            .replace(/ö/g, "o")
+            .replace(/Ö/g, "O")
+            .replace(/ç/g, "c")
+            .replace(/Ç/g, "C");
+    };
+
     const calculateEarnings = (students) => {
         const today = new Date();
         const oneYearAgo = new Date();
@@ -110,31 +127,34 @@ const ReportModal = ({ isOpen, onClose }) => {
             // 3. Generate PDF
             const doc = new jsPDF();
 
-            // Fetch custom font that supports Turkish characters (Roboto-Regular)
+            // Fetch custom font
             const fontUrl = 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf';
             const fontBytes = await fetch(fontUrl).then(res => res.arrayBuffer());
-
-            // Convert ArrayBuffer to Base64
             const filename = 'Roboto-Regular.ttf';
             const base64String = btoa(new Uint8Array(fontBytes).reduce((data, byte) => data + String.fromCharCode(byte), ''));
 
-            // Add font to VFS and register it
             doc.addFileToVFS(filename, base64String);
             doc.addFont(filename, 'Roboto', 'normal');
             doc.setFont('Roboto');
 
             doc.setFontSize(18);
-            doc.text("TawingTsun Yönetim Raporu", 14, 20);
+            doc.text(turkishToEnglish("TawingTsun Yonetim Raporu"), 14, 20);
 
             doc.setFontSize(11);
-            doc.text(`Tarih: ${new Date().toLocaleDateString("tr-TR")}`, 14, 30);
+            const dateStr = turkishToEnglish(`Tarih: ${new Date().toLocaleDateString("tr-TR")}`);
+            doc.text(dateStr, 14, 30);
 
-            const tableColumn = ["Salon Adi", "Toplam Ogrenci", "Aktif Ogrenci", "Son 12 Ay Kazanc"];
+            const tableColumn = [
+                turkishToEnglish("Salon Adi"),
+                turkishToEnglish("Toplam Ogrenci"),
+                turkishToEnglish("Aktif Ogrenci"),
+                turkishToEnglish("Son 12 Ay Kazanc")
+            ];
             const tableRows = [];
 
             reportData.forEach((row) => {
                 const gymData = [
-                    row.name,
+                    turkishToEnglish(row.name),
                     row.totalStudents,
                     row.activeStudents,
                     `${row.earnings.toLocaleString("tr-TR")} TL`,
@@ -147,14 +167,15 @@ const ReportModal = ({ isOpen, onClose }) => {
                 body: tableRows,
                 startY: 40,
                 theme: 'grid',
-                styles: { font: "Roboto", fontSize: 10 }, // Use the custom font
+                styles: { font: "Roboto", fontSize: 10 },
                 headStyles: { fillColor: [220, 38, 38] }, // Red header
             });
 
             // Add some footer or extra info if needed
             doc.setFontSize(10);
             doc.setTextColor(150, 150, 150);
-            doc.text("Bu rapor TawingTsun Öğrenci Takip Platformu üzerinden oluşturulmuştur.", 105, 280, null, null, "center");
+            const footerText = turkishToEnglish("Bu rapor TawingTsun Ogrenci Takip Platformu uzerinden olusturulmustur.");
+            doc.text(footerText, 105, 280, null, null, "center");
 
             doc.save(`TA_WingTsun_Salonlar_${new Date().toISOString().slice(0, 10)}.pdf`);
 

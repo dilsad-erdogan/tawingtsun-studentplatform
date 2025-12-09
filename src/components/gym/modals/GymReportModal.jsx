@@ -26,6 +26,23 @@ const GymReportModal = ({ isOpen, onClose, gymId }) => {
         }
     };
 
+    const turkishToEnglish = (str) => {
+        if (!str) return "";
+        return str
+            .replace(/ğ/g, "g")
+            .replace(/Ğ/g, "G")
+            .replace(/ü/g, "u")
+            .replace(/Ü/g, "U")
+            .replace(/ş/g, "s")
+            .replace(/Ş/g, "S")
+            .replace(/ı/g, "i")
+            .replace(/İ/g, "I")
+            .replace(/ö/g, "o")
+            .replace(/Ö/g, "O")
+            .replace(/ç/g, "c")
+            .replace(/Ç/g, "C");
+    };
+
     const calculateEarnings = (students) => {
         const today = new Date();
         const oneYearAgo = new Date();
@@ -63,9 +80,11 @@ const GymReportModal = ({ isOpen, onClose, gymId }) => {
         for (let i = 11; i >= 0; i--) {
             const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
             const key = `${d.getFullYear()}-${d.getMonth()}`;
+            // Pre-transliterate month names here as well
+            const monthName = d.toLocaleDateString('tr-TR', { month: 'short' });
             monthlyEarnings.set(key, {
                 amount: 0,
-                label: d.toLocaleDateString('tr-TR', { month: 'short' })
+                label: turkishToEnglish(monthName)
             });
         }
 
@@ -130,7 +149,7 @@ const GymReportModal = ({ isOpen, onClose, gymId }) => {
             const activeCount = gymStudents.filter(s => s.isActive).length;
             const totalCount = gymStudents.length;
             const { newRegistrations, expiredRegistrations, monthlyEarnings } = calculateDetailedStats(gymStudents);
-            const totalEarnings = calculateEarnings(gymStudents); // Keep legacy total check if needed or rely on sum of monthly
+            const totalEarnings = calculateEarnings(gymStudents);
 
             setProgress(60);
 
@@ -148,11 +167,14 @@ const GymReportModal = ({ isOpen, onClose, gymId }) => {
             doc.setFont('Roboto');
 
             doc.setFontSize(22);
-            doc.text(`${gymInfo.name} Raporu`, 105, 20, null, null, "center");
+            doc.text(turkishToEnglish(`${gymInfo.name} Raporu`), 105, 20, null, null, "center");
 
             doc.setFontSize(12);
-            doc.text(gymInfo.address || "Adres Bilgisi Yok", 105, 28, null, null, "center");
-            doc.text(`Tarih: ${new Date().toLocaleDateString("tr-TR")}`, 105, 35, null, null, "center");
+            const address = turkishToEnglish(gymInfo.address || "Adres Bilgisi Yok");
+            doc.text(address, 105, 28, null, null, "center");
+
+            const dateStr = turkishToEnglish(`Tarih: ${new Date().toLocaleDateString("tr-TR")}`);
+            doc.text(dateStr, 105, 35, null, null, "center");
 
             doc.line(20, 40, 190, 40); // Horizontal line
 
@@ -160,23 +182,23 @@ const GymReportModal = ({ isOpen, onClose, gymId }) => {
             const startY = 55;
             const lineHeight = 10;
 
-            doc.text(`Toplam Öğrenci Sayısı: ${totalCount}`, 20, startY);
-            doc.text(`Aktif Öğrenci Sayısı: ${activeCount}`, 20, startY + lineHeight);
-            doc.text(`Bu Ay Kayıt Olanlar: ${newRegistrations}`, 20, startY + lineHeight * 2);
-            doc.text(`Bu Ay Kaydı Bitenler: ${expiredRegistrations}`, 20, startY + lineHeight * 3);
-            doc.text(`Son 12 Ay Kazanç: ${totalEarnings.toLocaleString("tr-TR")} TL`, 20, startY + lineHeight * 4);
+            doc.text(turkishToEnglish(`Toplam Ogrenci Sayisi: ${totalCount}`), 20, startY);
+            doc.text(turkishToEnglish(`Aktif Ogrenci Sayisi: ${activeCount}`), 20, startY + lineHeight);
+            doc.text(turkishToEnglish(`Bu Ay Kayit Olanlar: ${newRegistrations}`), 20, startY + lineHeight * 2);
+            doc.text(turkishToEnglish(`Bu Ay Kaydi Bitenler: ${expiredRegistrations}`), 20, startY + lineHeight * 3);
+            doc.text(turkishToEnglish(`Son 12 Ay Kazanc: ${totalEarnings.toLocaleString("tr-TR")} TL`), 20, startY + lineHeight * 4);
 
             // Chart Section
             doc.setFontSize(14);
-            doc.text("Aylık Kazanç Grafiği (Son 12 Ay)", 105, 120, null, null, "center");
+            doc.text(turkishToEnglish("Aylik Kazanc Grafigi (Son 12 Ay)"), 105, 120, null, null, "center");
 
             // Draw Chart Manually
             const chartX = 25;
             const chartY = 140;
             const chartWidth = 160;
             const chartHeight = 80;
-            const maxVal = Math.max(...monthlyEarnings.map(m => m.amount), 100); // Avoid div by zero
-            const barWidth = (chartWidth / monthlyEarnings.length) - 4; // 4px spacing
+            const maxVal = Math.max(...monthlyEarnings.map(m => m.amount), 100);
+            const barWidth = (chartWidth / monthlyEarnings.length) - 4;
 
             // Draw Y Axis Line
             doc.line(chartX, chartY, chartX, chartY + chartHeight);
@@ -192,12 +214,12 @@ const GymReportModal = ({ isOpen, onClose, gymId }) => {
                 doc.setFillColor(220, 38, 38); // Red color
                 doc.rect(x, y, barWidth, barHeight, 'F');
 
-                // Label (Month)
+                // Label (Month) - already transliterated
                 doc.setFontSize(8);
-                doc.setTextColor(0, 0, 0); // Black text
+                doc.setTextColor(0, 0, 0);
                 doc.text(item.label, x + (barWidth / 2), chartY + chartHeight + 5, null, null, "center");
 
-                // Value (Amount) - only if greater than 0
+                // Value (Amount)
                 if (item.amount > 0) {
                     doc.setFontSize(7);
                     doc.text(`${item.amount}`, x + (barWidth / 2), y - 2, null, null, "center");
@@ -207,9 +229,10 @@ const GymReportModal = ({ isOpen, onClose, gymId }) => {
             // Footer
             doc.setFontSize(10);
             doc.setTextColor(150, 150, 150);
-            doc.text("Bu rapor TawingTsun Öğrenci Takip Platformu üzerinden oluşturulmuştur.", 105, 280, null, null, "center");
+            const footerText = turkishToEnglish("Bu rapor TawingTsun Ogrenci Takip Platformu uzerinden olusturulmustur.");
+            doc.text(footerText, 105, 280, null, null, "center");
 
-            doc.save(`${gymInfo.name.replace(/\s+/g, "_")}_Rapor_${new Date().toISOString().slice(0, 10)}.pdf`);
+            doc.save(`${turkishToEnglish(gymInfo.name).replace(/\s+/g, "_")}_Rapor.pdf`);
 
             setProgress(100);
             setTimeout(() => {
