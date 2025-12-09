@@ -151,6 +151,10 @@ const ReportModal = ({ isOpen, onClose }) => {
                 headStyles: { fillColor: [220, 38, 38] }, // Red header
             });
 
+            // Add some footer or extra info if needed
+            doc.setFontSize(10);
+            doc.text("Bu rapor TawingTsun Öğrenci Takip Platformu üzerinden oluşturulmuştur.", 105, 280, null, null, "center");
+
             doc.save(`TA_WingTsun_Salonlar_${new Date().toISOString().slice(0, 10)}.pdf`);
 
             setProgress(100);
