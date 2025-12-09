@@ -153,6 +153,7 @@ const ReportModal = ({ isOpen, onClose }) => {
 
             // Add some footer or extra info if needed
             doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
             doc.text("Bu rapor TawingTsun Öğrenci Takip Platformu üzerinden oluşturulmuştur.", 105, 280, null, null, "center");
 
             doc.save(`TA_WingTsun_Salonlar_${new Date().toISOString().slice(0, 10)}.pdf`);
