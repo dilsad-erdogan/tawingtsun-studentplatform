@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchAllGyms } from "../../../redux/gymSlice";
 import { getActiveStudentsCountByGymId } from "../../../firebase/students";
 
-import AddGymModal from "../modals/AddGymModal";
+import AddGymModal from "../modals/GymModal";
 import RegisterGymModal from "../modals/RegisterGymModal";
 
 const GymsTable = () => {
