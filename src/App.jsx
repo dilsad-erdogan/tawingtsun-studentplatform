@@ -9,7 +9,7 @@ import Admin from "./pages/Admin";
 import GymDetail from "./pages/GymDetail";
 import StudentDetail from "./pages/StudentDetail";
 
-import ProtectedRoute from "./components/protectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function RedirectHandler() {
   const { data: user, loading } = useSelector((state) => state.user);
