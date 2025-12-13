@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import RegistrationFormsModal from '../modals/RegistrationFormsModal';
+import RegistrationFormsModal from '../modals/registrationFormsModal';
 
 const RegistrationFormsSection = () => {
     const { student } = useSelector((state) => state.student);

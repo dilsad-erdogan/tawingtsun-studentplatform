@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import GymModal from "../modals/GymModal";
+import GymModal from "../modals/gymModal";
 
 const GymSection = () => {
     const { gym, loading: gymLoading } = useSelector((state) => state.gym);

@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import GymsTable from './components/GymsTable'
-import PanelCards from './components/PanelCards'
-import GymComparison from './components/GymComparison'
-import ReportModal from './modals/ReportModal'
+import GymsTable from './components/gymsTable'
+import PanelCards from './components/panelCards'
+import GymComparison from './components/gymComparison'
+import ReportModal from './modals/reportModal'
 
 const AdminPanel = () => {
   const [isReportOpen, setIsReportOpen] = useState(false)

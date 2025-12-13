@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 
-import StudentModal from '../modals/StudentModal';
+import StudentModal from '../modals/studentModal';
 
 const StudentSection = () => {
     const { student, loading } = useSelector((state) => state.student);

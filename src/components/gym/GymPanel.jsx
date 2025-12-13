@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
+
 import { fetchGymById } from '../../redux/gymSlice'
 import { fetchAllStudents } from '../../redux/studentSlice'
-import GymSection from './components/GymSection'
-import StudentTable from './components/StudentTable'
-import PanelCards from './components/PanelCards'
-import PaymentSection from './components/PaymentSection'
-import MonthlySection from './components/MonthlySection'
-import GymReportModal from './modals/GymReportModal'
+
+import GymSection from './components/gymSection'
+import StudentTable from './components/studentTable'
+import PanelCards from './components/panelCards'
+import PaymentSection from './components/paymentSection'
+import MonthlySection from './components/monthlySection'
+import GymReportModal from './modals/gymReportModal'
 
 const GymPanel = ({ gymId }) => {
   const dispatch = useDispatch();

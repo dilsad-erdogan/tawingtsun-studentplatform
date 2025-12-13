@@ -3,13 +3,13 @@ import { useSelector, useDispatch } from "react-redux";
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { fetchGymById } from "./redux/gymSlice";
 
-import Login from "./pages/Login";
-import Trainer from "./pages/Trainer";
-import Admin from "./pages/Admin";
-import GymDetail from "./pages/GymDetail";
-import StudentDetail from "./pages/StudentDetail";
+import Login from "./pages/login";
+import Trainer from "./pages/trainer";
+import Admin from "./pages/admin";
+import GymDetail from "./pages/gymDetail";
+import StudentDetail from "./pages/studentDetail";
 
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./components/protectedRoute";
 
 function RedirectHandler() {
   const { data: user, loading } = useSelector((state) => state.user);

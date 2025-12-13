@@ -3,10 +3,10 @@ import { useDispatch } from 'react-redux';
 
 import { fetchStudentById } from '../../redux/studentSlice';
 
-import PaymentSection from './components/PaymentSection'
-import StudentSection from './components/StudentSection';
-import RegistrationFormsSection from './components/RegistrationFormsSection';
-import StudentReportModal from './modals/StudentReportModal';
+import PaymentSection from './components/paymentSection'
+import StudentSection from './components/studentSection';
+import RegistrationFormsSection from './components/registrationFormsSection';
+import StudentReportModal from './modals/studentReportModal';
 
 const StudentPanel = ({ id }) => {
   const dispatch = useDispatch();

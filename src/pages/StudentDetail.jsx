@@ -1,7 +1,8 @@
 import { useParams } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import Navbar from '../components/Navbar';
-import StudentPanel from '../components/student/StudentPanel';
+
+import Navbar from '../components/navbar';
+import StudentPanel from '../components/student/studentPanel';
 
 const StudentDetail = () => {
     const { id } = useParams();
