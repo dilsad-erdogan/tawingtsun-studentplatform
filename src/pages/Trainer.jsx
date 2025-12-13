@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 
 import { fetchAllStudents } from "../redux/studentSlice";
-import Navbar from "../components/navbar";
-import GymPanel from "../components/gym/gymPanel";
+import Navbar from "../components/Navbar";
+import GymPanel from "../components/gym/GymPanel";
 
 const Trainer = () => {
   const dispatch = useDispatch();

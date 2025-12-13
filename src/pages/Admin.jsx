@@ -5,8 +5,8 @@ import { useDispatch } from "react-redux";
 import { fetchAllStudents } from "../redux/studentSlice";
 import { fetchAllGyms } from "../redux/gymSlice";
 
-import Navbar from "../components/navbar";
-import AdminPanel from "../components/admin/adminPanel";
+import Navbar from "../components/Navbar";
+import AdminPanel from "../components/admin/AdminPanel";
 
 const Admin = () => {
   const dispatch = useDispatch();

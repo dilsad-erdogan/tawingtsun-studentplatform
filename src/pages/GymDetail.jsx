@@ -4,8 +4,8 @@ import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { fetchAllStudents } from "../redux/studentSlice";
 
-import Navbar from "../components/navbar";
-import GymPanel from "../components/gym/gymPanel";
+import Navbar from "../components/Navbar";
+import GymPanel from "../components/gym/GymPanel";
 
 const GymDetail = () => {
     const { gymId } = useParams();

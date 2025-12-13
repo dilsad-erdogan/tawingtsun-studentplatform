@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import PaymentModal from '../modals/paymentModal';
+import PaymentModal from '../modals/PaymentModal';
 import { updateStudentPayment, updateStudent, deleteStudentPayment } from '../../../redux/studentSlice';
 
 const PaymentSection = () => {

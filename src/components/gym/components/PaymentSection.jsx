@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import PaymentTable from './paymentTable';
+import PaymentTable from './PaymentTable';
 
 const PaymentSection = ({ gymId }) => {
     const { students } = useSelector((state) => state.student);
