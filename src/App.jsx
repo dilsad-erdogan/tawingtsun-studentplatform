@@ -4,10 +4,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "r
 import { fetchGymById } from "./redux/gymSlice";
 
 import Login from "./pages/login";
-import Trainer from "./pages/trainer";
-import Admin from "./pages/admin";
-import GymDetail from "./pages/gymDetail";
-import StudentDetail from "./pages/studentDetail";
+import Trainer from "./pages/Trainer";
+import Admin from "./pages/Admin";
+import GymDetail from "./pages/GymDetail";
+import StudentDetail from "./pages/StudentDetail";
 
 import ProtectedRoute from "./components/protectedRoute";
 
