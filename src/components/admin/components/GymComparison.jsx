@@ -13,7 +13,9 @@ const GymComparison = () => {
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
 
-        return gyms.map(gym => {
+        const activeGyms = gyms.filter(gym => gym.isActive !== false);
+
+        return activeGyms.map(gym => {
             const gymStudents = students.filter(s => s.gymId === gym.id);
             const activeCount = gymStudents.filter(s => s.isActive).length;
 

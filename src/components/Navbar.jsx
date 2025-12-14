@@ -60,7 +60,7 @@ const Navbar = () => {
             <div className="text-sm sm:text-base w-full sm:w-auto flex justify-center sm:justify-end">
                 <button onClick={handleLogout} className="flex items-center gap-2 hover:opacity-80 transition text-sm sm:text-base bg-red-700 sm:bg-transparent px-4 py-2 rounded-lg sm:p-0">
                     <LogOut size={20} />
-                    <span>Logout</span>
+                    <span>Çıkış Yap</span>
                 </button>
             </div>
         </div>

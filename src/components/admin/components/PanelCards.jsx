@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 const PanelCards = () => {
     const { students, loading } = useSelector((state) => state.student);
     const gyms = useSelector((state) => state.gym.gyms);
+    const activeGyms = gyms.filter(g => g.isActive !== false);
 
     const now = new Date();
     const oneMonthAgo = new Date();
@@ -44,10 +45,10 @@ const PanelCards = () => {
         { label: "Toplam pasif öğrenci", value: passiveStudents.length, icon: <UserRoundX className="text-red-600 w-8 h-8" /> },
         { label: "Aylık yeni kayıt", value: monthlyNew, icon: <UserPlus className="text-red-600 w-8 h-8" /> },
         { label: "Aylık kaydı bitenler", value: monthlyExpired, icon: <UserMinus className="text-red-600 w-8 h-8" /> },
-        { label: "Toplam salon sayısı", value: gyms.length, icon: <Dumbbell className="text-red-600 w-8 h-8" /> }
+        { label: "Toplam salon sayısı", value: activeGyms.length, icon: <Dumbbell className="text-red-600 w-8 h-8" /> }
     ];
 
-    if (loading || !students.length) {
+    if (loading) {
         return (
             <div className="text-center text-gray-500 p-4">
                 Yükleniyor...

@@ -53,15 +53,15 @@ const Login = () => {
       <Toaster position="top-right" />
       <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md border border-gray-200">
         <h1 className="font-bold text-3xl text-red-600 text-center mb-6" style={{ fontFamily: "'Lucida Handwriting', cursive" }}>
-          Login
+          Giriş Yap
         </h1>
 
         <form className="flex flex-col gap-4" onSubmit={handleSubmit} autoComplete="off">
-          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-red-50 border border-gray-300 rounded-md px-4 py-2 text-lg" />
-          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required className="bg-red-50 border border-gray-300 rounded-md px-4 py-2 text-lg" />
+          <input type="email" placeholder="E-posta" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-red-50 border border-gray-300 rounded-md px-4 py-2 text-lg" />
+          <input type="password" placeholder="Şifre" value={password} onChange={(e) => setPassword(e.target.value)} required className="bg-red-50 border border-gray-300 rounded-md px-4 py-2 text-lg" />
 
           <button type="submit" disabled={loading || !email || !password} className={`${loading ? "bg-red-300" : "bg-red-600 hover:bg-red-700"} text-white py-2 rounded-md transition`}>
-            {loading ? "Giriş yapılıyor..." : "Log in"}
+            {loading ? "Giriş yapılıyor..." : "Giriş yap"}
           </button>
         </form>
 

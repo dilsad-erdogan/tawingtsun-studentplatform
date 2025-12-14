@@ -1,11 +1,18 @@
-import { useState } from 'react'
-import GymsTable from './components/GymsTable'
-import PanelCards from './components/PanelCards'
-import GymComparison from './components/GymComparison'
+import { useState, useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import GymsTable from './components/gymsTable'
+import PanelCards from './components/panelCards'
+import GymComparison from './components/gymComparison'
 import ReportModal from './modals/ReportModal'
+import { fetchAllStudents } from '../../redux/studentSlice'
 
 const AdminPanel = () => {
+  const dispatch = useDispatch()
   const [isReportOpen, setIsReportOpen] = useState(false)
+
+  useEffect(() => {
+    dispatch(fetchAllStudents())
+  }, [dispatch])
 
   return (
     <div className="mt-10 p-4 flex flex-col gap-5">

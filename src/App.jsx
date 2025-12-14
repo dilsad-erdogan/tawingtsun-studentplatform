@@ -1,7 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase/firebase";
 import { fetchGymById } from "./redux/gymSlice";
+import { fetchUserByUID } from "./redux/userSlice";
 
 import Login from "./pages/login";
 import Trainer from "./pages/Trainer";
@@ -43,9 +46,25 @@ function RedirectHandler() {
 
 function App() {
   const { data: user, loading } = useSelector((state) => state.user);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const dispatch = useDispatch();
 
-  if (loading || user === undefined) {
-    return <div className="flex h-screen items-center justify-center text-xl">Loading...</div>;
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        // Auth var, ama Redux'ta user yoksa çekmeyi dene (opsiyonel ama sağlam olur)
+        if (!user) {
+          await dispatch(fetchUserByUID(currentUser.uid));
+        }
+      }
+      setIsAuthReady(true);
+    });
+
+    return () => unsubscribe();
+  }, [dispatch, user]);
+
+  if (!isAuthReady || loading || user === undefined) {
+    return <div className="flex h-screen items-center justify-center text-xl">Yükleniyor...</div>;
   }
 
   return (

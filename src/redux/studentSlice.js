@@ -33,8 +33,11 @@ export const fetchStudentById = createAsyncThunk(
 export const updateStudent = createAsyncThunk(
   "student/updateStudent",
   async ({ studentId, updatedData }) => {
-    const updatedStudent = await updateStudentAPI(studentId, updatedData);
-    return updatedStudent;
+    const success = await updateStudentAPI(studentId, updatedData);
+    if (success) {
+      return { id: studentId, ...updatedData };
+    }
+    throw new Error("Update failed");
   }
 );
 

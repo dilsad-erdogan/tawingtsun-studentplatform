@@ -62,7 +62,7 @@ const GymsTable = () => {
         setCurrentPage(1);
     }, [searchTerm]);
 
-    if (loading) return <div className="p-4">Loading...</div>;
+    if (loading) return <div className="p-4">Yükleniyor...</div>;
     if (error) return <div className="p-4 text-red-500">{error}</div>;
 
     const inactiveGyms = gyms.filter((gym) => gym.isActive === false);

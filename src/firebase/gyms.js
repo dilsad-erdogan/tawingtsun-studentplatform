@@ -1,5 +1,6 @@
-import { addDoc, arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { addDoc, arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, query, updateDoc, where, deleteDoc } from "firebase/firestore";
 import { auth, firestore } from "./firebase";
+import { deleteUser } from "firebase/auth";
 import toast from "react-hot-toast";
 
 export const getAllGyms = async () => {
@@ -62,6 +63,7 @@ export const getGymById = async (id) => {
 
   } catch (error) {
     console.error("getGymById Error:", error);
+    toast.error("Salon bilgisi çekilirken hata oluştu.");
     throw error;
   }
 };//kullandım
@@ -81,6 +83,62 @@ export const updateGymByID = async (id, updatedData) => {
   } catch (error) {
     console.error("updateGymByID error:", error);
     toast.error("Salon güncellenemedi");
+    return false;
+  }
+};//kullandım
+
+export const deleteGymAndAccount = async (gymId) => {
+  const user = auth.currentUser;
+  if (!user) {
+    toast.error("Oturum açmanız gerekiyor!");
+    return false;
+  }
+
+  try {
+    // 1. Find the Account linked to this gym
+    const accountsRef = collection(firestore, "accounts");
+    const q = query(accountsRef, where("gymId", "==", gymId));
+    const snapshot = await getDocs(q);
+
+    let accountAuthId = null;
+    let accountDocId = null;
+
+    if (!snapshot.empty) {
+      const accountDoc = snapshot.docs[0];
+      accountAuthId = accountDoc.data().authId;
+      accountDocId = accountDoc.id;
+    }
+
+    // 2. Delete Gym Document
+    const gymRef = doc(firestore, "gyms", gymId);
+    await deleteDoc(gymRef);
+
+    // 3. Delete Account Document (if found)
+    if (accountDocId) {
+      const accountRef = doc(firestore, "accounts", accountDocId);
+      await deleteDoc(accountRef);
+    }
+
+    // 4. Delete Auth User (Only if it matches current user)
+    // Note: Admin cannot delete other users via client SDK.
+    if (accountAuthId) {
+      if (user.uid === accountAuthId) {
+        await deleteUser(user);
+        toast.success("Hesap ve Salon başarıyla silindi (Kendi hesabınız).");
+        return { success: true, deletedSelf: true };
+      } else {
+        console.warn("Auth user deletion skipped: Admin cannot delete another user client-side.");
+        toast.success("Salon ve Hesap verisi silindi.");
+        return { success: true, deletedSelf: false };
+      }
+    }
+
+    toast.success("Salon başarıyla silindi!");
+    return { success: true, deletedSelf: false };
+
+  } catch (error) {
+    console.error("deleteGymAndAccount error:", error);
+    toast.error("Silme işlemi sırasında hata oluştu.");
     return false;
   }
 };//kullandım

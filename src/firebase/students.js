@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where, deleteDoc } from "firebase/firestore";
 import { firestore } from "./firebase";
 import toast from "react-hot-toast";
 
@@ -218,5 +218,18 @@ export const checkStudentStatus = async (students) => {
   } catch (error) {
     console.error("checkStudentStatus error:", error);
     return students; // Return original list in case of error
+  }
+};//kullandım
+
+export const deleteStudent = async (studentId) => {
+  try {
+    const studentRef = doc(firestore, "students", studentId);
+    await deleteDoc(studentRef);
+    toast.success("Öğrenci başarıyla silindi!");
+    return true;
+  } catch (error) {
+    console.error("deleteStudent error:", error);
+    toast.error("Öğrenci silinirken hata oluştu.");
+    return false;
   }
 };//kullandım
