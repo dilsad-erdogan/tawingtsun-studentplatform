@@ -95,7 +95,7 @@ export const addPaymentPlan = async (studentId, totalAmount, installmentCount) =
 
     if (!studentSnap.exists()) {
       toast.error("Öğrenci bulunamadı!");
-      return false;
+      return null;
     }
 
     const currentPayments = studentSnap.data().payments || [];
@@ -121,12 +121,12 @@ export const addPaymentPlan = async (studentId, totalAmount, installmentCount) =
 
     await updateDoc(studentRef, { payments: updatedPayments });
     toast.success("Ödeme planı oluşturuldu!");
-    return true;
+    return updatedPayments;
 
   } catch (error) {
     console.error("addPaymentPlan error:", error);
     toast.error("Ödeme planı oluşturulurken hata oluştu.");
-    return false;
+    return null;
   }
 };//kullandım
 
@@ -137,7 +137,7 @@ export const updateStudentPayment = async (studentId, paymentId, updates) => {
 
     if (!studentSnap.exists()) {
       toast.error("Öğrenci bulunamadı!");
-      return false;
+      return null;
     }
 
     const currentPayments = studentSnap.data().payments || [];
@@ -145,7 +145,7 @@ export const updateStudentPayment = async (studentId, paymentId, updates) => {
 
     if (paymentIndex === -1) {
       toast.error("Ödeme kaydı bulunamadı!");
-      return false;
+      return null;
     }
 
     // Update the specific payment
@@ -156,12 +156,12 @@ export const updateStudentPayment = async (studentId, paymentId, updates) => {
 
     await updateDoc(studentRef, { payments: currentPayments });
     toast.success("Ödeme bilgisi güncellendi!");
-    return true;
+    return currentPayments;
 
   } catch (error) {
     console.error("updateStudentPayment error:", error);
     toast.error("Ödeme güncellenirken hata oluştu.");
-    return false;
+    return null;
   }
 };//kullandım
 
@@ -172,7 +172,7 @@ export const deleteStudentPayment = async (studentId, paymentId) => {
 
     if (!studentSnap.exists()) {
       toast.error("Öğrenci bulunamadı!");
-      return false;
+      return null;
     }
 
     const currentPayments = studentSnap.data().payments || [];
@@ -180,12 +180,12 @@ export const deleteStudentPayment = async (studentId, paymentId) => {
 
     await updateDoc(studentRef, { payments: updatedPayments });
     toast.success("Ödeme başarıyla silindi!");
-    return true;
+    return updatedPayments;
 
   } catch (error) {
     console.error("deleteStudentPayment error:", error);
     toast.error("Ödeme silinirken hata oluştu.");
-    return false;
+    return null;
   }
 };//kullandım
 

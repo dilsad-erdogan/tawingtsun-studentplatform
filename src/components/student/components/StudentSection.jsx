@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { deleteStudent } from '../../../firebase/students';
-import { updateStudent } from '../../../redux/studentSlice';
+import { updateStudent, deleteStudent } from '../../../redux/studentSlice';
 import StudentModal from '../modals/StudentModal';
 
 const StudentSection = () => {
@@ -29,8 +28,8 @@ const StudentSection = () => {
 
     const handleDelete = async () => {
         if (window.confirm(`${student.name} öğrencisini kalıcı olarak silmek istediğinize emin misiniz?`)) {
-            const success = await deleteStudent(student.id);
-            if (success) {
+            const result = await dispatch(deleteStudent(student.id));
+            if (deleteStudent.fulfilled.match(result)) {
                 // Yönlendirme mantığı:
                 // Admin ise -> /admin/gymId/gymName (eğer context varsa) veya /admin
                 // Trainer ise -> /gymId/gymName

@@ -4,7 +4,11 @@ import { getAllGyms, getGymById } from "../firebase/gyms";
 // ✔ Tüm salonları çek
 export const fetchAllGyms = createAsyncThunk(
   "gym/fetchAllGyms",
-  async () => {
+  async (_, { getState }) => {
+    const { gyms } = getState().gym;
+    if (gyms && gyms.length > 0) {
+      return gyms;
+    }
     return await getAllGyms();
   }
 ); //kullanıyorum
@@ -12,7 +16,12 @@ export const fetchAllGyms = createAsyncThunk(
 // ✔ Tek bir salonu çek
 export const fetchGymById = createAsyncThunk(
   "gym/fetchGymById",
-  async (gymId) => {
+  async (gymId, { getState }) => {
+    const { gyms } = getState().gym;
+    const existingGym = gyms.find(g => g.id === gymId);
+    if (existingGym) {
+      return existingGym;
+    }
     return await getGymById(gymId);
   }
 ); //kullanıyorum

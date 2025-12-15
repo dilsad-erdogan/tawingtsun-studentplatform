@@ -3,7 +3,14 @@ import { getAllStudent, getStudentById, updateStudent as updateStudentAPI, addPa
 
 export const fetchAllStudents = createAsyncThunk(
   "student/fetchAllStudents",
-  async () => {
+  async (_, { getState }) => {
+    const { students } = getState().student;
+
+    // Cache check: Eğer öğrenciler zaten yüklüyse tekrar çekme
+    if (students && students.length > 0) {
+      return students;
+    }
+
     const allUsers = await getAllStudent();
     const checkedStudents = await checkStudentStatus(allUsers);
 
@@ -18,7 +25,15 @@ export const fetchAllStudents = createAsyncThunk(
 
 export const fetchStudentById = createAsyncThunk(
   "student/fetchStudentById",
-  async (studentId) => {
+  async (studentId, { getState }) => {
+    const { students } = getState().student;
+
+    // Cache check: Eğer öğrenci listede varsa oradan al
+    const existingStudent = students.find(s => s.id === studentId);
+    if (existingStudent) {
+      return existingStudent;
+    }
+
     const student = await getStudentById(studentId);
     if (student) {
       return {
@@ -35,42 +50,54 @@ export const updateStudent = createAsyncThunk(
   async ({ studentId, updatedData }) => {
     const success = await updateStudentAPI(studentId, updatedData);
     if (success) {
-      return { id: studentId, ...updatedData };
+      return { id: studentId, changes: updatedData };
     }
     throw new Error("Update failed");
   }
 );
 
+export const deleteStudent = createAsyncThunk(
+  "student/deleteStudent",
+  async (studentId) => {
+    const { deleteStudent: deleteStudentAPI } = await import("../firebase/students");
+    const success = await deleteStudentAPI(studentId);
+    if (success) {
+      return studentId;
+    }
+    throw new Error("Delete failed");
+  }
+);
+
 export const addPaymentPlan = createAsyncThunk(
   "student/addPaymentPlan",
-  async ({ studentId, totalAmount, installmentCount }, { dispatch }) => {
-    const success = await addPaymentPlanAPI(studentId, totalAmount, installmentCount);
-    if (success) {
-      dispatch(fetchStudentById(studentId));
+  async ({ studentId, totalAmount, installmentCount }) => {
+    const updatedPayments = await addPaymentPlanAPI(studentId, totalAmount, installmentCount);
+    if (updatedPayments) {
+      return { studentId, updatedPayments };
     }
-    return success;
+    throw new Error("Payment plan failed");
   }
 );
 
 export const updateStudentPayment = createAsyncThunk(
   "student/updateStudentPayment",
-  async ({ studentId, paymentId, updates }, { dispatch }) => {
-    const success = await updateStudentPaymentAPI(studentId, paymentId, updates);
-    if (success) {
-      dispatch(fetchStudentById(studentId));
+  async ({ studentId, paymentId, updates }) => {
+    const updatedPayments = await updateStudentPaymentAPI(studentId, paymentId, updates);
+    if (updatedPayments) {
+      return { studentId, updatedPayments };
     }
-    return success;
+    throw new Error("Payment update failed");
   }
 );
 
 export const deleteStudentPayment = createAsyncThunk(
   "student/deleteStudentPayment",
-  async ({ studentId, paymentId }, { dispatch }) => {
-    const success = await deleteStudentPaymentAPI(studentId, paymentId);
-    if (success) {
-      dispatch(fetchStudentById(studentId));
+  async ({ studentId, paymentId }) => {
+    const updatedPayments = await deleteStudentPaymentAPI(studentId, paymentId);
+    if (updatedPayments) {
+      return { studentId, updatedPayments };
     }
-    return success;
+    throw new Error("Payment delete failed");
   }
 );
 
@@ -107,6 +134,7 @@ const studentSlice = createSlice({
       .addCase(fetchStudentById.fulfilled, (state, action) => {
         state.loading = false;
         state.student = action.payload;
+
         // Update the specific student in the students array if needed
         if (action.payload) {
           const index = state.students.findIndex(s => s.id === action.payload.id);
@@ -127,14 +155,13 @@ const studentSlice = createSlice({
       })
       .addCase(updateStudent.fulfilled, (state, action) => {
         state.loading = false;
-        // Update the specific student in the students array if needed
+        // Update local state
         const index = state.students.findIndex(s => s.id === action.payload.id);
         if (index !== -1) {
-          state.students[index] = { ...state.students[index], ...action.payload };
+          state.students[index] = { ...state.students[index], ...action.payload.changes };
         }
-        // Update the currently selected student if it matches
         if (state.student && state.student.id === action.payload.id) {
-          state.student = { ...state.student, ...action.payload };
+          state.student = { ...state.student, ...action.payload.changes };
         }
       })
       .addCase(updateStudent.rejected, (state, action) => {
@@ -147,8 +174,20 @@ const studentSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(addPaymentPlan.fulfilled, (state) => {
+      .addCase(addPaymentPlan.fulfilled, (state, action) => {
         state.loading = false;
+        const { studentId, updatedPayments } = action.payload;
+
+        // Update list
+        const listIndex = state.students.findIndex(s => s.id === studentId);
+        if (listIndex !== -1) {
+          state.students[listIndex].payments = updatedPayments;
+        }
+
+        // Update single view
+        if (state.student && state.student.id === studentId) {
+          state.student.payments = updatedPayments;
+        }
       })
       .addCase(addPaymentPlan.rejected, (state, action) => {
         state.loading = false;
@@ -160,8 +199,18 @@ const studentSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateStudentPayment.fulfilled, (state) => {
+      .addCase(updateStudentPayment.fulfilled, (state, action) => {
         state.loading = false;
+        const { studentId, updatedPayments } = action.payload;
+
+        const listIndex = state.students.findIndex(s => s.id === studentId);
+        if (listIndex !== -1) {
+          state.students[listIndex].payments = updatedPayments;
+        }
+
+        if (state.student && state.student.id === studentId) {
+          state.student.payments = updatedPayments;
+        }
       })
       .addCase(updateStudentPayment.rejected, (state, action) => {
         state.loading = false;
@@ -173,10 +222,36 @@ const studentSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteStudentPayment.fulfilled, (state) => {
+      .addCase(deleteStudentPayment.fulfilled, (state, action) => {
         state.loading = false;
+        const { studentId, updatedPayments } = action.payload;
+
+        const listIndex = state.students.findIndex(s => s.id === studentId);
+        if (listIndex !== -1) {
+          state.students[listIndex].payments = updatedPayments;
+        }
+
+        if (state.student && state.student.id === studentId) {
+          state.student.payments = updatedPayments;
+        }
       })
       .addCase(deleteStudentPayment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      // deleteStudent
+      .addCase(deleteStudent.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteStudent.fulfilled, (state, action) => {
+        state.loading = false;
+        state.students = state.students.filter(s => s.id !== action.payload);
+        if (state.student && state.student.id === action.payload) {
+          state.student = null;
+        }
+      })
+      .addCase(deleteStudent.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

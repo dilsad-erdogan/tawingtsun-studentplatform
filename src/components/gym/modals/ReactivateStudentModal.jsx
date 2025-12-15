@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { updateStudent } from '../../../firebase/students';
-import { fetchAllStudents, fetchStudentById } from '../../../redux/studentSlice';
+import { updateStudent } from '../../../redux/studentSlice';
 
 const ReactivateStudentModal = ({ isOpen, onClose, student }) => {
     const dispatch = useDispatch();
@@ -19,11 +18,10 @@ const ReactivateStudentModal = ({ isOpen, onClose, student }) => {
             studyPeriod: studyPeriod
         };
 
-        await updateStudent(student.id, updates);
-
-        // Refresh data
-        dispatch(fetchAllStudents());
-        dispatch(fetchStudentById(student.id));
+        await dispatch(updateStudent({
+            studentId: student.id,
+            updatedData: updates
+        }));
 
         onClose();
         setStudyPeriod("");
