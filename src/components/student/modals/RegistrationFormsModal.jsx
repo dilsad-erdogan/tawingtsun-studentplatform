@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { Upload, X, FileText } from 'lucide-react';
 import { useDispatch } from 'react-redux';
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from '../../../firebase/firebase';
+// import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+// import { storage } from '../../../firebase/firebase';
 import { updateStudent } from '../../../redux/studentSlice';
 import toast from 'react-hot-toast';
 
@@ -14,8 +15,12 @@ const RegistrationFormsModal = ({ isOpen, onClose, student }) => {
 
     const handleFileChange = (e) => {
         if (e.target.files) {
-            setSelectedFiles(Array.from(e.target.files));
+            setSelectedFiles((prev) => [...prev, ...Array.from(e.target.files)]);
         }
+    };
+
+    const removeFile = (indexToRemove) => {
+        setSelectedFiles(selectedFiles.filter((_, index) => index !== indexToRemove));
     };
 
     const handleUpload = async () => {
@@ -29,10 +34,21 @@ const RegistrationFormsModal = ({ isOpen, onClose, student }) => {
 
         try {
             for (const file of selectedFiles) {
-                const storageRef = ref(storage, `students/${student.id}/forms/${file.name}-${Date.now()}`);
-                await uploadBytes(storageRef, file);
-                const url = await getDownloadURL(storageRef);
-                uploadedUrls.push(url);
+                const formData = new FormData();
+                formData.append('file', file);
+
+                // Upload to Node.js backend (Production)
+                const response = await fetch('https://taccounting.online/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Upload failed for file: ${file.name}`);
+                }
+
+                const data = await response.json();
+                uploadedUrls.push(data.filePath);
             }
 
             const currentForms = student.registrationForms || [];
@@ -59,15 +75,40 @@ const RegistrationFormsModal = ({ isOpen, onClose, student }) => {
             <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
                 <h2 className="text-xl font-bold mb-4">Kayıt Formu Yükle</h2>
 
-                <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="mb-4 w-full border p-2 rounded"
-                />
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors relative">
+                    <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    <Upload className="w-12 h-12 text-blue-500 mb-3" />
+                    <p className="text-gray-700 font-medium">Dosyaları seçmek için tıklayın</p>
+                    <p className="text-sm text-gray-400 mt-1">veya buraya sürükleyin</p>
+                </div>
 
-                <div className="flex justify-end gap-2">
+                {selectedFiles.length > 0 && (
+                    <div className="mt-4 space-y-2 max-h-40 overflow-y-auto">
+                        <h3 className="text-sm font-semibold text-gray-700">Seçilen Dosyalar ({selectedFiles.length})</h3>
+                        {selectedFiles.map((file, index) => (
+                            <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200">
+                                <div className="flex items-center gap-2 overflow-hidden">
+                                    <FileText className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                                    <span className="text-sm text-gray-600 truncate">{file.name}</span>
+                                </div>
+                                <button
+                                    onClick={() => removeFile(index)}
+                                    className="p-1 hover:bg-red-100 text-gray-400 hover:text-red-500 rounded transition-colors"
+                                >
+                                    <X size={16} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                <div className="mt-6 flex justify-end gap-2">
                     <button
                         onClick={onClose}
                         className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
