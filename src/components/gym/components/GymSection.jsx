@@ -20,7 +20,7 @@ const GymSection = () => {
             const result = await deleteGymAndAccount(gym.id);
             if (result && result.success) {
                 if (result.deletedSelf) {
-                    // Kullanıcı kendini sildi, auth state listener yönlendirmesini bekleyebiliriz ama garanti olsun
+                    // Kullanıcı kendini sildi
                     window.location.reload();
                 } else {
                     // Admin sildi

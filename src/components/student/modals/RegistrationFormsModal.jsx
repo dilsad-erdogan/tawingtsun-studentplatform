@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, X, FileText } from 'lucide-react';
 import { useDispatch } from 'react-redux';
-// import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-// import { storage } from '../../../firebase/firebase';
 import { updateStudent } from '../../../redux/studentSlice';
 import toast from 'react-hot-toast';
 
@@ -30,15 +28,23 @@ const RegistrationFormsModal = ({ isOpen, onClose, student }) => {
         }
 
         setUploading(true);
-        const uploadedUrls = [];
+        const uploadedItems = [];
 
         try {
+            // const isDev = window.location.hostname === 'localhost';
+            // const apiUrl = isDev
+            //     ? 'http://localhost:5000/api/upload'
+            //     : 'https://taccounting.online/api/upload';
+
+            // User requested to force domain usage
+            const apiUrl = 'https://taccounting.online/api/upload';
+
             for (const file of selectedFiles) {
                 const formData = new FormData();
                 formData.append('file', file);
 
-                // Upload to Node.js backend (Production)
-                const response = await fetch('https://taccounting.online/upload', {
+                // Upload to Node.js backend
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     body: formData,
                 });
@@ -48,11 +54,15 @@ const RegistrationFormsModal = ({ isOpen, onClose, student }) => {
                 }
 
                 const data = await response.json();
-                uploadedUrls.push(data.filePath);
+                uploadedItems.push({
+                    url: data.filePath,
+                    name: file.name
+                });
             }
 
             const currentForms = student.registrationForms || [];
-            const updatedForms = [...currentForms, ...uploadedUrls];
+            // Merge new items
+            const updatedForms = [...currentForms, ...uploadedItems];
 
             await dispatch(updateStudent({
                 studentId: student.id,
@@ -64,7 +74,8 @@ const RegistrationFormsModal = ({ isOpen, onClose, student }) => {
             setSelectedFiles([]);
         } catch (error) {
             console.error("Upload error:", error);
-            toast.error("Dosya yüklenirken bir hata oluştu.");
+            // Show more specific error
+            toast.error(`Yükleme hatası: ${error.message}`);
         } finally {
             setUploading(false);
         }

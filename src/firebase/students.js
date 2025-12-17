@@ -33,7 +33,7 @@ export const addNewStudent = async (data) => {
       gymId: data.gymId,
       isActive: true,
       date: new Date().toISOString(),
-      registrationForms: []
+      registrationForms: data.registrationForms || []
     };
 
     const docRef = await addDoc(studentsRef, newStudent);
