@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Calendar, ArrowRight, X } from 'lucide-react';
 
 import PaymentModal from '../modals/PaymentModal';
 import { updateStudentPayment, updateStudent, deleteStudentPayment } from '../../../redux/studentSlice';
@@ -14,6 +15,7 @@ const PaymentSection = () => {
     // New state
     const [editingPaymentId, setEditingPaymentId] = useState(null);
     const [editAmount, setEditAmount] = useState("");
+    const [editDate, setEditDate] = useState("");
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
@@ -66,21 +68,29 @@ const PaymentSection = () => {
     const handleEditClick = (payment) => {
         setEditingPaymentId(payment.id);
         setEditAmount(payment.amount);
+        // Ensure date is in YYYY-MM-DD format for input
+        const dateStr = payment.date ? new Date(payment.date).toISOString().split('T')[0] : "";
+        setEditDate(dateStr);
     };
 
     const handleCancelClick = () => {
         setEditingPaymentId(null);
         setEditAmount("");
+        setEditDate("");
     };
 
     const handleSaveClick = async (paymentId) => {
         await dispatch(updateStudentPayment({
             studentId: student.id,
             paymentId,
-            updates: { amount: Number(editAmount) }
+            updates: {
+                amount: Number(editAmount),
+                date: new Date(editDate).toISOString()
+            }
         }));
         setEditingPaymentId(null);
         setEditAmount("");
+        setEditDate("");
     };
 
     const handleMarkAsPaidClick = async (paymentId) => {
@@ -117,19 +127,46 @@ const PaymentSection = () => {
                 </button>
             </div>
 
-            <div className="flex gap-4 mb-4">
-                <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="border p-2 rounded"
-                />
-                <input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="border p-2 rounded"
-                />
+
+            <div className="flex flex-col sm:flex-row gap-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100 items-end">
+                <div className="flex-1 w-full sm:min-w-[200px]">
+                    <label className="block text-xs font-medium text-gray-500 mb-1 ml-1">Başlangıç Tarihi</label>
+                    <div className="relative group">
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-blue-500 transition-colors" size={18} />
+                        <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
+                        />
+                    </div>
+                </div>
+
+                <div className="hidden sm:flex items-center justify-center pb-3 text-gray-400">
+                    <ArrowRight size={20} />
+                </div>
+
+                <div className="flex-1 w-full sm:min-w-[200px]">
+                    <label className="block text-xs font-medium text-gray-500 mb-1 ml-1">Bitiş Tarihi</label>
+                    <div className="relative group">
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-blue-500 transition-colors" size={18} />
+                        <input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
+                        />
+                    </div>
+                </div>
+
+                {(startDate || endDate) && (
+                    <button
+                        onClick={() => { setStartDate(""); setEndDate(""); }}
+                        className="mb-2 px-3 py-1 text-sm text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors flex items-center gap-1 border border-red-200"
+                    >
+                        <X size={14} /> Temizle
+                    </button>
+                )}
             </div>
 
             <div className="overflow-x-auto">
@@ -147,7 +184,18 @@ const PaymentSection = () => {
                         {currentPayments.length > 0 ? (
                             currentPayments.map((payment, index) => (
                                 <tr key={index} className={`hover:bg-gray-50 ${payment.status === 'paid' ? 'bg-gray-50 opacity-75' : ''}`}>
-                                    <td className="p-3 border-b">{new Date(payment.date).toLocaleDateString('tr-TR')}</td>
+                                    <td className="p-3 border-b">
+                                        {editingPaymentId === payment.id ? (
+                                            <input
+                                                type="date"
+                                                value={editDate}
+                                                onChange={(e) => setEditDate(e.target.value)}
+                                                className="border p-1 rounded w-32"
+                                            />
+                                        ) : (
+                                            new Date(payment.date).toLocaleDateString('tr-TR')
+                                        )}
+                                    </td>
                                     <td className="p-3 border-b">{payment.description}</td>
                                     <td className="p-3 border-b">
                                         {editingPaymentId === payment.id ? (

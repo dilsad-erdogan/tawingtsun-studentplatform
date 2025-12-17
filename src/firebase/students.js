@@ -88,7 +88,7 @@ export const updateStudent = async (id, updatedData) => {
   }
 };//kullandım
 
-export const addPaymentPlan = async (studentId, totalAmount, installmentCount) => {
+export const addPaymentPlan = async (studentId, totalAmount, installmentCount, startDate) => {
   try {
     const studentRef = doc(firestore, "students", studentId);
     const studentSnap = await getDoc(studentRef);
@@ -101,11 +101,13 @@ export const addPaymentPlan = async (studentId, totalAmount, installmentCount) =
     const currentPayments = studentSnap.data().payments || [];
     const newPayments = [];
     const monthlyAmount = Math.floor(totalAmount / installmentCount);
-    const today = new Date();
+
+    // Use provided startDate or default to today
+    const baseDate = startDate ? new Date(startDate) : new Date();
 
     for (let i = 0; i < installmentCount; i++) {
-      const paymentDate = new Date(today);
-      paymentDate.setMonth(today.getMonth() + i);
+      const paymentDate = new Date(baseDate);
+      paymentDate.setMonth(baseDate.getMonth() + i);
 
       newPayments.push({
         id: crypto.randomUUID(),

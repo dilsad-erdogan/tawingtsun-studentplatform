@@ -70,8 +70,8 @@ export const deleteStudent = createAsyncThunk(
 
 export const addPaymentPlan = createAsyncThunk(
   "student/addPaymentPlan",
-  async ({ studentId, totalAmount, installmentCount }) => {
-    const updatedPayments = await addPaymentPlanAPI(studentId, totalAmount, installmentCount);
+  async ({ studentId, totalAmount, installmentCount, startDate }) => {
+    const updatedPayments = await addPaymentPlanAPI(studentId, totalAmount, installmentCount, startDate);
     if (updatedPayments) {
       return { studentId, updatedPayments };
     }

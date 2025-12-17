@@ -6,6 +6,7 @@ const PaymentModal = ({ isOpen, onClose, studentId }) => {
     const dispatch = useDispatch();
     const [totalAmount, setTotalAmount] = useState("");
     const [installmentCount, setInstallmentCount] = useState("");
+    const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]); // Default today
 
     const handleSave = async () => {
         if (!totalAmount || !installmentCount) return;
@@ -13,11 +14,13 @@ const PaymentModal = ({ isOpen, onClose, studentId }) => {
         await dispatch(addPaymentPlan({
             studentId,
             totalAmount: Number(totalAmount),
-            installmentCount: Number(installmentCount)
+            installmentCount: Number(installmentCount),
+            startDate
         }));
         onClose();
         setTotalAmount("");
         setInstallmentCount("");
+        setStartDate(new Date().toISOString().split('T')[0]);
     };
 
     if (!isOpen) return null;
@@ -50,6 +53,15 @@ const PaymentModal = ({ isOpen, onClose, studentId }) => {
                             className="w-full border p-2 rounded"
                             max={12}
                             placeholder="Örn: 12"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Başlangıç Tarihi</label>
+                        <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className="w-full border p-2 rounded"
                         />
                     </div>
                 </div>
