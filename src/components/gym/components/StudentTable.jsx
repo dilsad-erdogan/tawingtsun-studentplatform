@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import AddStudentModal from "../modals/AddStudentModal";
 import ReactivateStudentModal from "../modals/ReactivateStudentModal";
+import StudentReportModal from "../modals/StudentReportModal";
 
 const StudentTable = ({ gymId }) => {
     const navigate = useNavigate();
@@ -14,6 +15,7 @@ const StudentTable = ({ gymId }) => {
     // Reactivation Modal State
     const [isReactivateModalOpen, setIsReactivateModalOpen] = useState(false);
     const [selectedStudentForReactivate, setSelectedStudentForReactivate] = useState(null);
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -61,6 +63,12 @@ const StudentTable = ({ gymId }) => {
                         className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-center"
                     >
                         Öğrenci Ekle
+                    </button>
+                    <button
+                        onClick={() => setIsReportModalOpen(true)}
+                        className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-center"
+                    >
+                        Öğrenci Raporu Al
                     </button>
                 </div>
             </div>
@@ -171,6 +179,11 @@ const StudentTable = ({ gymId }) => {
                 isOpen={isReactivateModalOpen}
                 onClose={() => setIsReactivateModalOpen(false)}
                 student={selectedStudentForReactivate}
+            />
+            <StudentReportModal
+                isOpen={isReportModalOpen}
+                onClose={() => setIsReportModalOpen(false)}
+                gymId={gymId}
             />
         </div>
     );
