@@ -7,6 +7,7 @@ import { getActiveStudentsCountByGymId } from "../../../firebase/students";
 
 import AddGymModal from "../modals/GymModal";
 import RegisterGymModal from "../modals/RegisterGymModal";
+import TransferStudentsModal from "../modals/TransferStudentsModal";
 
 const GymsTable = () => {
     const dispatch = useDispatch();
@@ -15,6 +16,7 @@ const GymsTable = () => {
 
     const [addModalOpen, setAddModalOpen] = useState(false);
     const [registerModalOpen, setRegisterModalOpen] = useState(false);
+    const [transferModalOpen, setTransferModalOpen] = useState(false);
     const [selectedGym, setSelectedGym] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [studentCounts, setStudentCounts] = useState({});
@@ -90,6 +92,9 @@ const GymsTable = () => {
                     <input type="text" placeholder="İsme göre ara..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="border px-3 py-2 rounded w-full sm:w-64" />
                     <button onClick={openAddModal} className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-center">
                         Spor Salonu Ekle
+                    </button>
+                    <button onClick={() => setTransferModalOpen(true)} className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-center">
+                        Öğrenci Aktar
                     </button>
                 </div>
             </div>
@@ -172,6 +177,7 @@ const GymsTable = () => {
 
             <AddGymModal isOpen={addModalOpen} onClose={closeModal} />
             <RegisterGymModal gym={selectedGym} isOpen={registerModalOpen} onClose={closeRegisterModal} />
+            <TransferStudentsModal isOpen={transferModalOpen} onClose={() => setTransferModalOpen(false)} />
         </div>
     );
 };

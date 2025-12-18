@@ -234,4 +234,21 @@ export const deleteStudent = async (studentId) => {
     toast.error("Öğrenci silinirken hata oluştu.");
     return false;
   }
-};//kullandım
+};
+
+export const transferStudents = async (studentIds, targetGymId) => {
+  try {
+    const promises = studentIds.map(id => {
+      const studentRef = doc(firestore, "students", id);
+      return updateDoc(studentRef, { gymId: targetGymId });
+    });
+
+    await Promise.all(promises);
+    toast.success(`${studentIds.length} öğrenci başarıyla aktarıldı!`);
+    return true;
+  } catch (error) {
+    console.error("transferStudents error:", error);
+    toast.error("Öğrenciler aktarılırken hata oluştu.");
+    return false;
+  }
+};

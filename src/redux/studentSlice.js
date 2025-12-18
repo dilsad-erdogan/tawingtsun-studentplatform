@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getAllStudent, getStudentById, updateStudent as updateStudentAPI, addPaymentPlan as addPaymentPlanAPI, updateStudentPayment as updateStudentPaymentAPI, deleteStudentPayment as deleteStudentPaymentAPI, checkStudentStatus } from "../firebase/students";
+import { getAllStudent, getStudentById, updateStudent as updateStudentAPI, addPaymentPlan as addPaymentPlanAPI, updateStudentPayment as updateStudentPaymentAPI, deleteStudentPayment as deleteStudentPaymentAPI, checkStudentStatus, transferStudents as transferStudentsAPI } from "../firebase/students";
 
 export const fetchAllStudents = createAsyncThunk(
   "student/fetchAllStudents",
@@ -98,6 +98,17 @@ export const deleteStudentPayment = createAsyncThunk(
       return { studentId, updatedPayments };
     }
     throw new Error("Payment delete failed");
+  }
+);
+
+export const transferStudents = createAsyncThunk(
+  "student/transferStudents",
+  async ({ studentIds, targetGymId }) => {
+    const success = await transferStudentsAPI(studentIds, targetGymId);
+    if (success) {
+      return { studentIds, targetGymId };
+    }
+    throw new Error("Transfer failed");
   }
 );
 
@@ -252,6 +263,32 @@ const studentSlice = createSlice({
         }
       })
       .addCase(deleteStudent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      // transferStudents
+      .addCase(transferStudents.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(transferStudents.fulfilled, (state, action) => {
+        state.loading = false;
+        const { studentIds, targetGymId } = action.payload;
+
+        // Update gymId for transferred students in the list
+        state.students = state.students.map(student => {
+          if (studentIds.includes(student.id)) {
+            return { ...student, gymId: targetGymId };
+          }
+          return student;
+        });
+
+        // Update if the currently viewed student is one of the transferred ones
+        if (state.student && studentIds.includes(state.student.id)) {
+          state.student = { ...state.student, gymId: targetGymId };
+        }
+      })
+      .addCase(transferStudents.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });
