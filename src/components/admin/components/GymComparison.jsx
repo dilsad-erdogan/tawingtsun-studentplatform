@@ -55,19 +55,18 @@ const GymComparison = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Active Students Chart */}
-                <div className="h-[300px]">
+                <div className="h-[500px]">
                     <h3 className="text-sm font-semibold text-gray-500 mb-4 text-center">Aktif Öğrenci Sayıları</h3>
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={chartData}>
+                        <BarChart data={chartData} margin={{ bottom: 30 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
                             <XAxis
                                 dataKey="name"
                                 axisLine={false}
                                 tickLine={false}
-                                tick={{ fontSize: 12, fill: '#6b7280' }}
-                                tickFormatter={(value) => value.length > 8 ? `${value.slice(0, 8)}...` : value}
+                                tick={{ fontSize: 12, fill: '#6b7280', angle: -90, textAnchor: 'end' }}
                                 interval={0}
-                                height={40}
+                                height={150}
                             />
                             <YAxis axisLine={false} tickLine={false} />
                             <Tooltip
@@ -80,19 +79,18 @@ const GymComparison = () => {
                 </div>
 
                 {/* Revenue Chart */}
-                <div className="h-[300px]">
+                <div className="h-[500px]">
                     <h3 className="text-sm font-semibold text-gray-500 mb-4 text-center">Bu Ay Toplanan Ücretler (TL)</h3>
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={chartData}>
+                        <BarChart data={chartData} margin={{ bottom: 30 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
                             <XAxis
                                 dataKey="name"
                                 axisLine={false}
                                 tickLine={false}
-                                tick={{ fontSize: 12, fill: '#6b7280' }}
-                                tickFormatter={(value) => value.length > 8 ? `${value.slice(0, 8)}...` : value}
+                                tick={{ fontSize: 12, fill: '#6b7280', angle: -90, textAnchor: 'end' }}
                                 interval={0}
-                                height={40}
+                                height={150}
                             />
                             <YAxis axisLine={false} tickLine={false} />
                             <Tooltip
