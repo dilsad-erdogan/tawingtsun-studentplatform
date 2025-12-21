@@ -153,7 +153,7 @@ const StudentTable = ({ gymId }) => {
             </div>
 
             {/* Pagination Controls */}
-            {totalPages == 1 && (
+            {totalPages > 1 && (
                 <div className="flex justify-between items-center mt-4">
                     <button
                         onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
