@@ -111,6 +111,7 @@ const AddStudentModal = ({ isOpen, onClose, gymId }) => {
                             <option value="Çocuk">Çocuk</option>
                             <option value="Erkek">Erkek</option>
                             <option value="Kadın">Kadın</option>
+                            <option value="Özel">Özel</option>
                         </select>
                     </div>
 
