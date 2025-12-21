@@ -10,6 +10,7 @@ const StudentTable = ({ gymId }) => {
     const { students } = useSelector((state) => state.student);
     const { data: user } = useSelector((state) => state.user);
     const [searchTerm, setSearchTerm] = useState("");
+    const [selectedGroup, setSelectedGroup] = useState("Hepsi"); // Group Filter State
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Reactivation Modal State
@@ -23,10 +24,12 @@ const StudentTable = ({ gymId }) => {
     // 1. Gym'e göre filtrele
     const gymStudents = students.filter((s) => s.gymId === gymId);
 
-    // 2. Arama filtresi
-    const filteredStudents = gymStudents.filter((student) =>
-        student.name?.toLocaleLowerCase("tr").includes(searchTerm.trim().toLocaleLowerCase("tr"))
-    );
+    // 2. Arama ve Grup filtresi
+    const filteredStudents = gymStudents.filter((student) => {
+        const matchesSearch = student.name?.toLocaleLowerCase("tr").includes(searchTerm.trim().toLocaleLowerCase("tr"));
+        const matchesGroup = selectedGroup === "Hepsi" || student.group === selectedGroup;
+        return matchesSearch && matchesGroup;
+    });
 
     // Sorting State
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -135,6 +138,17 @@ const StudentTable = ({ gymId }) => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="border px-3 py-2 rounded w-full sm:w-64"
                     />
+                    <select
+                        value={selectedGroup}
+                        onChange={(e) => setSelectedGroup(e.target.value)}
+                        className="border px-3 py-2 rounded w-full sm:w-auto"
+                    >
+                        <option value="Hepsi">Hepsi</option>
+                        <option value="Kadın">Kadın</option>
+                        <option value="Erkek">Erkek</option>
+                        <option value="Çocuk">Çocuk</option>
+                        <option value="Özel">Özel</option>
+                    </select>
                     <button
                         onClick={() => setIsModalOpen(true)}
                         className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-center"
