@@ -39,6 +39,22 @@ const StudentTable = ({ gymId }) => {
         setSortConfig({ key, direction });
     };
 
+    // Helper to calculate remaining study months
+    const calculateRemainingMonths = (student) => {
+        if (!student.isActive || !student.date) return 0;
+
+        const registrationDate = new Date(student.date);
+        const currentDate = new Date();
+
+        // Calculate difference in months
+        const monthDiff = (currentDate.getFullYear() - registrationDate.getFullYear()) * 12 +
+            (currentDate.getMonth() - registrationDate.getMonth());
+
+        // Calculate remaining
+        const remaining = student.studyPeriod - monthDiff;
+        return Math.max(0, remaining);
+    };
+
     // 3. Sıralama Logic
     const sortedStudents = React.useMemo(() => {
         let sortableStudents = [...filteredStudents];
@@ -47,6 +63,12 @@ const StudentTable = ({ gymId }) => {
             sortableStudents.sort((a, b) => {
                 let aValue = a[sortConfig.key];
                 let bValue = b[sortConfig.key];
+
+                // Use calculated value for studyPeriod
+                if (sortConfig.key === 'studyPeriod') {
+                    aValue = calculateRemainingMonths(a);
+                    bValue = calculateRemainingMonths(b);
+                }
 
                 // Handle string comparisons case-insensitively
                 if (typeof aValue === 'string') {
@@ -157,7 +179,7 @@ const StudentTable = ({ gymId }) => {
                                 className="py-3 px-4 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-200"
                                 onClick={() => handleSort('studyPeriod')}
                             >
-                                Öğrenim Süresi {renderSortIcon('studyPeriod')}
+                                Kalan Süre (Ay) {renderSortIcon('studyPeriod')}
                             </th>
                             <th
                                 className="py-3 px-4 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-200"
@@ -177,6 +199,9 @@ const StudentTable = ({ gymId }) => {
                         {currentStudents.map((student) => {
                             const isPassive = !student.isActive;
                             const rowClass = `border-b hover:bg-gray-50 cursor-pointer transition ${isPassive ? "text-gray-400" : "text-gray-800"}`;
+
+                            // Calculate remaining time for display
+                            const remainingMonths = calculateRemainingMonths(student);
 
                             return (
                                 <tr
@@ -204,7 +229,9 @@ const StudentTable = ({ gymId }) => {
                                                 Aktifleştir
                                             </button>
                                         ) : (
-                                            student.studyPeriod
+                                            <span className={remainingMonths === 0 ? "text-red-500 font-bold" : ""}>
+                                                {remainingMonths} Ay
+                                            </span>
                                         )}
                                     </td>
                                     <td className="py-3 px-4">
