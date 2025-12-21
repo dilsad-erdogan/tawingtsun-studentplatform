@@ -28,11 +28,57 @@ const StudentTable = ({ gymId }) => {
         student.name?.toLocaleLowerCase("tr").includes(searchTerm.trim().toLocaleLowerCase("tr"))
     );
 
-    // 3. Sıralama: Aktifler üstte, Pasifler altta
-    const sortedStudents = filteredStudents.sort((a, b) => {
-        if (a.isActive === b.isActive) return 0;
-        return a.isActive ? -1 : 1;
-    });
+    // Sorting State
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+
+    const handleSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    // 3. Sıralama Logic
+    const sortedStudents = React.useMemo(() => {
+        let sortableStudents = [...filteredStudents];
+
+        if (sortConfig.key) {
+            sortableStudents.sort((a, b) => {
+                let aValue = a[sortConfig.key];
+                let bValue = b[sortConfig.key];
+
+                // Handle string comparisons case-insensitively
+                if (typeof aValue === 'string') {
+                    aValue = aValue.toLowerCase();
+                    bValue = bValue.toLowerCase();
+                }
+
+                // Handle undefined/null values
+                if (aValue === undefined || aValue === null) return 1;
+                if (bValue === undefined || bValue === null) return -1;
+
+                if (aValue < bValue) {
+                    return sortConfig.direction === 'asc' ? -1 : 1;
+                }
+                if (aValue > bValue) {
+                    return sortConfig.direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+        } else {
+            // Default Sort: Ative first, then Date desc
+            sortableStudents.sort((a, b) => {
+                if (a.isActive !== b.isActive) {
+                    return a.isActive ? -1 : 1;
+                }
+                const dateA = a.date ? new Date(a.date).getTime() : 0;
+                const dateB = b.date ? new Date(b.date).getTime() : 0;
+                return dateB - dateA;
+            });
+        }
+        return sortableStudents;
+    }, [filteredStudents, sortConfig]);
 
     // Reset page when search term changes
     React.useEffect(() => {
@@ -44,6 +90,15 @@ const StudentTable = ({ gymId }) => {
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentStudents = sortedStudents.slice(indexOfFirstItem, indexOfLastItem);
+
+    const renderSortIcon = (key) => {
+        if (sortConfig.key !== key) return <span className="ml-1 text-gray-400">↕</span>;
+        return mapSortDirection(sortConfig.direction);
+    };
+
+    const mapSortDirection = (dir) => {
+        return dir === 'asc' ? <span className="ml-1 text-blue-600">↑</span> : <span className="ml-1 text-blue-600">↓</span>;
+    }
 
     return (
         <div className="p-4 sm:p-6 mx-auto">
@@ -84,13 +139,38 @@ const StudentTable = ({ gymId }) => {
                 <table className="min-w-full border rounded-lg overflow-hidden bg-white shadow">
                     <thead className="bg-gray-100 border-b">
                         <tr>
-                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Öğrenci Adı</th>
+                            <th
+                                className="py-3 px-4 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-200"
+                                onClick={() => handleSort('name')}
+                            >
+                                Öğrenci Adı {renderSortIcon('name')}
+                            </th>
                             <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Telefon</th>
                             <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Grup</th>
-                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Seviye</th>
-                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Öğrenim Süresi</th>
-                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Durum</th>
-                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Kayıt Tarihi</th>
+                            <th
+                                className="py-3 px-4 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-200"
+                                onClick={() => handleSort('level')}
+                            >
+                                Seviye {renderSortIcon('level')}
+                            </th>
+                            <th
+                                className="py-3 px-4 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-200"
+                                onClick={() => handleSort('studyPeriod')}
+                            >
+                                Öğrenim Süresi {renderSortIcon('studyPeriod')}
+                            </th>
+                            <th
+                                className="py-3 px-4 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-200"
+                                onClick={() => handleSort('isActive')}
+                            >
+                                Durum {renderSortIcon('isActive')}
+                            </th>
+                            <th
+                                className="py-3 px-4 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-200"
+                                onClick={() => handleSort('date')}
+                            >
+                                Kayıt Tarihi {renderSortIcon('date')}
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
