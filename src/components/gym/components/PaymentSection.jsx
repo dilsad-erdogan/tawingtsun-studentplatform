@@ -40,12 +40,15 @@ const PaymentSection = ({ gymId }) => {
         return paymentDate > currentDate && (paymentDate.getMonth() !== currentMonth || paymentDate.getFullYear() !== currentYear);
     }).sort((a, b) => new Date(a.date) - new Date(b.date));
 
+    // Calculate Total for Current Month
+    const totalCurrentMonthAmount = currentMonthPayments.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+
     return (
         <div className="p-4">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Ödeme Takibi</h2>
             <div className="flex flex-col lg:flex-row gap-6">
                 <PaymentTable
-                    title="Bu Ayın Ödemeleri"
+                    title={`Bu Ayın Ödemeleri (Toplam: ${totalCurrentMonthAmount} ₺)`}
                     payments={currentMonthPayments}
                     showPayButton={true}
                 />
