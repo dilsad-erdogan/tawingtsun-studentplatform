@@ -20,6 +20,7 @@ const GymsTable = () => {
     const [selectedGym, setSelectedGym] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [studentCounts, setStudentCounts] = useState({});
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -36,6 +37,19 @@ const GymsTable = () => {
         setRegisterModalOpen(false);
         setSelectedGym(null);
         dispatch(fetchAllGyms());
+    };
+
+    const handleSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const renderSortIcon = (key) => {
+        if (sortConfig.key !== key) return <span className="ml-1 text-gray-400">↕</span>;
+        return sortConfig.direction === 'asc' ? <span className="ml-1 text-blue-600">↑</span> : <span className="ml-1 text-blue-600">↓</span>;
     };
 
     useEffect(() => {
@@ -73,11 +87,38 @@ const GymsTable = () => {
         gym.name.toLocaleLowerCase("tr").includes(searchTerm.trim().toLocaleLowerCase("tr"))
     );
 
+    const sortedGyms = [...filteredGyms].sort((a, b) => {
+        if (!sortConfig.key) return 0;
+
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+
+        // Handle student count sorting
+        if (sortConfig.key === 'studentCount') {
+            aValue = studentCounts[a.id] || 0;
+            bValue = studentCounts[b.id] || 0;
+        }
+
+        if (typeof aValue === 'string') {
+            aValue = aValue.toLowerCase();
+            bValue = bValue.toLowerCase();
+        }
+
+        if (aValue < bValue) {
+            return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+            return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+    });
+
     // Pagination Logic
-    const totalPages = Math.ceil(filteredGyms.length / itemsPerPage);
+    // Pagination Logic
+    const totalPages = Math.ceil(sortedGyms.length / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentGyms = filteredGyms.slice(indexOfFirstItem, indexOfLastItem);
+    const currentGyms = sortedGyms.slice(indexOfFirstItem, indexOfLastItem);
 
     const goGymDetail = (gym) => {
         navigate(`/admin/${gym.id}/${gym.name.toLowerCase().replace(/\s+/g, "-")}`);
@@ -126,9 +167,24 @@ const GymsTable = () => {
                 <table className="min-w-full border rounded-lg overflow-hidden bg-white shadow">
                     <thead className="bg-gray-100 border-b">
                         <tr>
-                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Salon Adı</th>
-                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Adres</th>
-                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600">Öğrenci Sayısı</th>
+                            <th
+                                className="py-3 px-4 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-200"
+                                onClick={() => handleSort('name')}
+                            >
+                                Salon Adı {renderSortIcon('name')}
+                            </th>
+                            <th
+                                className="py-3 px-4 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-200"
+                                onClick={() => handleSort('address')}
+                            >
+                                Adres {renderSortIcon('address')}
+                            </th>
+                            <th
+                                className="py-3 px-4 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-200"
+                                onClick={() => handleSort('studentCount')}
+                            >
+                                Öğrenci Sayısı {renderSortIcon('studentCount')}
+                            </th>
                         </tr>
                     </thead>
 
