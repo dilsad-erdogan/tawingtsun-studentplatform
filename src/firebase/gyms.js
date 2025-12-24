@@ -109,6 +109,19 @@ export const deleteGymAndAccount = async (gymId) => {
       accountDocId = accountDoc.id;
     }
 
+    // 1.5 Delete All Students associated with this gym
+    const studentsRef = collection(firestore, "students");
+    const studentsQuery = query(studentsRef, where("gymId", "==", gymId));
+    const studentsSnapshot = await getDocs(studentsQuery);
+
+    if (!studentsSnapshot.empty) {
+      const deletePromises = studentsSnapshot.docs.map(studentDoc =>
+        deleteDoc(doc(firestore, "students", studentDoc.id))
+      );
+      await Promise.all(deletePromises);
+      console.log(`${studentsSnapshot.size} students deleted for gym ${gymId}`);
+    }
+
     // 2. Delete Gym Document
     const gymRef = doc(firestore, "gyms", gymId);
     await deleteDoc(gymRef);
