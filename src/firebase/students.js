@@ -20,6 +20,24 @@ export const getAllStudent = async () => {
   }
 }; //kullanıyorum
 
+export const getStudentsByGymId = async (gymId) => {
+  try {
+    const studentsRef = collection(firestore, "students");
+    const q = query(studentsRef, where("gymId", "==", gymId));
+    const querySnapshot = await getDocs(q);
+
+    const students = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    return students;
+  } catch (error) {
+    console.error("getStudentsByGymId error:", error);
+    return [];
+  }
+};
+
 export const addNewStudent = async (data) => {
   try {
     const studentsRef = collection(firestore, "students");

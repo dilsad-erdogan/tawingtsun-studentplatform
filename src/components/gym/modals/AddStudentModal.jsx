@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 
-import { addNewStudent } from "../../../firebase/students";
-import { fetchAllStudents } from "../../../redux/studentSlice";
+import { addNewStudent } from "../../../redux/studentSlice";
 import DocumentUploader from "../../common/DocumentUploader";
 
 const AddStudentModal = ({ isOpen, onClose, gymId }) => {
@@ -44,17 +43,16 @@ const AddStudentModal = ({ isOpen, onClose, gymId }) => {
 
         setLoading(true);
         try {
-            await addNewStudent({
+            await dispatch(addNewStudent({
                 ...formData,
                 gymId,
                 level: Number(formData.level),
                 studyPeriod: Number(formData.studyPeriod),
                 phone: Number(formData.phone),
                 registrationForms: registrationForms
-            });
+            })).unwrap();
 
             toast.success("Öğrenci başarıyla eklendi 🎉");
-            dispatch(fetchAllStudents()); // Listeyi güncelle
             onClose();
             setFormData({ name: "", phone: "", group: "", level: 1, studyPeriod: 1 });
             setRegistrationForms([]);

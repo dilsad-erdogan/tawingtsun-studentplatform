@@ -12,8 +12,10 @@ const GymDetail = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch(fetchAllStudents());
-    }, [dispatch]);
+        if (gymId) {
+            dispatch(fetchAllStudents(gymId));
+        }
+    }, [dispatch, gymId]);
 
     return (
         <div className="min-h-screen bg-gray-100 gap-5 pt-5">

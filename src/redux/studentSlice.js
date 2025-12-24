@@ -1,17 +1,60 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getAllStudent, getStudentById, updateStudent as updateStudentAPI, addPaymentPlan as addPaymentPlanAPI, updateStudentPayment as updateStudentPaymentAPI, deleteStudentPayment as deleteStudentPaymentAPI, checkStudentStatus, transferStudents as transferStudentsAPI } from "../firebase/students";
+import { getAllStudent, getStudentsByGymId, getStudentById, updateStudent as updateStudentAPI, addNewStudent as addNewStudentAPI, addPaymentPlan as addPaymentPlanAPI, updateStudentPayment as updateStudentPaymentAPI, deleteStudentPayment as deleteStudentPaymentAPI, checkStudentStatus, transferStudents as transferStudentsAPI } from "../firebase/students";
+
+// Cache Helpers
+const CACHE_PREFIX = "student_cache_";
+const CACHE_DURATION = 60 * 60 * 1000; // 1 Hour
+
+const loadFromCache = (key) => {
+  try {
+    const cached = localStorage.getItem(key);
+    if (!cached) return null;
+
+    const { data, timestamp } = JSON.parse(cached);
+    const now = Date.now();
+
+    // Expiry Check
+    if (now - timestamp > CACHE_DURATION) {
+      localStorage.removeItem(key);
+      return null;
+    }
+    return data;
+  } catch (e) {
+    console.error("Cache load error", e);
+    return null;
+  }
+};
+
+const saveToCache = (key, data) => {
+  try {
+    const cachePayload = {
+      timestamp: Date.now(),
+      data: data
+    };
+    localStorage.setItem(key, JSON.stringify(cachePayload));
+  } catch (e) {
+    console.error("Cache save error", e);
+  }
+};
 
 export const fetchAllStudents = createAsyncThunk(
   "student/fetchAllStudents",
-  async (_, { getState }) => {
-    const { students } = getState().student;
+  async (gymId = null, { getState }) => {
+    // 1. Try LocalStorage Cache first
+    const cacheKey = CACHE_PREFIX + (gymId || "all");
+    let allUsers = loadFromCache(cacheKey);
 
-    // Cache check: Eğer öğrenciler zaten yüklüyse tekrar çekme
-    if (students && students.length > 0) {
-      return students;
+    // 2. If no cache, Fetch from Firebase
+    if (!allUsers) {
+      if (gymId) {
+        allUsers = await getStudentsByGymId(gymId);
+      } else {
+        allUsers = await getAllStudent();
+      }
     }
 
-    const allUsers = await getAllStudent();
+    // 3. Status Check (Always run this to ensure data integrity, even on cached data)
+    // Note: checkStudentStatus does NOT consume reads, only writes if changes needed.
     const checkedStudents = await checkStudentStatus(allUsers);
 
     const serializedUsers = checkedStudents.map(user => ({
@@ -19,7 +62,21 @@ export const fetchAllStudents = createAsyncThunk(
       date: user.date?.toDate ? user.date.toDate().toISOString() : user.date
     }));
 
-    return serializedUsers;
+    // 4. Update Cache with fresh/checked data
+    saveToCache(cacheKey, serializedUsers);
+
+    return { students: serializedUsers, cacheKey };
+  }
+);
+
+export const addNewStudent = createAsyncThunk(
+  "student/addNewStudent",
+  async (studentData) => {
+    const newStudent = await addNewStudentAPI(studentData);
+    return {
+      ...newStudent,
+      date: newStudent.date?.toDate ? newStudent.date.toDate().toISOString() : newStudent.date
+    };
   }
 );
 
@@ -119,6 +176,7 @@ const studentSlice = createSlice({
     student: null,
     loading: false,
     error: null,
+    currentCacheKey: null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -130,9 +188,25 @@ const studentSlice = createSlice({
       })
       .addCase(fetchAllStudents.fulfilled, (state, action) => {
         state.loading = false;
-        state.students = action.payload;
+        state.students = action.payload.students;
+        state.currentCacheKey = action.payload.cacheKey;
       })
       .addCase(fetchAllStudents.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      // addNewStudent
+      .addCase(addNewStudent.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addNewStudent.fulfilled, (state, action) => {
+        state.loading = false;
+        state.students.push(action.payload); // Add new student to local state
+        if (state.currentCacheKey) saveToCache(state.currentCacheKey, state.students);
+      })
+      .addCase(addNewStudent.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
@@ -153,6 +227,7 @@ const studentSlice = createSlice({
             state.students[index] = { ...state.students[index], ...action.payload };
           }
         }
+        if (state.currentCacheKey) saveToCache(state.currentCacheKey, state.students);
       })
       .addCase(fetchStudentById.rejected, (state, action) => {
         state.loading = false;
@@ -174,6 +249,7 @@ const studentSlice = createSlice({
         if (state.student && state.student.id === action.payload.id) {
           state.student = { ...state.student, ...action.payload.changes };
         }
+        if (state.currentCacheKey) saveToCache(state.currentCacheKey, state.students);
       })
       .addCase(updateStudent.rejected, (state, action) => {
         state.loading = false;
@@ -199,6 +275,7 @@ const studentSlice = createSlice({
         if (state.student && state.student.id === studentId) {
           state.student.payments = updatedPayments;
         }
+        if (state.currentCacheKey) saveToCache(state.currentCacheKey, state.students);
       })
       .addCase(addPaymentPlan.rejected, (state, action) => {
         state.loading = false;
@@ -222,6 +299,7 @@ const studentSlice = createSlice({
         if (state.student && state.student.id === studentId) {
           state.student.payments = updatedPayments;
         }
+        if (state.currentCacheKey) saveToCache(state.currentCacheKey, state.students);
       })
       .addCase(updateStudentPayment.rejected, (state, action) => {
         state.loading = false;
@@ -245,6 +323,7 @@ const studentSlice = createSlice({
         if (state.student && state.student.id === studentId) {
           state.student.payments = updatedPayments;
         }
+        if (state.currentCacheKey) saveToCache(state.currentCacheKey, state.students);
       })
       .addCase(deleteStudentPayment.rejected, (state, action) => {
         state.loading = false;
@@ -261,6 +340,7 @@ const studentSlice = createSlice({
         if (state.student && state.student.id === action.payload) {
           state.student = null;
         }
+        if (state.currentCacheKey) saveToCache(state.currentCacheKey, state.students);
       })
       .addCase(deleteStudent.rejected, (state, action) => {
         state.loading = false;

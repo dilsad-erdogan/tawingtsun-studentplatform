@@ -11,8 +11,10 @@ const Trainer = () => {
   const { data: user } = useSelector((state) => state.user);
 
   useEffect(() => {
-    dispatch(fetchAllStudents());
-  }, [dispatch]);
+    if (user?.gymId) {
+      dispatch(fetchAllStudents(user.gymId));
+    }
+  }, [dispatch, user]);
 
   return (
     <div className="min-h-screen bg-gray-100 gap-5 pt-5">

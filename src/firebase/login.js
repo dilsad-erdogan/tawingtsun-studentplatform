@@ -39,5 +39,6 @@ export const register = async (email, password) => {
 
 export const logout = async () => {
   await signOut(auth);
+  localStorage.clear(); // Clear all local storage including student cache
   return true;
 }; //kullandım

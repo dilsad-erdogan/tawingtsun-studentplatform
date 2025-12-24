@@ -74,8 +74,17 @@ const StudentTable = ({ gymId }) => {
                 }
 
                 // Handle string comparisons case-insensitively
-                if (typeof aValue === 'string') {
+                if (typeof aValue === 'string' && typeof bValue === 'string') {
                     aValue = aValue.toLowerCase();
+                    bValue = bValue.toLowerCase();
+                } else if (typeof aValue === 'string') {
+                    // If only a is string, it might be greater or smaller than non-string depending on logic, 
+                    // but to avoid crash we handle it. However, usually columns are same type.
+                    // A safe fallback if b is not string
+                    aValue = aValue.toLowerCase();
+                    bValue = String(bValue || "").toLowerCase();
+                } else if (typeof bValue === 'string') {
+                    aValue = String(aValue || "").toLowerCase();
                     bValue = bValue.toLowerCase();
                 }
 
